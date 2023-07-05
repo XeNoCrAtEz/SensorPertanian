@@ -19,13 +19,13 @@ Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, -1);
 // const byte code[]= {addressCode(0x01), functionCode(0x03), regStartAddr_L, regStartAddr_H, regLen_L, regLen_H, CRC_L, CRC_H};
 const byte nitro[] = {0x01, 0x03, 0x00, 0x1E, 0x00, 0x01, 0xE4, 0x0C};
 const byte phos[]  = {0x01, 0x03, 0x00, 0x1F, 0x00, 0x01, 0xB5, 0xCC};
-const byte pota[]  = {0x01, 0x03, 0x00, 0x20, 0x00, 0x01, 0x85, 0xC0};
+const byte kali[]  = {0x01, 0x03, 0x00, 0x20, 0x00, 0x01, 0x85, 0xC0};
 const byte ph[]    = {0x01, 0x03, 0x00, 0x06, 0x00, 0x01, 0x64, 0x0B};
 const byte temp[]  = {0x01, 0x03, 0x00, 0x13, 0x00, 0x01, 0x75, 0xCF};
 const byte hum[]   = {0x01, 0x03, 0x00, 0x12, 0x00, 0x01, 0x24, 0x0F};
 const byte ec[]    = {0x01, 0x03, 0x00, 0x15, 0x00, 0x01, 0x95, 0xCE};
 
-byte read_data(const byte code[], int size);
+int read_data(const byte code[], int size);
 
 void setup() {
     // begin USB Serial
@@ -56,22 +56,16 @@ void setup() {
 
 void loop()
 {
-    byte nitrogen=0, phosphorus=0, potassium=0, humidity=0, temperature=0, pH=0, EC=0;
+    int nitrogen=0, phosphorus=0, kalium=0, EC=0;
+    float humidity=0, temperature=0, pH=0;
 
     nitrogen = read_data(nitro, sizeof(nitro));
-    delay(50);
     phosphorus = read_data(phos, sizeof(phos));
-    delay(50);
-    potassium = read_data(pota, sizeof(pota));
-    delay(50);
-    pH = read_data(ph, sizeof(ph));
-    delay(50);
-    temperature = read_data(temp, sizeof(temp));
-    delay(50);
-    humidity = read_data(hum, sizeof(hum));
-    delay(50);
+    kalium = read_data(kali, sizeof(kali));
+    pH = read_data(ph, sizeof(ph)) / (float) 100;
+    temperature = read_data(temp, sizeof(temp)) / (float) 10;
+    humidity = read_data(hum, sizeof(hum)) / (float) 10;
     EC = read_data(ec, sizeof(ec));
-    delay(50);
 
     // output to USB Serial
     Serial.print("Nitrogen: ");
@@ -81,7 +75,7 @@ void loop()
     Serial.print(phosphorus);
     Serial.println(" mg/kg");
     Serial.print("Potassium: ");
-    Serial.print(potassium);
+    Serial.print(kalium);
     Serial.println(" mg/kg");
     Serial.print("Humidity: ");
     Serial.print(humidity);
@@ -117,7 +111,7 @@ void loop()
     display.setTextSize(2);
     display.setCursor(0, 45);
     display.print("K: ");
-    display.print(potassium);
+    display.print(kalium);
     display.setTextSize(1);
     display.print(" mg/kg");
 
@@ -125,11 +119,12 @@ void loop()
 }
 
 
-byte read_data(const byte code[], int size) {
-    byte probeOutputBuffer[11];
+int read_data(const byte code[], int size) {
+    byte probeOutputBuffer[7];
 
     if (Serial1.write(code, size) != size) return 0;
 
+    // tampilkan request bytes
     Serial.print("Sent bytes: ");
     for (byte i = 0; i < 7; i++) {
         Serial.print(code[i], HEX);
@@ -137,16 +132,19 @@ byte read_data(const byte code[], int size) {
     }
     Serial.println();
     
-    delay(50);
+    // tunggu respon data dri probe
+    while(Serial1.available() < 7)
+        ;
     
-    if(Serial1.available() > 0) {
-        Serial.print("Received bytes: ");
-        for (byte i = 0; i < 7; i++) {
-            probeOutputBuffer[i] = Serial1.read();
-            Serial.print(probeOutputBuffer[i], HEX);
-            Serial.print(" ");
-        }
-        Serial.println();
+    // tampilkan respond bytes
+    Serial.print("Received bytes: ");
+    for (byte i = 0; i < 7; i++) {
+        probeOutputBuffer[i] = Serial1.read();
+        Serial.print(probeOutputBuffer[i], HEX);
+        Serial.print(" ");
     }
-    return probeOutputBuffer[4];
+    Serial.println();
+
+    // gabungkan byte-3 dan byte-4
+    return (probeOutputBuffer[3] << 8) + probeOutputBuffer[4];
 }
