@@ -1,9 +1,10 @@
+#include <Arduino.h>
 #include <Wire.h>
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
 #include <HardwareSerial.h>
 
-// DEBUG definition for debugging purposes
+// uncomment for debugging purposes
 #define DEBUG
 
 const int SCREEN_WIDTH = 128;   // OLED display width, in pixels
@@ -33,6 +34,11 @@ const byte CODE_SIZE = 8;
 const byte RESPONSE_SIZE = 7;
 
 // function declaration
+void sample(
+    int& nitrogen, int& phosphorus, int& kalium,
+    float& pH, float& temperature, float& humidity,
+    int& EC
+);
 int get_data(const byte code[]);
 void display_splash_screen();
 void display_data(
@@ -67,36 +73,49 @@ void setup() {
     display_splash_screen();
 }
 
-void loop()
-{
+void loop() {
     int nitrogen=0, phosphorus=0, kalium=0, EC=0;
     float humidity=0, temperature=0, pH=0;
 
-    nitrogen = get_data(nitro);
-    phosphorus = get_data(phos);
-    kalium = get_data(kali);
-    pH = get_data(ph) / (float) 100;
-    temperature = get_data(temp) / (float) 10;
-    humidity = get_data(hum) / (float) 10;
-    EC = get_data(ec);
-
+    sample(nitrogen, phosphorus, kalium, pH, temperature, humidity, EC);
+    
 #ifdef DEBUG
-    info_soil_data(
-        nitrogen, phosphorus, kalium, pH,
-        temperature, humidity, EC
-    );
+    info_soil_data(nitrogen, phosphorus, kalium, pH, temperature, humidity, EC);
 #endif
 
-    delay(2000);
+    display_data(nitrogen, phosphorus, kalium, pH, temperature, humidity, EC);
+}
 
-    display_data(
-        nitrogen, phosphorus, kalium, pH,
-        temperature, humidity, EC
-    );
+
+void sample(
+        int& nitrogen, int& phosphorus, int& kalium,
+        float& pH, float& temperature, float& humidity,
+        int& EC
+    ) {
+    const byte NUM_SAMPLES = 10;
+
+    for (int i = 0; i < NUM_SAMPLES; i++) {
+        nitrogen += get_data(nitro);
+        phosphorus += get_data(phos);
+        kalium += get_data(kali);
+        pH += get_data(ph) / (float) 100;
+        temperature += get_data(temp) / (float) 10;
+        humidity += get_data(hum) / (float) 10;
+        EC += get_data(ec);
+    }
+
+    nitrogen /= NUM_SAMPLES;
+    phosphorus /= NUM_SAMPLES;
+    kalium /= NUM_SAMPLES;
+    pH /= NUM_SAMPLES;
+    temperature /= NUM_SAMPLES;
+    humidity /= NUM_SAMPLES;
+    EC /= NUM_SAMPLES;
 }
 
 
 int get_data(const byte code[]) {
+    // TODO: probe RX TX needs to be for 3 probe
     // begin Serial for NPK Probe
     probe.begin(PROBE_SERIAL_BAUDRATE, SERIAL_8N1, PROBE_RX, PROBE_TX);
 
@@ -161,7 +180,7 @@ void display_data(
         const float& pH, const float& temperature, const float& humidity,
         const int& EC
     ) {
-    const int DISPLAY_DELAY = 5000;
+    const int DISPLAY_DELAY = 2000;
     // display NPK
     display.clearDisplay();
 
@@ -270,4 +289,11 @@ void info_soil_data(
 
     Serial.println();
 }
+
+
+
+
+
+
+
 #endif
