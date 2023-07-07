@@ -13,7 +13,6 @@ const int SCREEN_SCL = 4;
 const int SCREEN_ADDR = 0x3C;
 
 const int PROBE_SERIAL_BAUDRATE = 9600;
-
 const int PROBE_RX = 2;
 const int PROBE_TX = 14;
 
@@ -30,7 +29,7 @@ const byte ph[]    = {0x01, 0x03, 0x00, 0x06, 0x00, 0x01, 0x64, 0x0B};
 const byte temp[]  = {0x01, 0x03, 0x00, 0x13, 0x00, 0x01, 0x75, 0xCF};
 const byte hum[]   = {0x01, 0x03, 0x00, 0x12, 0x00, 0x01, 0x24, 0x0F};
 const byte ec[]    = {0x01, 0x03, 0x00, 0x15, 0x00, 0x01, 0x95, 0xCE};
-const byte CODE_SIZE = 7;
+const byte CODE_SIZE = 8;
 const byte RESPONSE_SIZE = 7;
 
 // function declaration
@@ -101,8 +100,10 @@ int get_data(const byte code[]) {
     // begin Serial for NPK Probe
     probe.begin(PROBE_SERIAL_BAUDRATE, SERIAL_8N1, PROBE_RX, PROBE_TX);
 
-    if (probe.write(code, CODE_SIZE) != CODE_SIZE)
+    if (probe.write(code, CODE_SIZE) != CODE_SIZE) {
+        Serial.println("Error! Data request sent is not in the same amount");
         return 0;
+    }
 
 #ifdef DEBUG
     // tampilkan request bytes
@@ -160,6 +161,7 @@ void display_data(
         const float& pH, const float& temperature, const float& humidity,
         const int& EC
     ) {
+    const int DISPLAY_DELAY = 5000;
     // display NPK
     display.clearDisplay();
 
@@ -186,7 +188,7 @@ void display_data(
 
     display.display();
 
-    delay(5000);
+    delay(DISPLAY_DELAY);
 
     // display pH, Temp, Hum
     display.clearDisplay();
@@ -214,7 +216,7 @@ void display_data(
 
     display.display();
 
-    delay(5000);
+    delay(DISPLAY_DELAY);
 
     // display EC
     display.clearDisplay();
@@ -228,7 +230,7 @@ void display_data(
 
     display.display();
 
-    delay(5000);
+    delay(DISPLAY_DELAY);
 }
 
 
