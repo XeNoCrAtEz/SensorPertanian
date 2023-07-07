@@ -39,6 +39,7 @@ void sample(
     float& pH, float& temperature, float& humidity,
     int& EC
 );
+bool send_data_req(const byte code[]);
 int get_data(const byte code[]);
 void display_splash_screen();
 void display_data(
@@ -119,11 +120,6 @@ int get_data(const byte code[]) {
     // begin Serial for NPK Probe
     probe.begin(PROBE_SERIAL_BAUDRATE, SERIAL_8N1, PROBE_RX, PROBE_TX);
 
-    if (probe.write(code, CODE_SIZE) != CODE_SIZE) {
-        Serial.println("Error! Data request sent is not in the same amount");
-        return 0;
-    }
-
 #ifdef DEBUG
     // tampilkan request bytes
     Serial.print("Sent bytes: ");
@@ -135,9 +131,29 @@ int get_data(const byte code[]) {
 #endif
     
     // tunggu respon data dri probe
-    while(probe.available() < RESPONSE_SIZE)
-        ;
+    const int TIMEOUT = 10;
+    const int MAX_RESEND = 10;
+    int resendCount = 0;
+    bool resend = true;
+    do {
+        if(!send_data_req(code)) return 0;
+        
+        unsigned long startTime = millis();
+        while(millis() - startTime <= TIMEOUT) {
+            if (probe.available() >= RESPONSE_SIZE) {
+                resend = false;
+                break;
+            }
+        }
 
+        if (resendCount >= MAX_RESEND) {
+            Serial.println("Error! Probe not responding");
+            return 0;
+        }
+        
+        resendCount++;
+    } while(resend);
+    
     byte probeOutputBuffer[RESPONSE_SIZE];
     
     // read data
@@ -158,6 +174,16 @@ int get_data(const byte code[]) {
 
     // gabungkan byte-3 (value_L) dan byte-4 (value_H)
     return (probeOutputBuffer[3] << 8) + probeOutputBuffer[4];
+}
+
+
+bool send_data_req(const byte code[]) {
+    if (probe.write(code, CODE_SIZE) != CODE_SIZE) {
+        Serial.println("Error! Data request sent is not in the same amount");
+        return false;
+    }
+
+    return true;
 }
 
 
