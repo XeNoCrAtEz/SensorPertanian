@@ -1,6 +1,13 @@
 #include <Arduino.h>
 #include <HardwareSerial.h>
 
+// pre-define DEBUG when compiling to enable debug
+#ifdef DEBUG
+
+#include "debug.h"
+
+#endif
+
 // Probe constants parameters
 const int PROBE_SERIAL_BAUDRATE = 9600;
 const int PROBE_RX = 2;

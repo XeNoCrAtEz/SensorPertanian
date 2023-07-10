@@ -2,8 +2,7 @@
 #include "display.h"
 #include "probe.h"
 
-// uncomment for debugging purposes
-#define DEBUG
+// pre-define DEBUG when compiling to enable debug
 #ifdef DEBUG
 
 #include "debug.h"

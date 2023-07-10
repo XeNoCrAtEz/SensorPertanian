@@ -2,6 +2,13 @@
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
 
+// pre-define DEBUG when compiling to enable debug
+#ifdef DEBUG
+
+#include "debug.h"
+
+#endif
+
 
 // Screen constants parameters
 const int SCREEN_WIDTH = 128;   // OLED display width, in pixels
