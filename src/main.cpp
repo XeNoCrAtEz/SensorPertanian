@@ -131,7 +131,7 @@ int get_data(const byte code[]) {
 #endif
     
     // tunggu respon data dri probe
-    const int TIMEOUT = 10;
+    const int TIMEOUT = 50;
     const int MAX_RESEND = 10;
     int resendCount = 0;
     bool resend = true;
