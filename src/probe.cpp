@@ -9,23 +9,31 @@ void sample(
     ) {
     const byte NUM_SAMPLES = 10;
 
+    int nitrogen_sampled = 0;
+    int phosphorus_sampled = 0;
+    int kalium_sampled = 0;
+    float pH_sampled = 0;
+    float temperature_sampled = 0;
+    float humidity_sampled = 0;
+    int EC_sampled = 0;
+
     for (int i = 0; i < NUM_SAMPLES; i++) {
-        nitrogen += get_data(nitro);
-        phosphorus += get_data(phos);
-        kalium += get_data(kali);
-        pH += get_data(ph) / (float) 100;
-        temperature += get_data(temp) / (float) 10;
-        humidity += get_data(hum) / (float) 10;
-        EC += get_data(ec);
+        nitrogen_sampled += get_data(nitro);
+        phosphorus_sampled += get_data(phos);
+        kalium_sampled += get_data(kali);
+        pH_sampled += get_data(ph) / (float) 100;
+        temperature_sampled += get_data(temp) / (float) 10;
+        humidity_sampled += get_data(hum) / (float) 10;
+        EC_sampled += get_data(ec);
     }
 
-    nitrogen /= NUM_SAMPLES;
-    phosphorus /= NUM_SAMPLES;
-    kalium /= NUM_SAMPLES;
-    pH /= NUM_SAMPLES;
-    temperature /= NUM_SAMPLES;
-    humidity /= NUM_SAMPLES;
-    EC /= NUM_SAMPLES;
+    nitrogen = (nitrogen + (nitrogen_sampled / NUM_SAMPLES)) / 2;
+    phosphorus = (phosphorus + (phosphorus_sampled / NUM_SAMPLES)) / 2;
+    kalium = (kalium + (kalium_sampled / NUM_SAMPLES)) / 2;
+    pH = (pH + (pH_sampled / NUM_SAMPLES)) / 2;
+    temperature = (temperature + (temperature_sampled / NUM_SAMPLES)) / 2;
+    humidity = (humidity + (humidity_sampled / NUM_SAMPLES)) / 2;
+    EC = (EC + (EC_sampled / NUM_SAMPLES)) / 2;
 }
 
 
