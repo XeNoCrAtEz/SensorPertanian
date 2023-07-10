@@ -34,9 +34,9 @@ public:
     SoilData() = default;
     SoilData(SoilData&) = default;
     SoilData(
-        int nitrogen, int phosphorus, int kalium,
-        float pH, float temperature, float humidity,
-        int EC
+        int nitro, int phos, int kali,
+        float ph, float temp, float hum,
+        int ec
     );
 };
 

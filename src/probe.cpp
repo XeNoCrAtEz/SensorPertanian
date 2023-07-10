@@ -4,8 +4,19 @@ HardwareSerial probe(1);        // Hardware serial on Serial1
 
 
 // SoilData method definitions
-
-
+SoilData::SoilData(
+        int nitro, int phos, int kali,
+        float ph, float temp, float hum,
+        int ec
+    ) {
+    nitrogen = nitro;
+    phosphorus = phos;
+    kalium = kali;
+    pH = ph;
+    temperature = temp;
+    humidity = hum;
+    EC = ec;
+}
 
 
 
