@@ -1,5 +1,7 @@
 #include "probe.h"
 
+HardwareSerial probe(1);        // Hardware serial on Serial1
+
 void sample(
         int& nitrogen, int& phosphorus, int& kalium,
         float& pH, float& temperature, float& humidity,

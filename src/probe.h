@@ -6,7 +6,7 @@ const int PROBE_SERIAL_BAUDRATE = 9600;
 const int PROBE_RX = 2;
 const int PROBE_TX = 14;
 
-HardwareSerial probe(1);        // Hardware serial on Serial1
+extern HardwareSerial probe;        // Hardware serial
 
 // const byte code[]= {addressCode(0x01), functionCode(0x03), regStartAddr_L, regStartAddr_H, regLen_L, regLen_H, CRC_L, CRC_H};
 const byte nitro[] = {0x01, 0x03, 0x00, 0x1E, 0x00, 0x01, 0xE4, 0x0C};

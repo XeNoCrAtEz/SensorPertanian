@@ -1,5 +1,6 @@
 #include "display.h"
 
+Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, -1);
 
 void display_splash_screen() {
     // display splash screen
