@@ -1,3 +1,4 @@
+#include <Arduino.h>
 #include <Wire.h>
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
@@ -17,9 +18,7 @@ const int SCREEN_SDA = 5;
 const int SCREEN_SCL = 4;
 const int SCREEN_ADDR = 0x3C;
 
-// Declaration for an SSD1306 display connected to I2C (SDA, SCL pins)
-extern Adafruit_SSD1306 display;
-
+void setup_display();
 
 void display_splash_screen();
 

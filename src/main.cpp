@@ -3,15 +3,9 @@
 void setup() {
     // begin USB Serial
     Serial.begin(115200);
-    // begin I2C for OLED
-    Wire.begin(SCREEN_SDA, SCREEN_SCL);
-    // begin OLED display
-    // Address 0x3C for 128x64
-    if (!display.begin(SSD1306_SWITCHCAPVCC, SCREEN_ADDR, false, false)) {
-        Serial.println(F("SSD1306 allocation failed"));
-        Serial.println("Restarting...");
-        ESP.restart();
-    }
+    
+    setup_display();
+
     delay(2000);
     
     display_splash_screen();

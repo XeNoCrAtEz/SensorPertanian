@@ -2,6 +2,13 @@
 
 HardwareSerial probe(1);        // Hardware serial on Serial1
 
+
+// SoilData method definitions
+
+
+
+
+
 void sample(
         int& nitrogen, int& phosphorus, int& kalium,
         float& pH, float& temperature, float& humidity,

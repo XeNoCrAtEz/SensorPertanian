@@ -2,6 +2,18 @@
 
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, -1);
 
+void setup_display() {
+    // begin I2C for OLED
+    Wire.begin(SCREEN_SDA, SCREEN_SCL);
+    // begin OLED display
+    // Address 0x3C for 128x64
+    if (!display.begin(SSD1306_SWITCHCAPVCC, SCREEN_ADDR, false, false)) {
+        Serial.println(F("SSD1306 allocation failed"));
+        Serial.println("Restarting...");
+        ESP.restart();
+    }
+}
+
 void display_splash_screen() {
     // display splash screen
     display.clearDisplay();    
