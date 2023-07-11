@@ -56,7 +56,6 @@ void sample(
 
 
 int get_data(const byte code[]) {
-    // TODO: probe RX TX needs to be for 3 probe
     // begin Serial for NPK Probe
     probe.begin(PROBE_SERIAL_BAUDRATE, SERIAL_8N1, PROBE_RX, PROBE_TX);
 
