@@ -13,7 +13,7 @@ void setup() {
 }
 
 void loop() {
-    SoilData soilData(1);
+    Probe soilData(1);
     
     soilData.sample();
     

@@ -2,11 +2,11 @@
 
 HardwareSerial probe(1);        // Hardware serial on Serial1
 
-SoilData::SoilData(int HWSerialNum)
+Probe::Probe(int HWSerialNum)
     : probe(HWSerialNum) {
 }
 
-void SoilData::sample() {
+void Probe::sample() {
     for (int i = 0; i < NUM_SAMPLES; i++) {
         nitrogen += get_data(nitro);
         phosphorus += get_data(phos);
@@ -27,7 +27,7 @@ void SoilData::sample() {
 }
 
 
-int SoilData::get_data(const byte code[]) {
+int Probe::get_data(const byte code[]) {
     // begin Serial for NPK Probe
     probe.begin(PROBE_BAUDRATE, SERIAL_8N1, PROBE_RX, PROBE_TX);
 
@@ -86,7 +86,7 @@ int SoilData::get_data(const byte code[]) {
 }
 
 
-bool SoilData::send_data_req(const byte code[]) {
+bool Probe::send_data_req(const byte code[]) {
     if (probe.write(code, CODE_SIZE) != CODE_SIZE) {
         Serial.println("Error! Data request sent is not in the same amount");
         return false;
