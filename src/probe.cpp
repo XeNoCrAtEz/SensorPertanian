@@ -2,60 +2,32 @@
 
 HardwareSerial probe(1);        // Hardware serial on Serial1
 
-
-// SoilData method definitions
-SoilData::SoilData(
-        int nitro, int phos, int kali,
-        float ph, float temp, float hum,
-        int ec
-    ) {
-    nitrogen = nitro;
-    phosphorus = phos;
-    kalium = kali;
-    pH = ph;
-    temperature = temp;
-    humidity = hum;
-    EC = ec;
+SoilData::SoilData(int HWSerialNum)
+    : probe(HWSerialNum) {
 }
 
-
-
-void sample(
-        int& nitrogen, int& phosphorus, int& kalium,
-        float& pH, float& temperature, float& humidity,
-        int& EC
-    ) {
-    const byte NUM_SAMPLES = 10;
-
-    int nitrogen_sampled = 0;
-    int phosphorus_sampled = 0;
-    int kalium_sampled = 0;
-    float pH_sampled = 0;
-    float temperature_sampled = 0;
-    float humidity_sampled = 0;
-    int EC_sampled = 0;
-
+void SoilData::sample() {
     for (int i = 0; i < NUM_SAMPLES; i++) {
-        nitrogen_sampled += get_data(nitro);
-        phosphorus_sampled += get_data(phos);
-        kalium_sampled += get_data(kali);
-        pH_sampled += get_data(ph) / (float) 100;
-        temperature_sampled += get_data(temp) / (float) 10;
-        humidity_sampled += get_data(hum) / (float) 10;
-        EC_sampled += get_data(ec);
+        nitrogen += get_data(nitro);
+        phosphorus += get_data(phos);
+        kalium += get_data(kali);
+        pH += get_data(ph) / (float) 100;
+        temperature += get_data(temp) / (float) 10;
+        humidity += get_data(hum) / (float) 10;
+        EC += get_data(ec);
     }
 
-    nitrogen = (nitrogen + (nitrogen_sampled / NUM_SAMPLES)) / 2;
-    phosphorus = (phosphorus + (phosphorus_sampled / NUM_SAMPLES)) / 2;
-    kalium = (kalium + (kalium_sampled / NUM_SAMPLES)) / 2;
-    pH = (pH + (pH_sampled / NUM_SAMPLES)) / 2;
-    temperature = (temperature + (temperature_sampled / NUM_SAMPLES)) / 2;
-    humidity = (humidity + (humidity_sampled / NUM_SAMPLES)) / 2;
-    EC = (EC + (EC_sampled / NUM_SAMPLES)) / 2;
+    nitrogen /=  NUM_SAMPLES;
+    phosphorus /=  NUM_SAMPLES;
+    kalium /=  NUM_SAMPLES;
+    pH /=  NUM_SAMPLES;
+    temperature /=  NUM_SAMPLES;
+    humidity /=  NUM_SAMPLES;
+    EC /=  NUM_SAMPLES;
 }
 
 
-int get_data(const byte code[]) {
+int SoilData::get_data(const byte code[]) {
     // begin Serial for NPK Probe
     probe.begin(PROBE_SERIAL_BAUDRATE, SERIAL_8N1, PROBE_RX, PROBE_TX);
 
@@ -70,8 +42,6 @@ int get_data(const byte code[]) {
 #endif
     
     // tunggu respon data dri probe
-    const int TIMEOUT = 50;
-    const int MAX_RESEND = 10;
     int resendCount = 0;
     bool resend = true;
     do {
@@ -116,7 +86,7 @@ int get_data(const byte code[]) {
 }
 
 
-bool send_data_req(const byte code[]) {
+bool SoilData::send_data_req(const byte code[]) {
     if (probe.write(code, CODE_SIZE) != CODE_SIZE) {
         Serial.println("Error! Data request sent is not in the same amount");
         return false;

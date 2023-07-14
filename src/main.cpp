@@ -1,7 +1,5 @@
 #include "main.h"
 
-int nitrogen=0, phosphorus=0, kalium=0, EC=0;
-float humidity=0, temperature=0, pH=0;
 
 void setup() {
     // begin USB Serial
@@ -15,11 +13,19 @@ void setup() {
 }
 
 void loop() {
-    sample(nitrogen, phosphorus, kalium, pH, temperature, humidity, EC);
+    SoilData soilData(1);
+    
+    soilData.sample();
     
 #ifdef DEBUG
-    info_soil_data(nitrogen, phosphorus, kalium, pH, temperature, humidity, EC);
+    info_soil_data(
+        soilData.nitrogen, soilData.phosphorus, soilData.kalium,
+        soilData.pH, soilData.temperature, soilData.humidity,
+        soilData.EC
+    );
 #endif
 
-    display_data(nitrogen, phosphorus, kalium, pH, temperature, humidity, EC);
+    display_data(soilData.nitrogen, soilData.phosphorus, soilData.kalium,
+        soilData.pH, soilData.temperature, soilData.humidity,
+        soilData.EC);
 }
