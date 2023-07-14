@@ -29,7 +29,7 @@ void SoilData::sample() {
 
 int SoilData::get_data(const byte code[]) {
     // begin Serial for NPK Probe
-    probe.begin(PROBE_SERIAL_BAUDRATE, SERIAL_8N1, PROBE_RX, PROBE_TX);
+    probe.begin(PROBE_BAUDRATE, SERIAL_8N1, PROBE_RX, PROBE_TX);
 
 #ifdef DEBUG
     // tampilkan request bytes
