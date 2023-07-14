@@ -1,4 +1,5 @@
 #include <Arduino.h>
+#include "soil_data.h"
 
 // pre-define DEBUG when compiling to enable debug
 #ifdef DEBUG
@@ -43,8 +44,9 @@ const byte ec[]    = {0x01, 0x03, 0x00, 0x02, 0x00, 0x01, 0x25, 0xCA};
 const byte CODE_SIZE = 8;
 const byte RESPONSE_SIZE = 7;
 
-// class for storing soil data
-class SoilData {
+
+// class for a probe
+class Probe {
 private:
     HardwareSerial probe;
 
@@ -53,10 +55,11 @@ public:
     float pH, temperature, humidity;
     int EC;
     
-    SoilData(int HWSerialNum=1);
+    Probe(int HWSerialNum=1);
 
     void sample();
 
     bool send_data_req(const byte code[]);
     int get_data(const byte code[]);
 };
+

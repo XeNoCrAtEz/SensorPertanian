@@ -3,6 +3,8 @@
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
 
+#include "soil_data.h"
+
 // pre-define DEBUG when compiling to enable debug
 #ifdef DEBUG
 
