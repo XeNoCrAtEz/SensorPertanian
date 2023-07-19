@@ -1,4 +1,10 @@
+#ifndef _PROBE_H_
+#define _PROBE_H_
+
+
 #include <Arduino.h>
+#include <ModbusMaster.h>
+
 #include "soil_data.h"
 
 // pre-define DEBUG when compiling to enable debug
@@ -8,58 +14,80 @@
 
 #endif
 
-// Probe constants parameters
-const int PROBE_RX = 2;
-const int PROBE_TX = 14;
 
-const int TIMEOUT = 100;    // ms
-const int MAX_RESEND = 10;
-
-const byte NUM_SAMPLES = 10;
-
-#if defined(PROBE_KHDTK)
-const int PROBE_BAUDRATE = 9600;
-// const byte code[]= {addressCode(0x01), functionCode(0x03), regStartAddr_L, regStartAddr_H, regLen_L, regLen_H, CRC_L, CRC_H};
-const byte nitro[] = {0x01, 0x03, 0x00, 0x1E, 0x00, 0x01, 0xE4, 0x0C};
-const byte phos[]  = {0x01, 0x03, 0x00, 0x1F, 0x00, 0x01, 0xB5, 0xCC};
-const byte kali[]  = {0x01, 0x03, 0x00, 0x20, 0x00, 0x01, 0x85, 0xC0};
-const byte ph[]    = {0x01, 0x03, 0x00, 0x06, 0x00, 0x01, 0x64, 0x0B};
-const byte temp[]  = {0x01, 0x03, 0x00, 0x13, 0x00, 0x01, 0x75, 0xCF};
-const byte hum[]   = {0x01, 0x03, 0x00, 0x12, 0x00, 0x01, 0x24, 0x0F};
-const byte ec[]    = {0x01, 0x03, 0x00, 0x15, 0x00, 0x01, 0x95, 0xCE};
-
-#elif defined(PROBE_DEFAULT)
-const int PROBE_BAUDRATE = 4800;
-// const byte code[]= {addressCode(0x01), functionCode(0x03), regStartAddr_L, regStartAddr_H, regLen_L, regLen_H, CRC_L, CRC_H};
-const byte nitro[] = {0x01, 0x03, 0x00, 0x04, 0x00, 0x01, 0xC5, 0xCB};
-const byte phos[]  = {0x01, 0x03, 0x00, 0x05, 0x00, 0x01, 0x94, 0x0B};
-const byte kali[]  = {0x01, 0x03, 0x00, 0x06, 0x00, 0x01, 0x64, 0x0B};
-const byte ph[]    = {0x01, 0x03, 0x00, 0x03, 0x00, 0x01, 0x74, 0x0A};
-const byte temp[]  = {0x01, 0x03, 0x00, 0x01, 0x00, 0x01, 0xD5, 0xCA};
-const byte hum[]   = {0x01, 0x03, 0x00, 0x00, 0x00, 0x01, 0x84, 0x0A};
-const byte ec[]    = {0x01, 0x03, 0x00, 0x02, 0x00, 0x01, 0x25, 0xCA};
-
-#endif
-
-const byte CODE_SIZE = 8;
-const byte RESPONSE_SIZE = 7;
 
 
 // class for a probe
-class Probe {
-private:
+class Probe: public ModbusMaster {
+protected:
     HardwareSerial probe;
 
+    static const int MAX_RESEND = 10;
+
+    static const byte NUM_SAMPLES = 10;
+
+    static const byte TOTAL_DATA = 7;
+
+private:
+    int RX, TX;
+    int address;
+
+    static const uint16_t ku16MBResponseTimeout = 100;  // ms
+
 public:
-    int nitrogen, phosphorus, kalium;
-    float pH, temperature, humidity;
-    int EC;
-    
-    Probe(int HWSerialNum=1);
-
-    void sample();
-
-    bool send_data_req(const byte code[]);
-    int get_data(const byte code[]);
+    Probe(int rx, int tx, int HWSerialNum=1, int addr=0x01);
 };
 
+
+class ProbeKHDTK : public Probe {
+private:
+    static const int PROBE_BAUDRATE = 9600;
+    static const byte REG_NITRO = 0x001E;
+    static const byte REG_PHOS  = 0x001F;
+    static const byte REG_KALI  = 0x0020;
+    static const byte REG_PH    = 0x0006;
+    static const byte REG_TEMP  = 0x0013;
+    static const byte REG_HUM   = 0x0012;
+    static const byte REG_EC    = 0x0015;
+
+public:
+    static const byte INDEX_NITRO = 0x0004;
+    static const byte INDEX_PHOS  = 0x0005;
+    static const byte INDEX_KALI  = 0x0006;
+    static const byte INDEX_PH    = 0x0003;
+    static const byte INDEX_TEMP  = 0x0001;
+    static const byte INDEX_HUM   = 0x0000;
+    static const byte INDEX_EC    = 0x0002;
+
+    ProbeKHDTK(int rx, int tx, int HWSerialNum=1, int addr=0x01);
+
+    SoilData sample();
+};
+
+
+class ProbeDefault : public Probe {
+private:
+    static const int PROBE_BAUDRATE = 4800;
+    static const byte REG_NITRO = 0x0004;
+    static const byte REG_PHOS  = 0x0005;
+    static const byte REG_KALI  = 0x0006;
+    static const byte REG_PH    = 0x0003;
+    static const byte REG_TEMP  = 0x0001;
+    static const byte REG_HUM   = 0x0000;
+    static const byte REG_EC    = 0x0002;
+
+public:
+    static const byte INDEX_NITRO = REG_NITRO;
+    static const byte INDEX_PHOS  = REG_PHOS;
+    static const byte INDEX_KALI  = REG_KALI;
+    static const byte INDEX_PH    = REG_PH;
+    static const byte INDEX_TEMP  = REG_TEMP;
+    static const byte INDEX_HUM   = REG_HUM;
+    static const byte INDEX_EC    = REG_EC;
+
+    ProbeDefault(int rx, int tx, int HWSerialNum=1, int addr=0x01);
+
+    SoilData sample();
+};
+
+#endif

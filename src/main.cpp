@@ -1,6 +1,10 @@
 #include "main.h"
 
 
+#define PROBE_RX_PIN 0
+#define PROBE_TX_PIN 16
+
+
 void setup() {
     // begin USB Serial
     Serial.begin(115200);
@@ -13,9 +17,9 @@ void setup() {
 }
 
 void loop() {
-    Probe soilData(1);
+    ProbeDefault probe(PROBE_RX_PIN, PROBE_TX_PIN);
     
-    soilData.sample();
+    SoilData soilData = probe.sample();
     
 #ifdef DEBUG
     info_soil_data(
