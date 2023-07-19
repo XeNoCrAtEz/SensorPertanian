@@ -1,3 +1,7 @@
+#ifndef _DISPLAY_H_
+#define _DISPLAY_H_
+
+
 #include <Arduino.h>
 #include <Wire.h>
 #include <Adafruit_GFX.h>
@@ -29,3 +33,6 @@ void display_data(
     const float& pH, const float& temperature, const float& humidity,
     const int& EC
 );
+
+
+#endif
