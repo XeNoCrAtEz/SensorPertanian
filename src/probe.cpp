@@ -9,6 +9,41 @@ Probe::Probe(int rx, int tx, int HWSerialNum, int addr)
 }
 
 
+uint16_t Probe::get_data(int regNum) {
+    uint16_t result = 0;
+    
+    for (int i = 0; i < NUM_SAMPLES; i++) {
+        int resultCode = readHoldingRegisters(regNum, 0x01);     // read one register only
+        
+        for(int attempts = 0; resultCode == ku8MBResponseTimedOut; attempts++) {
+            Serial.println("Probe not responding!");
+            if (attempts >= MAX_RESEND) {
+                Serial.println("Max resend reached! Communicating with probe failed!");
+                return 0;
+            }
+            Serial.print("Resending... (resend attempt: ");
+            Serial.print(attempts);
+            Serial.println(")");
+            resultCode = readHoldingRegisters(regNum, 0x01);
+        }
+
+        if(resultCode != ku8MBSuccess) {
+            Serial.print("Error! Result code: ");
+            Serial.print(resultCode);
+            Serial.println("");
+
+            return 0;
+        }
+
+        result += getResponseBuffer(0x01);
+    }
+
+    result /= NUM_SAMPLES;
+
+    return result;
+}
+
+
 // ---------------------------- Probe KHDTK ------------------------------
 ProbeKHDTK::ProbeKHDTK(int rx, int tx, int HWSerialNum, int addr)
         : Probe(rx, tx, HWSerialNum, addr)
@@ -18,78 +53,19 @@ ProbeKHDTK::ProbeKHDTK(int rx, int tx, int HWSerialNum, int addr)
 
 
 SoilData ProbeKHDTK::sample() {
-    SoilData soilData;
-
-    static const byte REG_NITRO = 0x001E;
-    static const byte REG_PHOS  = 0x001F;
-    static const byte REG_KALI  = 0x0020;
-    static const byte REG_PH    = 0x0006;
-    static const byte REG_TEMP  = 0x0013;
-    static const byte REG_HUM   = 0x0012;
-    static const byte REG_EC    = 0x0015;
+    SoilData soilData = SoilData();
 
     for (int i = 0; i < TOTAL_DATA; i++) {
-
+        soilData.nitrogen = get_data(REG_NITRO);
+        soilData.phosphorus = get_data(REG_PHOS);
+        soilData.kalium = get_data(REG_KALI);
+        soilData.pH = get_data(REG_PH) / (float) 10;
+        soilData.temperature = get_data(REG_TEMP) / (float) 10;
+        soilData.humidity = get_data(REG_HUM) / (float) 10;
+        soilData.EC = get_data(REG_EC);
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    int resultCode = readHoldingRegisters(0x00, TOTAL_DATA);     // read from 0x00-0x06
-    
-    for(int i = 0; resultCode == ku8MBResponseTimedOut; i++) {
-        Serial.println("Probe not responding!");
-        if (i >= MAX_RESEND) {
-            Serial.println("Max resend reached! Communicating with probe failed!");
-            return SoilData();
-        }
-        Serial.print("Resending... (resend attempt: ");
-        Serial.print(i);
-        Serial.println(")");
-        resultCode = readHoldingRegisters(0x00, TOTAL_DATA);
-    }
-
-    if(resultCode != ku8MBSuccess) {
-        Serial.print("Error! Result code: ");
-        Serial.print(resultCode);
-        Serial.println("");
-
-        return SoilData();
-    }
-
-#ifdef DEBUG
-        // tampilkan respond bytes
-        Serial.print("Received bytes: ");
-        for (byte i = 0; i < TOTAL_DATA; i++) {
-            Serial.print(getResponseBuffer(i), HEX);
-            Serial.print(" ");
-        }
-        Serial.println();
-#endif
-
-    soilData.nitrogen = getResponseBuffer(INDEX_NITRO);
-    soilData.phosphorus = getResponseBuffer(INDEX_PHOS);
-    soilData.kalium = getResponseBuffer(INDEX_KALI);
-    soilData.pH = getResponseBuffer(INDEX_PH);
-    soilData.temperature = getResponseBuffer(INDEX_TEMP);
-    soilData.humidity = getResponseBuffer(INDEX_HUM);
-    soilData.EC = getResponseBuffer(INDEX_EC);
 
     return soilData;
-
 }
 
 

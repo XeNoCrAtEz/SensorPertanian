@@ -15,8 +15,6 @@
 #endif
 
 
-
-
 // class for a probe
 class Probe: public ModbusMaster {
 protected:
@@ -36,6 +34,8 @@ private:
 
 public:
     Probe(int rx, int tx, int HWSerialNum=1, int addr=0x01);
+
+    uint16_t get_data(int regNum);
 };
 
 
