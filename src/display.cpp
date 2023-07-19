@@ -28,12 +28,17 @@ void display_splash_screen() {
 }
 
 
-void display_data(
-        const int& nitrogen, const int& phosphorus, const int& kalium,
-        const float& pH, const float& temperature, const float& humidity,
-        const int& EC
-    ) {
+void display_data(const SoilData& soilData) {
     const int DISPLAY_DELAY = 2000;
+
+    const int& nitrogen = soilData.nitrogen;
+    const int& phosphorus = soilData.phosphorus;
+    const int& kalium = soilData.kalium;
+    const float& pH = soilData.pH;
+    const float& temperature = soilData.temperature;
+    const float& humidity = soilData.humidity;
+    const int& EC = soilData.EC;
+
     // display NPK
     display.clearDisplay();
 

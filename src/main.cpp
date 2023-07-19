@@ -22,14 +22,8 @@ void loop() {
     SoilData soilData = probe.sample();
     
 #ifdef DEBUG
-    info_soil_data(
-        soilData.nitrogen, soilData.phosphorus, soilData.kalium,
-        soilData.pH, soilData.temperature, soilData.humidity,
-        soilData.EC
-    );
+    info_soil_data(soilData);
 #endif
 
-    display_data(soilData.nitrogen, soilData.phosphorus, soilData.kalium,
-        soilData.pH, soilData.temperature, soilData.humidity,
-        soilData.EC);
+    display_data(soilData);
 }

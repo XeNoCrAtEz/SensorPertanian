@@ -28,11 +28,7 @@ void setup_display();
 
 void display_splash_screen();
 
-void display_data(
-    const int& nitrogen, const int& phosphorus, const int& kalium,
-    const float& pH, const float& temperature, const float& humidity,
-    const int& EC
-);
+void display_data(const SoilData& soilData);
 
 
 #endif
