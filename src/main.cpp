@@ -1,8 +1,5 @@
 #include "main.h"
 
-#define PROBE_RX_PIN 0
-#define PROBE_TX_PIN 16
-
 
 RTC_DATA_ATTR SoilDataTable dataTable;
 
