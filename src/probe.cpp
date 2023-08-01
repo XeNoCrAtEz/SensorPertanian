@@ -6,9 +6,11 @@ Probe::Probe(int rx, int tx, int HWSerialNum, int addr)
           RX(rx), TX(tx), probe(HWSerialNum), address(addr)
 {
     begin(addr, probe);
+    probe.begin(PROBE_BAUDRATE, SERIAL_8N1, rx, tx);
 }
 
 
+// get a single register, use register number constants specified by the probe
 uint16_t Probe::get_data(int regNum) {
     uint16_t result = 0;
     
@@ -48,7 +50,6 @@ uint16_t Probe::get_data(int regNum) {
 ProbeKHDTK::ProbeKHDTK(int rx, int tx, int HWSerialNum, int addr)
         : Probe(rx, tx, HWSerialNum, addr)
 {
-    probe.begin(PROBE_BAUDRATE, SERIAL_8N1, rx, tx);
 }
 
 
@@ -73,7 +74,6 @@ SoilData ProbeKHDTK::sample() {
 ProbeDefault::ProbeDefault(int rx, int tx, int HWSerialNum, int addr)
         : Probe(rx, tx, HWSerialNum, addr)
 {
-    probe.begin(PROBE_BAUDRATE, SERIAL_8N1, rx, tx);
 }
 
 

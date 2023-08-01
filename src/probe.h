@@ -26,6 +26,8 @@ protected:
 
     static const byte TOTAL_DATA = 7;
 
+    static const int PROBE_BAUDRATE = 0;    // needs to be specified by the child classes
+
 private:
     int RX, TX;
     int address;
