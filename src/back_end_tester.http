@@ -1,0 +1,40 @@
+POST http://raspberrypi.local/Sensor/kirimdata.php HTTP/1.1
+content-type: application/json
+
+{
+    "ID": 696,
+    "data": [
+        {
+            "timestamp": "2023-07-31 07:50:57",
+            "N": 111,
+            "P": 123,
+            "K": 255,
+            "pH": 7.53,
+            "temp": 17.1,
+            "hum": 28.9,
+            "EC": 2345
+        },
+        {
+            "timestamp": "2023-07-31 10:50:57",
+            "N": 100,
+            "P": 115,
+            "K": 234,
+            "pH": 6.51,
+            "temp": 20.1,
+            "hum": 28.9,
+            "EC": 2345
+        },
+        {
+            "timestamp": "2023-07-31 17:50:57",
+            "N": 111,
+            "P": 123,
+            "K": 255,
+            "pH": 7.53,
+            "temp": 17.1,
+            "hum": 28.9,
+            "EC": 2345
+        }
+    ]
+}
+
+###
