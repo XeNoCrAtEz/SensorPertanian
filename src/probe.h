@@ -50,7 +50,6 @@ private:
     static const byte REG_HUM   = 0x0012;
     static const byte REG_EC    = 0x0015;
 
-public:
     static const byte INDEX_NITRO = 0x0004;
     static const byte INDEX_PHOS  = 0x0005;
     static const byte INDEX_KALI  = 0x0006;
@@ -58,6 +57,8 @@ public:
     static const byte INDEX_TEMP  = 0x0001;
     static const byte INDEX_HUM   = 0x0000;
     static const byte INDEX_EC    = 0x0002;
+
+public:
 
     ProbeKHDTK(int rx, int tx, int HWSerialNum=1, int addr=0x01);
 
@@ -76,7 +77,6 @@ private:
     static const byte REG_HUM   = 0x0000;
     static const byte REG_EC    = 0x0002;
 
-public:
     static const byte INDEX_NITRO = REG_NITRO;
     static const byte INDEX_PHOS  = REG_PHOS;
     static const byte INDEX_KALI  = REG_KALI;
@@ -84,6 +84,8 @@ public:
     static const byte INDEX_TEMP  = REG_TEMP;
     static const byte INDEX_HUM   = REG_HUM;
     static const byte INDEX_EC    = REG_EC;
+    
+public:
 
     ProbeDefault(int rx, int tx, int HWSerialNum=1, int addr=0x01);
 
