@@ -2,25 +2,14 @@
 #define _DATA_TABLE_H_
 
 #include "soil_data.h"
-#include <WiFi.h>
-#include <HTTPClient.h>
-#include <JSON.h>
-
-const IPAddress IP_SERVER(192, 168, 160, 76);
-
-const char WIFI_SSID[] = "XeNoCrAtEz_";
-const char WIFI_PASS[] = "aptxsxfc5";
-
-// const char WIFI_SSID[] = "Aku&Kamu";
-// const char WIFI_PASS[] = "122333444455555";
 
 class SoilReading {
 public:
-    // int timestamp;
+    unsigned long epoch;
     SoilData soilData;
 
     String to_json_string() {
-        return  String("{\"timestamp\":") + // timestamp + String(",")
+        return  String("{\"timestamp\":") + String(epoch) + String(",") +
                 String("\"N\":") + String(soilData.nitrogen) + String(",") +
                 String("\"P\":") + String(soilData.phosphorus) + String(",") +
                 String("\"K\":") + String(soilData.kalium) + String(",") +
@@ -34,7 +23,7 @@ public:
 
 class SoilDataTable {
 private:
-    static const int MAX_SIZE = 250;
+    static const int MAX_SIZE = 235;
 
     SoilReading readings[MAX_SIZE];
     int idx_in;
@@ -44,22 +33,16 @@ private:
 public:
     SoilDataTable();
     // TODO: NTP server, pengambilan timestamp
-    bool push(const SoilReading& soilData);
-    bool pop(SoilReading& soilData);
+    bool push(const SoilData& soilData, const unsigned long epoch);
+    bool push(const SoilReading& soilReading);
+    bool pop(SoilData& soilData, unsigned long& epoch);
+    bool pop(SoilReading& soilReading);
     bool is_empty();
     bool is_full();
     int get_count();
     void clear();
     void inc_idx(int& idx);
     void dec_idx(int& idx);
-
-    // data submission functions
-    bool connect_wifi();
-    int submit_table();
-
-
-    // DEBUG
-    void test();
 };
 
 
