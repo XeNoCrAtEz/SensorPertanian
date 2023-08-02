@@ -1,6 +1,8 @@
 #ifndef _DATA_TABLE_H_
 #define _DATA_TABLE_H_
 
+#include <Arduino.h>
+
 #include "soil_data.h"
 
 class SoilReading {

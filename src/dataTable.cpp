@@ -52,33 +52,33 @@ bool SoilDataTable::pop(SoilReading& soilReading) {
 }
 
 
-inline bool SoilDataTable::is_empty() {
+bool SoilDataTable::is_empty() {
     return (!count) ? true : false;
 }
 
 
-inline bool SoilDataTable::is_full() {
+bool SoilDataTable::is_full() {
     return (count == MAX_SIZE) ? true : false;
 }
 
 
-inline int SoilDataTable::get_count() {
+int SoilDataTable::get_count() {
     return count;
 }
 
 
-inline void SoilDataTable::clear() {
+void SoilDataTable::clear() {
     idx_in = -1;
     idx_out = -1;
     count = 0;
 }
 
 
-inline void SoilDataTable::inc_idx(int& idx) {
+void SoilDataTable::inc_idx(int& idx) {
     idx = (idx+1) % MAX_SIZE;
 }
 
 
-inline void SoilDataTable::dec_idx(int& idx) {
+void SoilDataTable::dec_idx(int& idx) {
     idx = (idx-1) % MAX_SIZE;
 }
