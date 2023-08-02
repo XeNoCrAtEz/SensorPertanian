@@ -8,33 +8,35 @@ void setup() {
     // begin USB Serial
     Serial.begin(115200);
 
-    setup_display();
+    Display display;
+    display.display_splash_screen();
 
-    delay(2000);
-    
-    display_splash_screen();
+    Submitter submitter(SENSOR_ID);
 
-    dataTable.connect_wifi();
-}
-
-void loop() {
     ProbeDefault probe(PROBE_RX_PIN, PROBE_TX_PIN);
-    
-    SoilReading soilReading;
-	// readings[idx_in].timestamp = get_time_stamp();
-    soilReading.soilData = probe.sample();
 
-    dataTable.push(soilReading);
+    SoilData soilData;
+	// unsigned long epoch = submitter.get_timestamp();
+    soilData = probe.sample();
+    display.display_data(soilData);
+    dataTable.push(soilData, 123456);   // TODO: Change to epoch
     
 #ifdef DEBUG
-    info_soil_data(soilReading.soilData);
+    info_soil_data(soilData);
 #endif
 
-    SoilReading prevSoilData;
-    dataTable.pop(prevSoilData);
+    if (submitter.is_connected()) submitter.submit_table(dataTable);
+    
+    submitter.test();
 
-    display_data(prevSoilData.soilData);
+    // sleep()
+}
 
 
-    dataTable.test();
+void loop()
+{
+}
+
+
+void sleep() {
 }
