@@ -17,26 +17,18 @@
 #endif
 
 
-class Display : public Adafruit_SSD1306 {
-private:
-    // Screen constants parameters
-    const int SCREEN_WIDTH = 128;   // OLED display width, in pixels
-    const int SCREEN_HEIGHT = 64;   // OLED display height, in pixels
+// Screen constants parameters
+const int SCREEN_WIDTH = 128;   // OLED display width, in pixels
+const int SCREEN_HEIGHT = 64;   // OLED display height, in pixels
+const int SCREEN_SDA = 5;
+const int SCREEN_SCL = 4;
+const int SCREEN_ADDR = 0x3C;
 
-    const int SCREEN_SDA = 5;
-    const int SCREEN_SCL = 4;
-    
-    const int SCREEN_ADDR = 0x3C;
+void setup_display();
 
-public:
-    Display();
+void display_splash_screen();
 
-    void display_wifi();        // TODO: to display wifi status
-
-    void display_splash_screen();
-
-    void display_data(const SoilData& soilData);
-};
+void display_data(const SoilData& soilData);
 
 
 #endif

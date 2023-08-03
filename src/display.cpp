@@ -1,38 +1,34 @@
 #include "display.h"
 
+Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, -1);
 
-Display::Display()
-        : Adafruit_SSD1306(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, -1)
-{
+void setup_display() {
     // begin I2C for OLED
     Wire.begin(SCREEN_SDA, SCREEN_SCL);
     // begin OLED display
     // Address 0x3C for 128x64
-    if (!begin(SSD1306_SWITCHCAPVCC, SCREEN_ADDR, false, false)) {
+    if (!display.begin(SSD1306_SWITCHCAPVCC, SCREEN_ADDR, false, false)) {
         Serial.println(F("SSD1306 allocation failed"));
+        Serial.println("Restarting...");
+        ESP.restart();
     }
 }
 
-
-void Display::display_wifi() {
-}
-
-
-void Display::display_splash_screen() {
+void display_splash_screen() {
     // display splash screen
-    clearDisplay();
-    setCursor(25, 15);
-    setTextSize(1);
-    setTextColor(WHITE);
-    println(" NPK Sensor");
-    setCursor(25, 35);
-    setTextSize(1);
-    print("Initializing");
-    display();
+    display.clearDisplay();    
+    display.setCursor(25, 15);
+    display.setTextSize(1);
+    display.setTextColor(WHITE);
+    display.println(" NPK Sensor");
+    display.setCursor(25, 35);
+    display.setTextSize(1);
+    display.print("Initializing");
+    display.display();
 }
 
 
-void Display::display_data(const SoilData& soilData) {
+void display_data(const SoilData& soilData) {
     const int DISPLAY_DELAY = 2000;
 
     const int& nitrogen = soilData.nitrogen;
@@ -44,72 +40,72 @@ void Display::display_data(const SoilData& soilData) {
     const int& EC = soilData.EC;
 
     // display NPK
-    clearDisplay();
+    display.clearDisplay();
 
-    setTextSize(2);
-    setCursor(0, 5);
-    print("N: ");
-    print(nitrogen);
-    setTextSize(1);
-    print(" mg/kg");
+    display.setTextSize(2);
+    display.setCursor(0, 5);
+    display.print("N: ");
+    display.print(nitrogen);
+    display.setTextSize(1);
+    display.print(" mg/kg");
 
-    setTextSize(2);
-    setCursor(0, 25);
-    print("P: ");
-    print(phosphorus);
-    setTextSize(1);
-    print(" mg/kg");
+    display.setTextSize(2);
+    display.setCursor(0, 25);
+    display.print("P: ");
+    display.print(phosphorus);
+    display.setTextSize(1);
+    display.print(" mg/kg");
 
-    setTextSize(2);
-    setCursor(0, 45);
-    print("K: ");
-    print(kalium);
-    setTextSize(1);
-    print(" mg/kg");
+    display.setTextSize(2);
+    display.setCursor(0, 45);
+    display.print("K: ");
+    display.print(kalium);
+    display.setTextSize(1);
+    display.print(" mg/kg");
 
-    display();
+    display.display();
 
     delay(DISPLAY_DELAY);
 
     // display pH, Temp, Hum
-    clearDisplay();
+    display.clearDisplay();
 
-    setTextSize(2);
-    setCursor(0, 5);
-    print("pH:   ");
-    print(pH);
-    setTextSize(1);
-    print("");
+    display.setTextSize(2);
+    display.setCursor(0, 5);
+    display.print("pH:   ");
+    display.print(pH);
+    display.setTextSize(1);
+    display.print("");
 
-    setTextSize(2);
-    setCursor(0, 25);
-    print("Tem: ");
-    print(temperature);
-    setTextSize(1);
-    print(" C");
+    display.setTextSize(2);
+    display.setCursor(0, 25);
+    display.print("Tem: ");
+    display.print(temperature);
+    display.setTextSize(1);
+    display.print(" C");
 
-    setTextSize(2);
-    setCursor(0, 45);
-    print("Hum: ");
-    print(humidity);
-    setTextSize(1);
-    print(" %");
+    display.setTextSize(2);
+    display.setCursor(0, 45);
+    display.print("Hum: ");
+    display.print(humidity);
+    display.setTextSize(1);
+    display.print(" %");
 
-    display();
+    display.display();
 
     delay(DISPLAY_DELAY);
 
     // display EC
-    clearDisplay();
+    display.clearDisplay();
 
-    setTextSize(2);
-    setCursor(0, 5);
-    print("EC: ");
-    print(EC);
-    setTextSize(1);
-    print(" us/cm");
+    display.setTextSize(2);
+    display.setCursor(0, 5);
+    display.print("EC: ");
+    display.print(EC);
+    display.setTextSize(1);
+    display.print(" us/cm");
 
-    display();
+    display.display();
 
     delay(DISPLAY_DELAY);
 }
