@@ -5,21 +5,9 @@
 
 #include "soil_data.h"
 
-class SoilReading {
-public:
+struct SoilReading {
     unsigned long epoch;
     SoilData soilData;
-
-    String to_json_string() {
-        return  String("{\"timestamp\":") + String(epoch) + String(",") +
-                String("\"N\":") + String(soilData.nitrogen) + String(",") +
-                String("\"P\":") + String(soilData.phosphorus) + String(",") +
-                String("\"K\":") + String(soilData.kalium) + String(",") +
-                String("\"pH\":") + String(soilData.pH) + String(",") +
-                String("\"Temp\":") + String(soilData.temperature) + String(",") +
-                String("\"Hum\":") + String(soilData.humidity) + String(",") +
-                String("\"EC\":") + String(soilData.EC) + String("}");
-    }
 };
 
 
