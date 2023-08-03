@@ -33,7 +33,10 @@ Submitter::Submitter(const int sensorID)
     Serial.println(WiFi.localIP());
 	Serial.println();
 #endif
-
+    
+    // 7*3600 set timezone to Jakarta
+    configTime(7*3600, 0, NTP_SERVER);
+    
     connected = true;
     return;
 }
@@ -44,28 +47,46 @@ int Submitter::submit_table(SoilDataTable& dataTable) {
 
     Serial.println("Sending data to server...");
     
-    String Link;    // untuk menyimpan link HTTP
+    String Link;
     // LINK: http://raspberrypi.local/Sensor/kirimdata.php
-    Link = "http://" + String(SERVERNAME) + "/kirimdata.php";
+    Link = "http://" + String(SERVERNAME) + "/Sensor/kirimdata.php";
 
-    HTTPClient http;            // untuk melakukan HTTP
+    // try ping first
+    HTTPClient http;
     http.begin(Link);
+    int responseCode = http.GET();
+    if ( responseCode != HTTP_CODE_OK ) {
+        Serial.println("Server not available! Abort sending data.");
+        Serial.println(http.errorToString(responseCode));
+        http.end();
+        return responseCode;
+    }
+
     http.addHeader("Content-Type", "application/json");
 
-    JSONVar data;
+    DynamicJsonDocument data(dataTable.get_count() * 200);      // dunno 200 is a good number
     data["ID"] = SENSOR_ID;
-    data["data"] = JSONVar();
-    int i = 0;
+    JsonArray dataArr = data.createNestedArray("data");
+    
     while (!dataTable.is_empty()) {
         SoilReading row;
         dataTable.pop(row);
-        data["data"][i++] = JSON.parse(row.to_json_string());
+
+        JsonObject rowJson = dataArr.createNestedObject();
+        rowJson["timestamp"] = to_timestamp(row.epoch);
+        rowJson["N"] = row.soilData.nitrogen;
+        rowJson["P"] = row.soilData.phosphorus;
+        rowJson["K"] = row.soilData.kalium;
+        rowJson["pH"] = row.soilData.pH;
+        rowJson["temp"] = row.soilData.temperature;
+        rowJson["hum"] = row.soilData.humidity;
+        rowJson["EC"] = row.soilData.EC;
     }
 
-    data.printTo(Serial);
+    String dataStr;
+    serializeJson(data, dataStr);
 
-    int responseCode = http.POST(JSON.stringify(data));
-
+    responseCode = http.POST(dataStr);
     if ( responseCode != HTTP_CODE_OK ) {
         Serial.println("Error when sending data to server");
         Serial.println(http.errorToString(responseCode));
@@ -76,59 +97,23 @@ int Submitter::submit_table(SoilDataTable& dataTable) {
     return responseCode;
 }
 
-unsigned long Submitter::get_curr_epoch()
-{
-    return 0;
+
+unsigned long Submitter::get_curr_epoch() {
+    time_t now;
+    time(&now);
+    return now;
 }
 
-void Submitter::test() {
-    SoilData dummyData = {
-        111, 123, 255,
-        7.53, 17.1, 38.9,
-        2345
-    };
 
-    //tampilkan di serial monitor
-    Serial.println("Suhu: " + String(dummyData.temperature) );
-    Serial.println("Kelembaban: " + String(dummyData.humidity) );
-    Serial.println("NPK: " + String(dummyData.nitrogen) + ", " + String(dummyData.phosphorus) + ", " + String(dummyData.kalium));
-    Serial.println("pH: " + String(dummyData.pH));
-    Serial.println("EC: " + String(dummyData.EC));
-    Serial.println();
+String Submitter::to_timestamp(unsigned long epoch) {
+    struct tm *timeinfo;
+    time_t rawtime = epoch;
 
-    //Kirim Data ke Database
-    //Cek KOneksi nodemcu ke web server
-    WiFiClient client;
-    const int httpPort = 80;
-    if(!client.connect(SERVERNAME, httpPort)){
-        Serial.println("Gagal Terkoneksi ke Web Server");
-        return;
-    }
+    timeinfo = localtime(&rawtime);
 
-    //Apabila terkoneksi ke web server, maka kirim Data
-    HTTPClient http;
-
-    //Siapkan variabel Link URL untuk kirim Data
-    // LINK: http://raspberrypi.local/Sensor/kirimdata.php?Suhu=18.5&Kelembaban=41.5&pH=5.3&Nitrogen=112&Kalium=245&Phosphorus=123&Konduktivitas_Listrik=2133
-    String Link = "http://" + String(SERVERNAME) + "/Sensor/kirimdata.php?" +
-                    "Suhu=" + String(dummyData.temperature) + "&" +
-                    "Kelembaban=" + String(dummyData.humidity) + "&" + 
-                    "pH=" + String(dummyData.pH) + "&" +
-                    "Nitrogen=" + String(dummyData.nitrogen) + "&" +
-                    "Kalium=" + String(dummyData.kalium) + "&" +
-                    "Phosphorus=" + String(dummyData.phosphorus) + "&" +
-                    "Konduktivitas_Listrik=" + String(dummyData.EC);
-    Serial.print(Link);
-
-    //Eksekusi Link URL
-    http.begin(Link);
-    http.GET();
-
-    //Tangkap Respon kirimdata
-    String respon = http.getString();
-    Serial.println(respon);
-
-    delay(1000);
+    char timeStringBuff[50];
+    strftime(timeStringBuff, sizeof(timeStringBuff), "%Y-%m-%d %H:%M:%S", timeinfo);
+    return timeStringBuff;
 }
 
 
