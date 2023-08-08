@@ -109,3 +109,8 @@ void display_data(const SoilData& soilData) {
 
     delay(DISPLAY_DELAY);
 }
+
+void clear_display() {
+    display.clearDisplay();
+    display.display();
+}

@@ -24,12 +24,6 @@ private:
     const char WIFI_SSID[11] = "KHDTK_JAYA";
     const char WIFI_PASS[11] = "khdtk_jaya";
 
-    // const char WIFI_SSID[] = "XeNoCrAtEz_";
-    // const char WIFI_PASS[] = "aptxsxfc5";
-
-    // const char WIFI_SSID[] = "Aku&Kamu";
-    // const char WIFI_PASS[] = "122333444455555";
-
     bool connected = false;
     const int SENSOR_ID;
 

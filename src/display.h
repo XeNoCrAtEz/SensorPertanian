@@ -30,5 +30,6 @@ void display_splash_screen();
 
 void display_data(const SoilData& soilData);
 
+void clear_display();
 
 #endif

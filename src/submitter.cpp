@@ -6,6 +6,10 @@ Submitter::Submitter(const int sensorID)
 {
     WiFi.mode(WIFI_STA);
 
+    // 7*3600 set timezone to Jakarta
+    configTime(7*3600, 0, NTP_SERVER);
+    
+
     if (WiFi.SSID() != WIFI_SSID) {
         WiFi.persistent(true);
         WiFi.setAutoConnect(true);
@@ -34,18 +38,15 @@ Submitter::Submitter(const int sensorID)
 	Serial.println();
 #endif
     
-    // 7*3600 set timezone to Jakarta
-    configTime(7*3600, 0, NTP_SERVER);
-    
     connected = true;
     return;
 }
 
 
 int Submitter::submit_table(SoilDataTable& dataTable) {
-    if (!is_connected()) return 0;
-
     Serial.println("Sending data to server...");
+
+    if (!is_connected()) return 0;
     
     String Link;
     // LINK: http://raspberrypi.local/Sensor/kirimdata.php
@@ -85,6 +86,7 @@ int Submitter::submit_table(SoilDataTable& dataTable) {
 
     String dataStr;
     serializeJson(data, dataStr);
+    serializeJsonPretty(data, Serial);
 
     responseCode = http.POST(dataStr);
     if ( responseCode != HTTP_CODE_OK ) {
