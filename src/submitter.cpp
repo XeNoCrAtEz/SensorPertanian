@@ -1,8 +1,8 @@
 #include "submitter.h"
 
 
-Submitter::Submitter(const int sensorID) 
-        : SENSOR_ID(sensorID)
+Submitter::Submitter(const int sensor_id) 
+        : sensorID(sensor_id)
 {
     WiFi.mode(WIFI_STA);
 

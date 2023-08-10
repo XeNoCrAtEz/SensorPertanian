@@ -25,7 +25,7 @@ private:
     const char WIFI_PASS[11] = "khdtk_jaya";
 
     bool connected = false;
-    const int SENSOR_ID;
+    const int sensorID;
 
 public:
     Submitter(const int sensorID);
