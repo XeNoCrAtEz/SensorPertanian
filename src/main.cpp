@@ -14,7 +14,11 @@ void setup() {
 
     Submitter submitter(SENSOR_ID);
 
+#if defined(PROBE_DEFAULT)
     ProbeDefault probe(PROBE_RX_PIN, PROBE_TX_PIN);
+#elif defined(PROBE_KHDTK)
+    ProbeKHDTK probe(PROBE_RX_PIN, PROBE_TX_PIN);
+#endif
 
     setup_display();
     display_splash_screen();

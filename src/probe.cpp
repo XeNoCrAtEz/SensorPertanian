@@ -36,11 +36,17 @@ uint16_t Probe::get_data(int regNum) {
             return 0;
         }
 
-        result += getResponseBuffer(0x01);
+        result += getResponseBuffer(0);
     }
 
-    result /= NUM_SAMPLES;
+#ifdef DEBUG
+    // tampilkan respond bytes
+    Serial.print("Received bytes: ");
+    Serial.println(getResponseBuffer(0x00), HEX);
+#endif
 
+    result /= NUM_SAMPLES;
+    
     return result;
 }
 
@@ -60,7 +66,7 @@ SoilData ProbeKHDTK::sample() {
         soilData.nitrogen = get_data(REG_NITRO);
         soilData.phosphorus = get_data(REG_PHOS);
         soilData.kalium = get_data(REG_KALI);
-        soilData.pH = get_data(REG_PH) / (float) 10;
+        soilData.pH = get_data(REG_PH) / (float) 100;
         soilData.temperature = get_data(REG_TEMP) / (float) 10;
         soilData.humidity = get_data(REG_HUM) / (float) 10;
         soilData.EC = get_data(REG_EC);
@@ -104,15 +110,15 @@ SoilData ProbeDefault::sample() {
             return soilData;
         }
 
-    #ifdef DEBUG
-            // tampilkan respond bytes
-            Serial.print("Received bytes: ");
-            for (byte i = 0; i < TOTAL_DATA; i++) {
-                Serial.print(getResponseBuffer(i), HEX);
-                Serial.print(" ");
-            }
-            Serial.println();
-    #endif
+#ifdef DEBUG
+        // tampilkan respond bytes
+        Serial.print("Received bytes: ");
+        for (byte i = 0; i < TOTAL_DATA; i++) {
+            Serial.print(getResponseBuffer(i), HEX);
+            Serial.print(" ");
+        }
+        Serial.println();
+#endif
 
         soilData.nitrogen += getResponseBuffer(INDEX_NITRO);
         soilData.phosphorus += getResponseBuffer(INDEX_PHOS);
