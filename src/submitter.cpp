@@ -86,7 +86,10 @@ int Submitter::submit_table(SoilDataTable& dataTable) {
 
     String dataStr;
     serializeJson(data, dataStr);
+    
+#ifdef DEBUG
     serializeJsonPretty(data, Serial);
+#endif
 
     responseCode = http.POST(dataStr);
     if ( responseCode != HTTP_CODE_OK ) {
