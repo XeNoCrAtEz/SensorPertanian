@@ -19,7 +19,7 @@ const int uS_TO_S_FACTOR = 1000000;
 const int PROBE_RX_PIN = 0;
 const int PROBE_TX_PIN = 16;
 
-const int SENSOR_ID = 1;
+// const int SENSOR_ID = 1;
 
 const int SCHEDULE_LENGTH = 6;
 struct tm schedule[SCHEDULE_LENGTH] = {
