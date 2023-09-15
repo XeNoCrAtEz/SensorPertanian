@@ -137,5 +137,9 @@ SoilData ProbeDefault::sample() {
     soilData.humidity /= NUM_SAMPLES;
     soilData.EC /= NUM_SAMPLES;
 
+    soilData.nitrogen = (soilData.nitrogen + N_b) / N_a;
+    soilData.phosphorus = (soilData.phosphorus + P_b) / P_a;
+    soilData.kalium = (soilData.kalium + K_b) / K_a;
+
     return soilData;
 }
