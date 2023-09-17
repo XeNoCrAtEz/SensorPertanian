@@ -28,6 +28,16 @@ protected:
 
     static const int PROBE_BAUDRATE = 0;    // needs to be specified by the child classes
 
+    // konstanta kalibrasi
+    static constexpr float const N_a = NITR_CALIB_A;
+    static constexpr float const N_b = NITR_CALIB_B;
+
+    static constexpr float const P_a = PHOS_CALIB_A;
+    static constexpr float const P_b = PHOS_CALIB_B;
+    
+    static constexpr float const K_a = KALI_CALIB_A;
+    static constexpr float const K_b = KALI_CALIB_B;
+
 private:
     int RX, TX;
     int address;
@@ -87,6 +97,8 @@ private:
     static const byte INDEX_HUM   = REG_HUM;
     static const byte INDEX_EC    = REG_EC;
     
+
+
 public:
 
     ProbeDefault(int rx, int tx, int HWSerialNum=1, int addr=0x01);
