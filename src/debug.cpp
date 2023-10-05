@@ -8,6 +8,7 @@ void info_soil_data(const SoilData& soilData) {
     const float& temperature = soilData.temperature;
     const float& humidity = soilData.humidity;
     const int& EC = soilData.EC;
+    const float& salt = soilData.salt; 
 
     // output to USB Serial
     Serial.print("Nitrogen: ");
@@ -36,6 +37,10 @@ void info_soil_data(const SoilData& soilData) {
     Serial.print("EC: ");
     Serial.print(EC);
     Serial.println(" uS/cm");
+
+    Serial.println("Salt");
+    Serial.print(salt);
+    Serial.println("g/kg");
 
     Serial.println();
 }
