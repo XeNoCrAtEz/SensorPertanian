@@ -108,6 +108,7 @@ public:
 
 class Probe_new : public Probe {
 private:
+    static const byte TOTAL_DATA = 8;
     static const int PROBE_BAUDRATE = 9600;
     static const byte REG_NITRO = 0x0005;
     static const byte REG_PHOS  = 0x0006;
