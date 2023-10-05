@@ -82,6 +82,7 @@ int Submitter::submit_table(SoilDataTable& dataTable) {
         rowJson["temp"] = row.soilData.temperature;
         rowJson["hum"] = row.soilData.humidity;
         rowJson["EC"] = row.soilData.EC;
+        rowJson["salt"] = row.soilData.salt;
     }
 
     String dataStr;

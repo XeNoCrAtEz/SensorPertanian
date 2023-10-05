@@ -13,7 +13,7 @@ struct SoilReading {
 
 class SoilDataTable {
 private:
-    static const int MAX_SIZE = 235;
+    static const int MAX_SIZE = 200;
 
     SoilReading readings[MAX_SIZE];
     int idx_in;

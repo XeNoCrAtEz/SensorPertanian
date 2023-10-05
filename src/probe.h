@@ -106,4 +106,36 @@ public:
     SoilData sample();
 };
 
+class ProbeNew : public Probe {
+private:
+    static const byte TOTAL_DATA = 8;
+
+    static const int PROBE_BAUDRATE = 9600;
+    
+    static const byte REG_NITRO = 0x0005;
+    static const byte REG_PHOS  = 0x0006;
+    static const byte REG_KALI  = 0x0007;
+    static const byte REG_PH    = 0x0004;
+    static const byte REG_TEMP  = 0x0000;
+    static const byte REG_HUM   = 0x0001;
+    static const byte REG_EC    = 0x0002;
+    static const byte REG_SALT  = 0x0003;
+
+    static const byte INDEX_NITRO = REG_NITRO;
+    static const byte INDEX_PHOS  = REG_PHOS;
+    static const byte INDEX_KALI  = REG_KALI;
+    static const byte INDEX_PH    = REG_PH;
+    static const byte INDEX_TEMP  = REG_TEMP;
+    static const byte INDEX_HUM   = REG_HUM;
+    static const byte INDEX_EC    = REG_EC;
+    static const byte INDEX_SALT  = REG_SALT;
+    
+
+public:
+
+    ProbeNew(int rx, int tx, int HWSerialNum=1, int addr=0x01);
+
+    SoilData sample();
+};
+
 #endif

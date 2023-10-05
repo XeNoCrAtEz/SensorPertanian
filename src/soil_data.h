@@ -5,7 +5,7 @@
 // struct for storing soil data
 struct SoilData {
     int nitrogen, phosphorus, kalium;
-    float pH, temperature, humidity;
+    float pH, temperature, humidity, salt;
     int EC;
 };
 
