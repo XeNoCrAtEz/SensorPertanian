@@ -70,7 +70,6 @@ SoilData ProbeKHDTK::sample() {
         soilData.temperature = get_data(REG_TEMP) / (float) 10;
         soilData.humidity = get_data(REG_HUM) / (float) 10;
         soilData.EC = get_data(REG_EC);
-        
     }
 
     return soilData;
@@ -110,6 +109,7 @@ SoilData ProbeDefault::sample() {
 
             return soilData;
         }
+
 #ifdef DEBUG
         // tampilkan respond bytes
         Serial.print("Received bytes: ");
@@ -127,7 +127,6 @@ SoilData ProbeDefault::sample() {
         soilData.temperature += getResponseBuffer(INDEX_TEMP) / (float) 10;
         soilData.humidity += getResponseBuffer(INDEX_HUM) / (float) 10;
         soilData.EC += getResponseBuffer(INDEX_EC);
-        
     }
 
     soilData.nitrogen /= NUM_SAMPLES;
@@ -137,7 +136,6 @@ SoilData ProbeDefault::sample() {
     soilData.temperature /= NUM_SAMPLES;
     soilData.humidity /= NUM_SAMPLES;
     soilData.EC /= NUM_SAMPLES;
-    soilData.salt /= NUM_SAMPLES;
 
     soilData.nitrogen = (soilData.nitrogen + N_b) / N_a;
     soilData.phosphorus = (soilData.phosphorus + P_b) / P_a;
@@ -145,14 +143,16 @@ SoilData ProbeDefault::sample() {
 
     return soilData;
 }
-// ------------------------- Probe Default (Aliexpress) ---------------------------
-Probe_new::Probe_new(int rx, int tx, int HWSerialNum, int addr)
+
+
+// ------------------------- Probe New (Mas Nando) ---------------------------
+ProbeNew::ProbeNew(int rx, int tx, int HWSerialNum, int addr)
         : Probe(rx, tx, HWSerialNum, addr)
 {
     probe.begin(PROBE_BAUDRATE, SERIAL_8N1, rx, tx);
 }
 
-SoilData Probe_new::sample() {
+SoilData ProbeNew::sample() {
     SoilData soilData = SoilData();
 
     for (int i = 0; i < NUM_SAMPLES; i++) {

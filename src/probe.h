@@ -106,10 +106,12 @@ public:
     SoilData sample();
 };
 
-class Probe_new : public Probe {
+class ProbeNew : public Probe {
 private:
     static const byte TOTAL_DATA = 8;
+
     static const int PROBE_BAUDRATE = 9600;
+    
     static const byte REG_NITRO = 0x0005;
     static const byte REG_PHOS  = 0x0006;
     static const byte REG_KALI  = 0x0007;
@@ -129,10 +131,9 @@ private:
     static const byte INDEX_SALT  = REG_SALT;
     
 
-
 public:
 
-    Probe_new(int rx, int tx, int HWSerialNum=1, int addr=0x01);
+    ProbeNew(int rx, int tx, int HWSerialNum=1, int addr=0x01);
 
     SoilData sample();
 };

@@ -17,7 +17,9 @@ void setup() {
 #if defined(PROBE_DEFAULT)
     ProbeDefault probe(PROBE_RX_PIN, PROBE_TX_PIN);
 #elif defined(PROBE_KHDTK)
-    Probe_new probe(PROBE_RX_PIN, PROBE_TX_PIN);
+    ProbeKHDTK probe(PROBE_RX_PIN, PROBE_TX_PIN);
+#elif defined(PROBE_NEW)
+    ProbeNew probe(PROBE_RX_PIN, PROBE_TX_PIN);
 #endif
 
     setup_display();
