@@ -106,4 +106,6 @@ public:
     SoilData sample();
 };
 
+class Probe_new : public Probe;
+
 #endif
