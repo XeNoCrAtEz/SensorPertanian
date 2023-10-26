@@ -38,7 +38,7 @@ void setup() {
     if (submitter.is_connected())
         currentEpoch = submitter.get_curr_epoch();
 
-    dataTable.push(soilData, currentEpoch);
+    dataTable.push(SoilReading(soilData, currentEpoch));
 
 #ifdef DEBUG
     info_soil_data(soilData);

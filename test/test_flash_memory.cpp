@@ -1,125 +1,114 @@
-// // TEST FLASH MEMORY
+#include <unity.h>
 
-// #include "dataTable.h"
-// #include <unity.h>
+#include "dataTable.h"
+#include "debug.h"
 
-
-// const uint8_t PIN_SCK = 14;
-// const uint8_t PIN_MOSI = 13;
-// const uint8_t PIN_MISO = 12;
-// const uint8_t PIN_CS = 32;
-
-
-// void setUp(void) {
-// }
-
-
-// void tearDown(void) {
-// }
+bool operator==(const SoilData& s1, const SoilData& s2) {
+    return s1.EC == s2.EC &&
+            s1.humidity == s2.humidity &&
+            s1.kalium == s2.kalium &&
+            s1.nitrogen == s2.nitrogen &&
+            s1.pH == s2.pH &&
+            s1.phosphorus == s2.phosphorus &&
+            s1.salt == s2.salt &&
+            s1.temperature == s2.temperature;
+}
 
 
-// void test_init() {
-//     SoilDataTable testTable(PIN_SCK, PIN_MOSI, PIN_MISO, PIN_CS);
-
-//     TEST_ASSERT_TRUE(testTable.is_empty());
-// }
-
-
-// void test_push_one_data() {
-//     SoilDataTable testTable(PIN_SCK, PIN_MOSI, PIN_MISO, PIN_CS);
-
-//     testTable.push(SoilReading({1, 1, 1, 1, 1, 1, 1}, 1));
-
-//     TEST_ASSERT_FALSE(testTable.is_empty());
-//     TEST_ASSERT_EQUAL(testTable.get_count(), 1);
-// }
+bool operator==(const SoilReading& s1, const SoilReading& s2) {
+    return s1.soilData == s2.soilData &&
+            s1.epoch == s2.epoch;
+}
 
 
-// void test_pop_one_data() {
-//     SoilDataTable testTable(PIN_SCK, PIN_MOSI, PIN_MISO, PIN_CS);
-
-//     SoilReading soilReading = SoilReading({1, 1, 1, 1, 1, 1, 1}, 1);
-
-//     // testTable.push(soilReading);
-//     testTable.push(SoilReading({1, 1, 1, 1, 1, 1, 1}, 1));
+void setUp() {
+}
 
 
-//     SoilReading poppedReading;
-//     // testTable.pop(poppedReading);
-
-//     TEST_ASSERT_TRUE(soilReading == poppedReading);
-// }
+void tearDown() {
+}
 
 
-// void test_push_three_data() {
-//     SoilDataTable testTable(PIN_SCK, PIN_MOSI, PIN_MISO, PIN_CS);
+void test_clear() {
+    SoilDataTable testTable;
+    
+    testTable.clear();
 
-//     testTable.push(SoilReading({1, 1, 1, 1, 1, 1, 1}, 1));
-//     testTable.push(SoilReading({2, 2, 2, 2, 2, 2, 2}, 2));
-//     testTable.push(SoilReading({3, 3, 3, 3, 3, 3, 3}, 3));
-
-//     TEST_ASSERT_FALSE(testTable.is_empty());
-//     TEST_ASSERT_EQUAL(testTable.get_count(), 3);
-// }
+    TEST_ASSERT_TRUE(testTable.is_empty());
+}
 
 
-// void test_pop_three_data() {
-//     SoilDataTable testTable(PIN_SCK, PIN_MOSI, PIN_MISO, PIN_CS);
+void test_push_one_data() {
+    SoilDataTable testTable;
 
-//     SoilReading soilReading1 = SoilReading({1, 1, 1, 1, 1, 1, 1}, 1);
-//     SoilReading soilReading2 = SoilReading({2, 2, 2, 2, 2, 2, 2}, 2);
-//     SoilReading soilReading3 = SoilReading({3, 3, 3, 3, 3, 3, 3}, 3);
+    SoilReading testReading = SoilReading({1, 1, 1, 1, 1, 1, 1}, 1);
+    uint8_t retCode = testTable.push(testReading);
+    TEST_ASSERT_EQUAL(retCode, SUCCESS);
 
-//     testTable.push(soilReading1);
-//     testTable.push(soilReading2);
-//     testTable.push(soilReading3);
-
-//     SoilReading poppedReading;
-//     testTable.pop(poppedReading);
-//     TEST_ASSERT_TRUE(soilReading1 == poppedReading);
-
-//     testTable.pop(poppedReading);
-//     TEST_ASSERT_TRUE(soilReading2 == poppedReading);
-
-//     testTable.pop(poppedReading);
-//     TEST_ASSERT_TRUE(soilReading3 == poppedReading);
-// }
+    testTable.clear();
+    TEST_ASSERT_TRUE(testTable.is_empty());
+}
 
 
-// void test_clear() {
-//     SoilDataTable testTable(PIN_SCK, PIN_MOSI, PIN_MISO, PIN_CS);
+void test_push_pop_one_data() {
+    SoilDataTable testTable;
 
-//     SoilReading soilReading1 = SoilReading({1, 1, 1, 1, 1, 1, 1}, 1);
-//     SoilReading soilReading2 = SoilReading({2, 2, 2, 2, 2, 2, 2}, 2);
-//     SoilReading soilReading3 = SoilReading({3, 3, 3, 3, 3, 3, 3}, 3);
+    SoilReading testReading = SoilReading({5, 5, 5, 5, 5, 5, 5}, 5);
+    uint8_t retCode = testTable.push(testReading);
+    TEST_ASSERT_EQUAL(retCode, SUCCESS);
 
-//     testTable.push(soilReading1);
-//     testTable.push(soilReading2);
-//     testTable.push(soilReading3);
+    SoilReading poppedReading;
+    retCode = testTable.pop(poppedReading);
+    TEST_ASSERT_EQUAL(retCode, SUCCESS);
 
-//     testTable.clear();
+    TEST_ASSERT_TRUE(testReading == poppedReading);
 
-//     TEST_ASSERT_TRUE(testTable.is_empty());
-// }
-
-
-// // TODO:
-// void test_fill_table() {
-// }
+    testTable.clear();
+    TEST_ASSERT_TRUE(testTable.is_empty());
+}
 
 
-// void setup() {
-//     UNITY_BEGIN();
+void test_push_pop_three_data() {
+    SoilDataTable testTable;
 
-//     RUN_TEST(test_init);
-//     RUN_TEST(test_push_one_data);
-//     // RUN_TEST(test_pop_one_data);
-//     RUN_TEST(test_push_three_data);
-//     // RUN_TEST(test_pop_three_data);
-//     RUN_TEST(test_clear);
+    SoilReading testReading0 = SoilReading({7, 7, 7, 7, 7, 7, 7}, 7);
+    uint8_t retCode = testTable.push(testReading0);
+    TEST_ASSERT_EQUAL(retCode, SUCCESS);
 
-//     UNITY_END();
-// }
+    SoilReading testReading1 = SoilReading({8, 8, 8, 8, 8, 8, 8}, 8);
+    retCode = testTable.push(testReading1);
+    TEST_ASSERT_EQUAL(retCode, SUCCESS);
 
-// void loop() {
-// }
+    SoilReading testReading2 = SoilReading({9, 9, 9, 9, 9, 9, 9}, 9);
+    retCode = testTable.push(testReading2);
+    TEST_ASSERT_EQUAL(retCode, SUCCESS);
+
+    uint32_t size = 0;
+    SoilReading* poppedReadings = nullptr;
+    retCode = testTable.pop_all(poppedReadings, size);
+    TEST_ASSERT_EQUAL(retCode, SUCCESS);
+    TEST_ASSERT_NOT_EQUAL(nullptr, poppedReadings);
+
+    TEST_ASSERT_TRUE(testReading0 == poppedReadings[0]);
+    TEST_ASSERT_TRUE(testReading1 == poppedReadings[1]);
+    TEST_ASSERT_TRUE(testReading2 == poppedReadings[2]);
+
+    testTable.clear();
+    delete[] poppedReadings;
+    TEST_ASSERT_TRUE(testTable.is_empty());
+}
+
+
+void setup() {
+    UNITY_BEGIN();
+
+    RUN_TEST(test_clear);
+    RUN_TEST(test_push_one_data);
+    RUN_TEST(test_push_pop_one_data);
+    RUN_TEST(test_push_pop_three_data);
+
+    UNITY_END();
+}
+
+void loop() {
+}
