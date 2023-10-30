@@ -3,6 +3,7 @@
 #include "dataTable.h"
 #include "debug.h"
 
+
 bool operator==(const SoilData& s1, const SoilData& s2) {
     return s1.EC == s2.EC &&
             s1.humidity == s2.humidity &&
@@ -18,14 +19,6 @@ bool operator==(const SoilData& s1, const SoilData& s2) {
 bool operator==(const SoilReading& s1, const SoilReading& s2) {
     return s1.soilData == s2.soilData &&
             s1.epoch == s2.epoch;
-}
-
-
-void setUp() {
-}
-
-
-void tearDown() {
 }
 
 
@@ -99,16 +92,9 @@ void test_push_pop_three_data() {
 }
 
 
-void setup() {
-    UNITY_BEGIN();
-
+void test_flash_memory() {
     RUN_TEST(test_clear);
     RUN_TEST(test_push_one_data);
     RUN_TEST(test_push_pop_one_data);
     RUN_TEST(test_push_pop_three_data);
-
-    UNITY_END();
-}
-
-void loop() {
 }
