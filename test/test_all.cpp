@@ -3,6 +3,8 @@
 
 void test_flash_memory();
 void test_gps();
+void test_battery();
+
 
 void setUp() {
 }
@@ -19,6 +21,7 @@ void setup() {
 
     // test_flash_memory();
     // test_gps();
+    test_battery();
 
     UNITY_END();
 }
