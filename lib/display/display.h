@@ -24,23 +24,32 @@ public:
         DISPLAY_FAILED,
         DISPLAY_OK,
     };
+
     
-    Display(uint8_t sda, uint8_t scl, uint8_t w=SCREEN_WIDTH, uint8_t h=SCREEN_HEIGHT, TwoWire *twi=&Wire, int8_t rstpin=-1);
+private:
+    const uint8_t SCREEN_WIDTH;         // OLED display width, in pixels
+    const uint8_t SCREEN_HEIGHT;        // OLED display height, in pixels
+    const uint8_t SCREEN_ADDR;
+
+    static const uint8_t DEFAULT_SCREEN_WIDTH;
+    static const uint8_t DEFAULT_SCREEN_HEIGHT;
+    static const uint8_t DEFAULT_SCREEN_ADDR;
+    static const uint8_t DEFAULT_RST_PIN;
+    static       TwoWire* DEFAULT_TWI;
+
+    Adafruit_SSD1306 m_disp;
+    ErrorCodes m_status;
+
+
+public:    
+    Display(
+        uint8_t sda, uint8_t scl,
+        uint8_t w=DEFAULT_SCREEN_WIDTH, uint8_t h=DEFAULT_SCREEN_HEIGHT, uint8_t addr=DEFAULT_SCREEN_ADDR,
+        TwoWire *twi=DEFAULT_TWI, int8_t rstpin=DEFAULT_RST_PIN);
     ErrorCodes isOK();
     ErrorCodes display_splash_screen();
     ErrorCodes display_data(const SoilData& soilData);
     ErrorCodes clear_display();
-
-
-private:
-    enum ScreenParam {
-        SCREEN_WIDTH = 128,     // OLED display width, in pixels
-        SCREEN_HEIGHT = 64,     // OLED display height, in pixels
-        SCREEN_ADDR = 0x3C,
-    };
-
-    Adafruit_SSD1306 m_disp;
-    ErrorCodes m_status;
 };
 
 

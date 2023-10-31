@@ -1,8 +1,16 @@
 #include "display.h"
 
 
-Display::Display(uint8_t sda, uint8_t scl, uint8_t w, uint8_t h, TwoWire *twi, int8_t rstpin)
-        : m_disp(w, h, twi, rstpin) {
+const uint8_t Display::DEFAULT_SCREEN_WIDTH = 128;
+const uint8_t Display::DEFAULT_SCREEN_HEIGHT = 64;
+const uint8_t Display::DEFAULT_SCREEN_ADDR = 0x3C;
+const uint8_t Display::DEFAULT_RST_PIN = -1;
+      TwoWire* Display::DEFAULT_TWI = &Wire;
+
+
+Display::Display(uint8_t sda, uint8_t scl, uint8_t w, uint8_t h, uint8_t addr, TwoWire *twi, int8_t rstpin)
+        : m_disp(w, h, twi, rstpin),
+          SCREEN_WIDTH{w}, SCREEN_HEIGHT{h}, SCREEN_ADDR{addr} {
     Wire.begin(sda, scl);
 
     if (!m_disp.begin(SSD1306_SWITCHCAPVCC, SCREEN_ADDR, false, false)) {
