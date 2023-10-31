@@ -3,6 +3,7 @@
 
 
 #include <Arduino.h>
+
 #include <Wire.h>
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
@@ -17,18 +18,30 @@
 #endif
 
 
-// Screen constants parameters
-const int SCREEN_WIDTH = 128;   // OLED display width, in pixels
-const int SCREEN_HEIGHT = 64;   // OLED display height, in pixels
+class Display {
+public:
+    enum ErrorCodes {
+        DISPLAY_FAILED,
+        DISPLAY_OK,
+    };
+    
+    Display(uint8_t sda, uint8_t scl, uint8_t w=SCREEN_WIDTH, uint8_t h=SCREEN_HEIGHT, TwoWire *twi=&Wire, int8_t rstpin=-1);
+    ErrorCodes isOK();
+    ErrorCodes display_splash_screen();
+    ErrorCodes display_data(const SoilData& soilData);
+    ErrorCodes clear_display();
 
-const int SCREEN_ADDR = 0x3C;
 
-void setup_display();
+private:
+    enum ScreenParam {
+        SCREEN_WIDTH = 128,     // OLED display width, in pixels
+        SCREEN_HEIGHT = 64,     // OLED display height, in pixels
+        SCREEN_ADDR = 0x3C,
+    };
 
-void display_splash_screen();
+    Adafruit_SSD1306 m_disp;
+    ErrorCodes m_status;
+};
 
-void display_data(const SoilData& soilData);
-
-void clear_display();
 
 #endif

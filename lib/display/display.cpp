@@ -1,116 +1,132 @@
 #include "display.h"
 
-Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, -1);
 
-void setup_display() {
-    // begin I2C for OLED
-    Wire.begin(SCREEN_SDA, SCREEN_SCL);
-    // begin OLED display
-    // Address 0x3C for 128x64
-    if (!display.begin(SSD1306_SWITCHCAPVCC, SCREEN_ADDR, false, false)) {
-        Serial.println(F("SSD1306 allocation failed"));
-        Serial.println("Restarting...");
-        ESP.restart();
+Display::Display(uint8_t sda, uint8_t scl, uint8_t w, uint8_t h, TwoWire *twi, int8_t rstpin)
+        : m_disp(w, h, twi, rstpin) {
+    Wire.begin(sda, scl);
+
+    if (!m_disp.begin(SSD1306_SWITCHCAPVCC, SCREEN_ADDR, false, false)) {
+        Serial.println("SSD1306 Failed to Initialize!");
+        m_status = DISPLAY_FAILED;
     }
+
+    m_status = DISPLAY_OK;
 }
 
-void display_splash_screen() {
+
+Display::ErrorCodes Display::isOK() {
+    return m_status;
+}
+
+
+Display::ErrorCodes Display::display_splash_screen() {
     // display splash screen
-    display.clearDisplay();    
-    display.setCursor(25, 15);
-    display.setTextSize(1);
-    display.setTextColor(WHITE);
-    display.println(" NPK Sensor");
-    display.setCursor(25, 35);
-    display.setTextSize(1);
-    display.print("Initializing");
-    display.display();
+    m_disp.clearDisplay();    
+    m_disp.setTextColor(WHITE);
+    m_disp.setCursor(25, 15);
+    m_disp.setTextSize(1);
+    m_disp.println(" NPK Sensor");
+    m_disp.setCursor(25, 35);
+    m_disp.setTextSize(1);
+    m_disp.print("Initializing");
+    m_disp.display();
+
+    return DISPLAY_OK;
 }
 
 
-void display_data(const SoilData& soilData) {
-    const int DISPLAY_DELAY = 2000;
+Display::ErrorCodes Display::display_data(const SoilData& soilData) {
+    const uint16_t DISPLAY_DELAY = 2000;
 
-    const int& nitrogen = soilData.nitrogen;
-    const int& phosphorus = soilData.phosphorus;
-    const int& kalium = soilData.kalium;
+    const uint16_t& nitrogen = soilData.nitrogen;
+    const uint16_t& phosphorus = soilData.phosphorus;
+    const uint16_t& kalium = soilData.kalium;
     const float& pH = soilData.pH;
     const float& temperature = soilData.temperature;
     const float& humidity = soilData.humidity;
-    const int& EC = soilData.EC;
+    const uint16_t& EC = soilData.EC;
 
     // display NPK
-    display.clearDisplay();
+    m_disp.clearDisplay();
 
-    display.setTextSize(2);
-    display.setCursor(0, 5);
-    display.print("N: ");
-    display.print(nitrogen);
-    display.setTextSize(1);
-    display.print(" mg/kg");
+    m_disp.setTextColor(WHITE);
 
-    display.setTextSize(2);
-    display.setCursor(0, 25);
-    display.print("P: ");
-    display.print(phosphorus);
-    display.setTextSize(1);
-    display.print(" mg/kg");
+    m_disp.setTextSize(2);
+    m_disp.setCursor(0, 5);
+    m_disp.print("N: ");
+    m_disp.print(nitrogen);
+    m_disp.setTextSize(1);
+    m_disp.print(" mg/kg");
 
-    display.setTextSize(2);
-    display.setCursor(0, 45);
-    display.print("K: ");
-    display.print(kalium);
-    display.setTextSize(1);
-    display.print(" mg/kg");
+    m_disp.setTextSize(2);
+    m_disp.setCursor(0, 25);
+    m_disp.print("P: ");
+    m_disp.print(phosphorus);
+    m_disp.setTextSize(1);
+    m_disp.print(" mg/kg");
 
-    display.display();
+    m_disp.setTextSize(2);
+    m_disp.setCursor(0, 45);
+    m_disp.print("K: ");
+    m_disp.print(kalium);
+    m_disp.setTextSize(1);
+    m_disp.print(" mg/kg");
+
+    m_disp.display();
 
     delay(DISPLAY_DELAY);
 
     // display pH, Temp, Hum
-    display.clearDisplay();
+    m_disp.clearDisplay();
 
-    display.setTextSize(2);
-    display.setCursor(0, 5);
-    display.print("pH:   ");
-    display.print(pH);
-    display.setTextSize(1);
-    display.print("");
+    m_disp.setTextSize(2);
+    m_disp.setCursor(0, 5);
+    m_disp.print("pH:   ");
+    m_disp.print(pH);
+    m_disp.setTextSize(1);
+    m_disp.print("");
 
-    display.setTextSize(2);
-    display.setCursor(0, 25);
-    display.print("Tem: ");
-    display.print(temperature);
-    display.setTextSize(1);
-    display.print(" C");
+    m_disp.setTextSize(2);
+    m_disp.setCursor(0, 25);
+    m_disp.print("Tem: ");
+    m_disp.print(temperature);
+    m_disp.setTextSize(1);
+    m_disp.print(" C");
 
-    display.setTextSize(2);
-    display.setCursor(0, 45);
-    display.print("Hum: ");
-    display.print(humidity);
-    display.setTextSize(1);
-    display.print(" %");
+    m_disp.setTextSize(2);
+    m_disp.setCursor(0, 45);
+    m_disp.print("Hum: ");
+    m_disp.print(humidity);
+    m_disp.setTextSize(1);
+    m_disp.print(" %");
 
-    display.display();
+    m_disp.display();
 
     delay(DISPLAY_DELAY);
 
     // display EC
-    display.clearDisplay();
+    m_disp.clearDisplay();
 
-    display.setTextSize(2);
-    display.setCursor(0, 5);
-    display.print("EC: ");
-    display.print(EC);
-    display.setTextSize(1);
-    display.print(" us/cm");
+    m_disp.setTextSize(2);
+    m_disp.setCursor(0, 5);
+    m_disp.print("EC: ");
+    m_disp.print(EC);
+    m_disp.setTextSize(1);
+    m_disp.print(" us/cm");
 
-    display.display();
+    m_disp.display();
 
     delay(DISPLAY_DELAY);
+
+    clear_display();
+
+    return DISPLAY_OK;
 }
 
-void clear_display() {
-    display.clearDisplay();
-    display.display();
+
+Display::ErrorCodes Display::clear_display() {
+    m_disp.clearDisplay();
+    m_disp.display();
+
+    return DISPLAY_OK;
 }
