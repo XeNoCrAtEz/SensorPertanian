@@ -3,10 +3,14 @@
 
 
 // struct for storing soil data
-struct SoilData {
-    int nitrogen, phosphorus, kalium;
+class SoilData {
+private:
+
+
+public:
+    uint16_t nitrogen, phosphorus, kalium;
     float pH, temperature, humidity, salt;
-    int EC;
+    uint16_t EC;
 };
 
 
