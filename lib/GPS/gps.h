@@ -1,3 +1,6 @@
+#ifndef __GPS_H__
+#define __GPS_H__
+
 #include <Arduino.h>
 #include <TinyGPSPlus.h>
 
@@ -35,3 +38,6 @@ public:
     bool get_location(double& lat, double& lng);
     uint8_t get_location_till_timeout();
 };
+
+
+#endif
