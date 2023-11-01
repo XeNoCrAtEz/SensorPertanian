@@ -2,7 +2,6 @@
 #define _SOIL_DATA_H_
 
 
-// struct for storing soil data
 class SoilData {
 private:
 
