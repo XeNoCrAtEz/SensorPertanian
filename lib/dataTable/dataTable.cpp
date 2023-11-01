@@ -21,7 +21,7 @@ SoilDataTable::ErrorCodes SoilDataTable::push(const SoilReading &soilReading) {
 
     if (!file.write((uint8_t*) &soilReading, sizeof(SoilReading))) return WRITE_FAILED;
     
-    return WRITE_FAILED;
+    return SUCCESS;
 }
 
 
