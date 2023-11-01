@@ -6,14 +6,7 @@
 
 #include "soil_data.h"
 
-// ERROR CODES
-const uint8_t SUCCESS = 0x00;
-const uint8_t OPEN_FAILED = 0x01;
-const uint8_t WRITE_FAILED = 0x02;
-const uint8_t READ_FAILED = 0x03;
-const uint8_t EMPTY_FILE = 0x04;
-const uint8_t LITTLEFS_FAILED = 0xFE;
-const uint8_t UNKNOWN_ERROR = 0xFF;
+
 
 class SoilReading {
 public:
@@ -24,24 +17,41 @@ public:
     SoilReading() = default;
     SoilReading(const SoilData& data, const uint32_t& epch)
             : soilData(data), epoch(epch) { }
-    uint32_t get_epoch() { return epoch; }
-    SoilData get_soilData() { return soilData; }
 };
 
 
 class SoilDataTable {
+public:
+    // ERROR CODES
+    enum ErrorCodes {
+        SUCCESS,
+        OPEN_FAILED,
+        WRITE_FAILED,
+        READ_FAILED,
+        EMPTY_FILE,
+        LITTLEFS_FAILED,
+        UNKNOWN_ERROR,
+    };
+
+
 private:
-    const char filename[17] = "/soilReading.bin";
+    enum SoilDataTableParams {
+        MAX_COUNT = 10000,
+    };
+
+
+private:
+    static const char filename[];
     fs::LittleFSFS filesystem = LittleFS;
 
 
 public:
     SoilDataTable();
-    uint8_t push(const SoilReading& soilReading);
-    uint8_t pop(SoilReading& soilReading);
-    uint8_t pop_all(SoilReading* &soilReadings, uint32_t& size);
+    ErrorCodes push(const SoilReading& soilReading);
+    ErrorCodes pop(SoilReading& soilReading);
+    ErrorCodes pop_all(SoilReading* &soilReadings, uint32_t& size);
+    ErrorCodes clear();
     uint32_t get_count();
-    void clear();
     bool is_empty();
     bool is_full();
 };
