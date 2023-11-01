@@ -52,7 +52,7 @@ public:
     Probe(int rx, int tx, int HWSerialNum=1, int addr=0x01);
 
     ErrorCodes get_data(uint16_t& data, int regNum);
-    virtual ErrorCodes sample(SoilData& soilReading) = 0;
+    virtual ErrorCodes sample(SoilData& soilData) = 0;
 };
 
 
@@ -82,7 +82,7 @@ private:
 public:
     ProbeKHDTK(int rx, int tx, int HWSerialNum=1, int addr=0x01);
 
-    ErrorCodes sample(SoilData& soilReading);
+    ErrorCodes sample(SoilData& soilData);
 };
 
 
@@ -112,7 +112,7 @@ private:
 public:
     ProbeDefault(int rx, int tx, int HWSerialNum=1, int addr=0x01);
 
-    ErrorCodes sample(SoilData& soilReading);
+    ErrorCodes sample(SoilData& soilData);
 };
 
 class ProbeNew : public Probe {
@@ -146,7 +146,7 @@ private:
 public:
     ProbeNew(int rx, int tx, int HWSerialNum=1, int addr=0x01);
 
-    ErrorCodes sample(SoilData& soilReading);
+    ErrorCodes sample(SoilData& soilData);
 };
 
 
