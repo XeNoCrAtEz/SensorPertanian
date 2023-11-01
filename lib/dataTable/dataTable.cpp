@@ -19,7 +19,7 @@ SoilDataTable::ErrorCodes SoilDataTable::push(const SoilReading &soilReading) {
     File file = filesystem.open(filename, FILE_APPEND);
     if (!file) return OPEN_FAILED;
 
-    if (!file.write((uint8_t*) &soilReading, sizeof(SoilReading))) return WRITE_FAILED;
+    if (!file.write(reinterpret_cast<const uint8_t*>(&soilReading), sizeof(SoilReading))) return WRITE_FAILED;
     
     return SUCCESS;
 }
@@ -31,7 +31,7 @@ SoilDataTable::ErrorCodes SoilDataTable::pop(SoilReading& soilReading) {
 
     if (is_empty()) return EMPTY_FILE;
 
-    if (!file.read((uint8_t*) &soilReading, sizeof(SoilReading))) return READ_FAILED;
+    if (!file.read(reinterpret_cast<uint8_t*>(&soilReading), sizeof(SoilReading))) return READ_FAILED;
     
     return SUCCESS;
 }
@@ -47,7 +47,7 @@ SoilDataTable::ErrorCodes SoilDataTable::pop_all(SoilReading* &soilReadings, uin
     soilReadings = new SoilReading[count];
 
     for (uint16_t i = 0; i < count; i++)
-        if (!file.read((uint8_t*) &soilReadings[i], sizeof(SoilReading))) return READ_FAILED;
+        if (!file.read(reinterpret_cast<uint8_t*>(&soilReadings[i]), sizeof(SoilReading))) return READ_FAILED;
 
     return SUCCESS;
 }
