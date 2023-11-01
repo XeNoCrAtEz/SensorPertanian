@@ -1,14 +1,23 @@
 #include <Arduino.h>
 #include <TinyGPSPlus.h>
 
-const uint8_t GPS_FIX = 0x00;
-const uint8_t GPS_NO_FIX = 0x01;
-const uint8_t GPS_FAILED = 0x02;
 
 class GPS {
 private:
-    static const uint16_t TIMEOUT = 2000;   // ms
+    enum GPSParams {
+        TIMEOUT = 2000,   // ms
+    };
 
+
+public:
+    enum ErrorCodes {
+        GPS_FIX,
+        GPS_NO_FIX,
+        GPS_FAILED,
+    };
+
+
+private:
     const uint8_t RX_PIN;
     const uint8_t TX_PIN;
     const uint16_t BAUDRATE;
