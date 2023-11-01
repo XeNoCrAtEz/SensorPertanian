@@ -31,6 +31,7 @@ protected:
         NUM_SAMPLES = 10,
         TOTAL_DATA = 7,
     };
+    static const uint16_t ku16MBResponseTimeout = 100;  // ms
 
     // konstanta kalibrasi
     static const float N_a;
@@ -44,9 +45,6 @@ protected:
 
     HardwareSerial probe;
 
-
-private:
-    static const uint16_t ku16MBResponseTimeout = 100;  // ms
 
 public:
     Probe(int rx, int tx, int HWSerialNum=1, int addr=0x01);
