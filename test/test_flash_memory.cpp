@@ -36,7 +36,7 @@ void test_push_one_data() {
 
     SoilReading testReading = SoilReading({1, 1, 1, 1, 1, 1, 1}, 1);
     uint8_t retCode = testTable.push(testReading);
-    TEST_ASSERT_EQUAL(retCode, SoilDataTable::SUCCESS);
+    TEST_ASSERT_EQUAL(SoilDataTable::SUCCESS, retCode);
 
     testTable.clear();
     TEST_ASSERT_TRUE(testTable.is_empty());
@@ -48,11 +48,11 @@ void test_push_pop_one_data() {
 
     SoilReading testReading = SoilReading({5, 5, 5, 5, 5, 5, 5}, 5);
     uint8_t retCode = testTable.push(testReading);
-    TEST_ASSERT_EQUAL(retCode, SoilDataTable::SUCCESS);
+    TEST_ASSERT_EQUAL(SoilDataTable::SUCCESS, retCode);
 
     SoilReading poppedReading;
     retCode = testTable.pop(poppedReading);
-    TEST_ASSERT_EQUAL(retCode, SoilDataTable::SUCCESS);
+    TEST_ASSERT_EQUAL(SoilDataTable::SUCCESS, retCode);
 
     TEST_ASSERT_TRUE(testReading == poppedReading);
 
@@ -66,20 +66,20 @@ void test_push_pop_three_data() {
 
     SoilReading testReading0 = SoilReading({7, 7, 7, 7, 7, 7, 7}, 7);
     uint8_t retCode = testTable.push(testReading0);
-    TEST_ASSERT_EQUAL(retCode, SoilDataTable::SUCCESS);
+    TEST_ASSERT_EQUAL(SoilDataTable::SUCCESS, retCode);
 
     SoilReading testReading1 = SoilReading({8, 8, 8, 8, 8, 8, 8}, 8);
     retCode = testTable.push(testReading1);
-    TEST_ASSERT_EQUAL(retCode, SoilDataTable::SUCCESS);
+    TEST_ASSERT_EQUAL(SoilDataTable::SUCCESS, retCode);
 
     SoilReading testReading2 = SoilReading({9, 9, 9, 9, 9, 9, 9}, 9);
     retCode = testTable.push(testReading2);
-    TEST_ASSERT_EQUAL(retCode, SoilDataTable::SUCCESS);
+    TEST_ASSERT_EQUAL(SoilDataTable::SUCCESS, retCode);
 
     uint32_t size = 0;
     SoilReading* poppedReadings = nullptr;
     retCode = testTable.pop_all(poppedReadings, size);
-    TEST_ASSERT_EQUAL(retCode, SoilDataTable::SUCCESS);
+    TEST_ASSERT_EQUAL(SoilDataTable::SUCCESS, retCode);
     TEST_ASSERT_NOT_EQUAL(nullptr, poppedReadings);
 
     TEST_ASSERT_TRUE(testReading0 == poppedReadings[0]);
