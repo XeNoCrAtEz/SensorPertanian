@@ -1,26 +1,33 @@
 #include "probe.h"
 
 
+// konstanta kalibrasi
+const float Probe::N_a = NITR_CALIB_A;
+const float Probe::N_b = NITR_CALIB_B;
+
+const float Probe::P_a = PHOS_CALIB_A;
+const float Probe::P_b = PHOS_CALIB_B;
+
+const float Probe::K_a = KALI_CALIB_A;
+const float Probe::K_b = KALI_CALIB_B;
+
+
 Probe::Probe(int rx, int tx, int HWSerialNum, int addr)
-        : ModbusMaster(),
-          RX(rx), TX(tx), probe(HWSerialNum), address(addr)
-{
+        : ModbusMaster(), probe(HWSerialNum) {
     begin(addr, probe);
 }
 
 
 // get a single register, use register number constants specified by the probe
-uint16_t Probe::get_data(int regNum) {
-    uint16_t result = 0;
-    
+Probe::ErrorCodes Probe::get_data(uint16_t& data, int regNum) {
     for (int i = 0; i < NUM_SAMPLES; i++) {
         int resultCode = readHoldingRegisters(regNum, 0x01);     // read one register only
         
         for(int attempts = 0; resultCode == ku8MBResponseTimedOut; attempts++) {
             Serial.println("Probe not responding!");
             if (attempts >= MAX_RESEND) {
-                Serial.println("Max resend reached! Communicating with probe failed!");
-                return 0;
+                Serial.println("Fatal Error! Probe is not connected");
+                return NO_PROBE;
             }
             Serial.print("Resending... (resend attempt: ");
             Serial.print(attempts);
@@ -29,14 +36,14 @@ uint16_t Probe::get_data(int regNum) {
         }
 
         if(resultCode != ku8MBSuccess) {
-            Serial.print("Error! Result code: ");
+            Serial.print("Probe Error! Result code: ");
             Serial.print(resultCode);
             Serial.println("");
 
-            return 0;
+            return PROBE_ERROR;
         }
 
-        result += getResponseBuffer(0);
+        data += getResponseBuffer(0);
     }
 
 #ifdef DEBUG
@@ -45,56 +52,58 @@ uint16_t Probe::get_data(int regNum) {
     Serial.println(getResponseBuffer(0x00), HEX);
 #endif
 
-    result /= NUM_SAMPLES;
+    data /= NUM_SAMPLES;
     
-    return result;
+    return SUCCESS;
 }
 
 
 // ---------------------------- Probe KHDTK ------------------------------
 ProbeKHDTK::ProbeKHDTK(int rx, int tx, int HWSerialNum, int addr)
-        : Probe(rx, tx, HWSerialNum, addr)
-{
+        : Probe(rx, tx, HWSerialNum, addr) {
     probe.begin(PROBE_BAUDRATE, SERIAL_8N1, rx, tx);
 }
 
 
-SoilData ProbeKHDTK::sample() {
-    SoilData soilData = SoilData();
+Probe::ErrorCodes ProbeKHDTK::sample(SoilData& soilData) {
+    if (get_data(soilData.nitrogen, REG_NITRO) != SUCCESS) return PROBE_ERROR;
+    if (get_data(soilData.phosphorus, REG_PHOS) != SUCCESS) return PROBE_ERROR;
+    if (get_data(soilData.kalium, REG_KALI) != SUCCESS) return PROBE_ERROR;
 
-    for (int i = 0; i < TOTAL_DATA; i++) {
-        soilData.nitrogen = get_data(REG_NITRO);
-        soilData.phosphorus = get_data(REG_PHOS);
-        soilData.kalium = get_data(REG_KALI);
-        soilData.pH = get_data(REG_PH) / (float) 100;
-        soilData.temperature = get_data(REG_TEMP) / (float) 10;
-        soilData.humidity = get_data(REG_HUM) / (float) 10;
-        soilData.EC = get_data(REG_EC);
-    }
+    uint16_t temp_pH = 0;
+    if (get_data(temp_pH, REG_PH) != SUCCESS) return PROBE_ERROR;
+    soilData.pH = temp_pH / (float) 100;
 
-    return soilData;
+    uint16_t temp_temperature = 0;
+    if (get_data(temp_temperature, REG_TEMP) != SUCCESS) return PROBE_ERROR;
+    soilData.temperature = temp_temperature / (float) 10;
+    
+    uint16_t temp_humidity = 0;
+    if (get_data(temp_humidity, REG_HUM) != SUCCESS) return PROBE_ERROR;  
+    soilData.humidity = temp_humidity / (float) 10;
+    
+    if (get_data(soilData.EC, REG_EC) != SUCCESS) return PROBE_ERROR;
+
+    return SUCCESS;
 }
 
 
 // ------------------------- Probe Default (Aliexpress) ---------------------------
 ProbeDefault::ProbeDefault(int rx, int tx, int HWSerialNum, int addr)
-        : Probe(rx, tx, HWSerialNum, addr)
-{
+        : Probe(rx, tx, HWSerialNum, addr) {
     probe.begin(PROBE_BAUDRATE, SERIAL_8N1, rx, tx);
 }
 
 
-SoilData ProbeDefault::sample() {
-    SoilData soilData = SoilData();
-
+ProbeDefault::ErrorCodes ProbeDefault::sample(SoilData& soilData) {
     for (int i = 0; i < NUM_SAMPLES; i++) {
         int resultCode = readHoldingRegisters(0x00, TOTAL_DATA);     // read from 0x00-0x06
         
         for(int attempts = 0; resultCode == ku8MBResponseTimedOut; attempts++) {
             Serial.println("Probe not responding!");
             if (attempts >= MAX_RESEND) {
-                Serial.println("Max resend reached! Communicating with probe failed!");
-                return soilData;
+                Serial.println("Fatal Error! Probe is not connected");
+                return NO_PROBE;
             }
             Serial.print("Resending... (resend attempt: ");
             Serial.print(attempts);
@@ -103,11 +112,11 @@ SoilData ProbeDefault::sample() {
         }
 
         if(resultCode != ku8MBSuccess) {
-            Serial.print("Error! Result code: ");
+            Serial.print("Probe Error! Result code: ");
             Serial.print(resultCode);
             Serial.println("");
 
-            return soilData;
+            return PROBE_ERROR;
         }
 
 #ifdef DEBUG
@@ -141,28 +150,26 @@ SoilData ProbeDefault::sample() {
     soilData.phosphorus = (soilData.phosphorus + P_b) / P_a;
     soilData.kalium = (soilData.kalium + K_b) / K_a;
 
-    return soilData;
+    return SUCCESS;
 }
 
 
 // ------------------------- Probe New (Mas Nando) ---------------------------
 ProbeNew::ProbeNew(int rx, int tx, int HWSerialNum, int addr)
-        : Probe(rx, tx, HWSerialNum, addr)
-{
+        : Probe(rx, tx, HWSerialNum, addr) {
     probe.begin(PROBE_BAUDRATE, SERIAL_8N1, rx, tx);
 }
 
-SoilData ProbeNew::sample() {
-    SoilData soilData = SoilData();
 
+ProbeNew::ErrorCodes ProbeNew::sample(SoilData& soilData) {
     for (int i = 0; i < NUM_SAMPLES; i++) {
-        int resultCode = readHoldingRegisters(0x00, TOTAL_DATA);     // read from 0x00-0x06
+        int resultCode = readHoldingRegisters(0x00, TOTAL_DATA);     // read from 0x00-0x07
         
         for(int attempts = 0; resultCode == ku8MBResponseTimedOut; attempts++) {
             Serial.println("Probe not responding!");
             if (attempts >= MAX_RESEND) {
-                Serial.println("Max resend reached! Communicating with probe failed!");
-                return soilData;
+                Serial.println("Fatal Error! Probe is not connected");
+                return NO_PROBE;
             }
             Serial.print("Resending... (resend attempt: ");
             Serial.print(attempts);
@@ -171,11 +178,11 @@ SoilData ProbeNew::sample() {
         }
 
         if(resultCode != ku8MBSuccess) {
-            Serial.print("Error! Result code: ");
+            Serial.print("Probe Error! Result code: ");
             Serial.print(resultCode);
             Serial.println("");
 
-            return soilData;
+            return PROBE_ERROR;
         }
 #ifdef DEBUG
         // tampilkan respond bytes
@@ -210,7 +217,5 @@ SoilData ProbeNew::sample() {
     soilData.phosphorus = (soilData.phosphorus + P_b) / P_a;
     soilData.kalium = (soilData.kalium + K_b) / K_a;
 
-    return soilData;
+    return SUCCESS;
 }
-
-
