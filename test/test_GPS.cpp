@@ -10,7 +10,7 @@ void test_gps_unconnected() {
 
     uint8_t resultCode = gps.get_location_till_timeout();
 
-    TEST_ASSERT_EQUAL(GPS_FAILED, resultCode);
+    TEST_ASSERT_EQUAL(GPS::GPS_FAILED, resultCode);
 }
 
 
@@ -19,7 +19,7 @@ void test_gps_connected_no_fix() {
 
     uint8_t resultCode = gps.get_location_till_timeout();
 
-    TEST_ASSERT_EQUAL(GPS_NO_FIX, resultCode);
+    TEST_ASSERT_EQUAL(GPS::GPS_NO_FIX, resultCode);
 }
 
 
@@ -27,7 +27,7 @@ void test_gps_connected_fix() {
     GPS gps;
 
     uint8_t resultCode = gps.get_location_till_timeout();
-    TEST_ASSERT_EQUAL(GPS_FIX, resultCode);
+    TEST_ASSERT_EQUAL(GPS::GPS_FIX, resultCode);
     
     double lat = 0, lng = 0;
     if (gps.get_location(lat, lng)) {
