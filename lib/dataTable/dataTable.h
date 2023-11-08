@@ -18,6 +18,11 @@ public:
             : soilData{}, epoch{0} {}
     SoilReading(const SoilData& data, const uint32_t& epch)
             : soilData{data}, epoch{epch} { }
+
+    bool operator==(const SoilReading& s2) {
+        return soilData == s2.soilData &&
+                epoch == s2.epoch;
+    }
 };
 
 
@@ -50,7 +55,7 @@ public:
     SoilDataTable();
     ErrorCodes push(const SoilReading& soilReading);
     ErrorCodes pop(SoilReading& soilReading);
-    ErrorCodes pop_all(SoilReading* &soilReadings, uint32_t& size);
+    ErrorCodes pop_all(SoilReading* &soilReadings, uint16_t& size);
     ErrorCodes clear();
     uint32_t get_count();
     bool is_empty();
