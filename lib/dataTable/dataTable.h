@@ -14,9 +14,10 @@ public:
     SoilData soilData;
 
 
-    SoilReading() = default;
+    SoilReading()
+            : soilData{}, epoch{0} {}
     SoilReading(const SoilData& data, const uint32_t& epch)
-            : soilData(data), epoch(epch) { }
+            : soilData{data}, epoch{epch} { }
 };
 
 
