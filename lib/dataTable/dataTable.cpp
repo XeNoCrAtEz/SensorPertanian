@@ -11,7 +11,7 @@ SoilDataTable::SoilDataTable() {
     }
 
     File file = filesystem.open(filename, FILE_READ, true);
-    if (!file) Serial.println("File not found! Creation failed!");
+    if (!file) Serial.println("File not found! \"soilReading.bin\" created!");
 }
 
 
