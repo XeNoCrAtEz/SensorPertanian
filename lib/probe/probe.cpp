@@ -50,13 +50,14 @@ Probe::ErrorCodes Probe::get_data(uint16_t& data, int regNum) {
 #ifndef NO_CALIB
 void Probe::calibrateNPK(SoilData &soilData)
 {
-    soilData.nitrogen = (soilData.nitrogen + NITR_CALIB_B) / NITR_CALIB_A;
-    soilData.phosphorus = (soilData.phosphorus + PHOS_CALIB_B) / PHOS_CALIB_A;
-    soilData.kalium = (soilData.kalium + KALI_CALIB_B) / KALI_CALIB_A;
+    int16_t calibResult = (soilData.nitrogen + NITR_CALIB_B) / NITR_CALIB_A;
+    soilData.nitrogen = calibResult < 0 ? 0 : calibResult;
 
-    soilData.nitrogen = soilData.nitrogen < 0 ? 0 : soilData.nitrogen;
-    soilData.phosphorus = soilData.phosphorus < 0 ? 0 : soilData.phosphorus;
-    soilData.kalium = soilData.kalium < 0 ? 0 : soilData.kalium;
+    calibResult = (soilData.phosphorus + PHOS_CALIB_B) / PHOS_CALIB_A;
+    soilData.phosphorus = calibResult < 0 ? 0 : calibResult;
+
+    calibResult = (soilData.kalium + KALI_CALIB_B) / KALI_CALIB_A;
+    soilData.kalium = calibResult < 0 ? 0 : calibResult;
 }
 #endif
 
