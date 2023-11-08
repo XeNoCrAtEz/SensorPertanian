@@ -42,7 +42,7 @@ void test_ProbeNew_sample() {
     display.display_data(sampledData);
 }
 
-
+#ifndef NO_CALIB
 void test_probe_calibration() {
     SoilData testNegativeData = SoilData(-1, -1, -1, 0, 0, 0, 0, 0);
 
@@ -53,11 +53,14 @@ void test_probe_calibration() {
     SoilData testZeroData = SoilData(0, 0, 0, 0, 0, 0, 0, 0);
     TEST_ASSERT_TRUE(testNegativeData==testZeroData);
 }
+#endif
 
 
 void test_probe() {
     RUN_TEST(test_ProbeKHDTK_sample);
     RUN_TEST(test_ProbeDefault_sample);
     RUN_TEST(test_ProbeNew_sample);
+#ifndef NO_CALIB
     RUN_TEST(test_probe_calibration);
+#endif
 }
