@@ -43,8 +43,21 @@ void test_ProbeNew_sample() {
 }
 
 
+void test_probe_calibration() {
+    SoilData testNegativeData = SoilData(-1, -1, -1, 0, 0, 0, 0, 0);
+
+    ProbeDefault testProbe(PIN_PROBE_RX, PIN_PROBE_TX);
+
+    testProbe.calibrateNPK(testNegativeData);
+
+    SoilData testZeroData = SoilData(0, 0, 0, 0, 0, 0, 0, 0);
+    TEST_ASSERT_TRUE(testNegativeData==testZeroData);
+}
+
+
 void test_probe() {
     RUN_TEST(test_ProbeKHDTK_sample);
     RUN_TEST(test_ProbeDefault_sample);
     RUN_TEST(test_ProbeNew_sample);
+    RUN_TEST(test_probe_calibration);
 }

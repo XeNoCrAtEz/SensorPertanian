@@ -22,10 +22,10 @@ void setup() {
     
     UNITY_BEGIN();
 
-    // test_flash_memory();
-    // test_gps();
-    // test_battery();
-    // test_oled();
+    test_flash_memory();
+    test_gps();
+    test_battery();
+    test_oled();
     test_probe();
 
     UNITY_END();
