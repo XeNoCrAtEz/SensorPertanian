@@ -3,6 +3,7 @@
 
 #include <Arduino.h>
 #include "submitter.h"
+#include "display.h"
 
 #include "time.h"
 #include <Preferences.h>
@@ -16,7 +17,7 @@ extern const char epochNamespace[];
 extern const char epochKeyname[];
 
 
-void sleep(Submitter &submitter);
+void sleep(Display& display, Submitter &submitter);
 uint64_t get_sleep_seconds(Submitter &submitter);
 
 

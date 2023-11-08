@@ -1,6 +1,5 @@
 #include "sleep.h"
 
-#include "display.h"
 
 Preferences preferences;
 RTC_DATA_ATTR time_t currentEpoch = 0;
@@ -19,8 +18,8 @@ const int uS_TO_S_FACTOR = 1000000;
 const char epochNamespace[] = "epoch";
 const char epochKeyname[] = "epoch";
 
-void sleep(Submitter &submitter) {
-    clear_display();
+void sleep(Display& display, Submitter &submitter) {
+    display.clear_display();
 
     auto sleepTime = get_sleep_seconds(submitter);
     currentEpoch += sleepTime;      // predicted epoch for next sleep cycle
