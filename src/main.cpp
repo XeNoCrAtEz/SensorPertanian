@@ -1,29 +1,27 @@
 #include "main.h"
 
 
-RTC_DATA_ATTR SoilDataTable dataTable;
-
-
-
 void setup() {
     // begin USB Serial
     Serial.begin(115200);
 
+    SoilDataTable dataTable;
     Submitter submitter(SENSOR_ID);
 
 #if defined(PROBE_DEFAULT)
-    ProbeDefault probe(PROBE_RX_PIN, PROBE_TX_PIN);
+    ProbeDefault probe(PIN_PROBE_RX, PIN_PROBE_TX);
 #elif defined(PROBE_KHDTK)
-    ProbeKHDTK probe(PROBE_RX_PIN, PROBE_TX_PIN);
+    ProbeKHDTK probe(PIN_PROBE_RX, PIN_PROBE_TX);
 #elif defined(PROBE_NEW)
-    ProbeNew probe(PROBE_RX_PIN, PROBE_TX_PIN);
+    ProbeNew probe(PIN_PROBE_RX, PIN_PROBE_TX);
 #endif
 
-    setup_display();
-    display_splash_screen();
+    Display display(PIN_SCREEN_SDA, PIN_SCREEN_SCL);
+    display.display_splash_screen();
 
-    SoilData soilData = probe.sample();
-    display_data(soilData);
+    SoilData soilData;
+    probe.sample(soilData);
+    display.display_data(soilData);
 
     int resetInfo = esp_reset_reason();
     if (resetInfo == ESP_RST_POWERON) {
@@ -46,7 +44,7 @@ void setup() {
     else Serial.println("Data send failed!\n");
 
     Serial.println("Sensor now sleep...");
-    sleep(submitter);
+    sleep(display, submitter);
 }
 
 
