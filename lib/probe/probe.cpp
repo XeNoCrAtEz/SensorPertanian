@@ -1,17 +1,6 @@
 #include "probe.h"
 
 
-// konstanta kalibrasi
-const float Probe::N_a = NITR_CALIB_A;
-const float Probe::N_b = NITR_CALIB_B;
-
-const float Probe::P_a = PHOS_CALIB_A;
-const float Probe::P_b = PHOS_CALIB_B;
-
-const float Probe::K_a = KALI_CALIB_A;
-const float Probe::K_b = KALI_CALIB_B;
-
-
 Probe::Probe(int rx, int tx, int HWSerialNum, int addr)
         : ModbusMaster(), probe(HWSerialNum) {
     begin(addr, probe);
@@ -58,6 +47,20 @@ Probe::ErrorCodes Probe::get_data(uint16_t& data, int regNum) {
 }
 
 
+#ifndef NO_CALIB
+void Probe::calibrateNPK(SoilData &soilData)
+{
+    soilData.nitrogen = (soilData.nitrogen + NITR_CALIB_B) / NITR_CALIB_A;
+    soilData.phosphorus = (soilData.phosphorus + PHOS_CALIB_B) / PHOS_CALIB_A;
+    soilData.kalium = (soilData.kalium + KALI_CALIB_B) / KALI_CALIB_A;
+
+    soilData.nitrogen = soilData.nitrogen < 0 ? 0 : soilData.nitrogen;
+    soilData.phosphorus = soilData.phosphorus < 0 ? 0 : soilData.phosphorus;
+    soilData.kalium = soilData.kalium < 0 ? 0 : soilData.kalium;
+}
+#endif
+
+
 // ---------------------------- Probe KHDTK ------------------------------
 ProbeKHDTK::ProbeKHDTK(int rx, int tx, int HWSerialNum, int addr)
         : Probe(rx, tx, HWSerialNum, addr) {
@@ -83,6 +86,10 @@ Probe::ErrorCodes ProbeKHDTK::sample(SoilData& soilData) {
     soilData.humidity = temp_humidity / (float) 10;
     
     if (get_data(soilData.EC, REG_EC) != SUCCESS) return PROBE_ERROR;
+
+#ifndef NO_CALIB
+    calibrateNPK(soilData);
+#endif
 
     return SUCCESS;
 }
@@ -146,9 +153,9 @@ ProbeDefault::ErrorCodes ProbeDefault::sample(SoilData& soilData) {
     soilData.humidity /= NUM_SAMPLES;
     soilData.EC /= NUM_SAMPLES;
 
-    soilData.nitrogen = (soilData.nitrogen + N_b) / N_a;
-    soilData.phosphorus = (soilData.phosphorus + P_b) / P_a;
-    soilData.kalium = (soilData.kalium + K_b) / K_a;
+#ifndef NO_CALIB
+    calibrateNPK(soilData);
+#endif
 
     return SUCCESS;
 }
@@ -213,9 +220,9 @@ ProbeNew::ErrorCodes ProbeNew::sample(SoilData& soilData) {
     soilData.EC /= NUM_SAMPLES;
     soilData.salt /= NUM_SAMPLES;
 
-    soilData.nitrogen = (soilData.nitrogen + N_b) / N_a;
-    soilData.phosphorus = (soilData.phosphorus + P_b) / P_a;
-    soilData.kalium = (soilData.kalium + K_b) / K_a;
+#ifndef NO_CALIB
+    calibrateNPK(soilData);
+#endif
 
     return SUCCESS;
 }

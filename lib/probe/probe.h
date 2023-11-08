@@ -33,16 +33,6 @@ protected:
     };
     static const uint16_t ku16MBResponseTimeout = 100;  // ms
 
-    // konstanta kalibrasi
-    static const float N_a;
-    static const float N_b;
-
-    static const float P_a;
-    static const float P_b;
-    
-    static const float K_a;
-    static const float K_b;
-
     HardwareSerial probe;
 
 
@@ -50,6 +40,8 @@ public:
     Probe(int rx, int tx, int HWSerialNum=1, int addr=0x01);
 
     ErrorCodes get_data(uint16_t& data, int regNum);
+    void calibrateNPK(SoilData& soilData);
+
     virtual ErrorCodes sample(SoilData& soilData) = 0;
 };
 
