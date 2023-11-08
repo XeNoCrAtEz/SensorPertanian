@@ -37,7 +37,7 @@ SoilDataTable::ErrorCodes SoilDataTable::pop(SoilReading& soilReading) {
 }
 
 
-SoilDataTable::ErrorCodes SoilDataTable::pop_all(SoilReading* &soilReadings, uint32_t& count) {
+SoilDataTable::ErrorCodes SoilDataTable::pop_all(SoilReading* &soilReadings, uint16_t& count) {
     File file = filesystem.open(filename, FILE_READ);
     if (!file) return OPEN_FAILED;
 
