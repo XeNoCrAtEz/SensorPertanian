@@ -27,7 +27,7 @@ public:
 
 protected:
     enum ProbeParams {
-        MAX_RESEND = 10,
+        MAX_RESEND = 3,
         NUM_SAMPLES = 10,
         TOTAL_DATA = 7,
     };
