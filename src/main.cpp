@@ -6,7 +6,12 @@ void setup() {
     Serial.begin(115200);
 
     SoilDataTable dataTable;
-    Submitter submitter(SENSOR_ID);
+
+#if defined(USE_WIFI)
+    SubmitterWiFi submitter;
+#elif defined(USE_GSM)
+    SubmitterGSM submitter;
+#endif
 
 #if defined(PROBE_DEFAULT)
     ProbeDefault probe(PIN_PROBE_RX, PIN_PROBE_TX);
@@ -39,9 +44,14 @@ void setup() {
     info_soil_data(soilData);
 #endif
 
-    int responseCode = submitter.submit_table(dataTable);
-    if (responseCode == HTTP_CODE_OK) Serial.println("Data send successful!\n");
-    else Serial.println("Data send failed!\n");
+    Serial.println("Sending data to server...");
+    int responseCode = submitter.submit_reading(dataTable);
+    if (responseCode == HTTP_CODE_OK) {
+        Serial.println("Data send successful!\n");
+    } else {
+        Serial.print("Data send failed! Error: ");
+        Serial.println(responseCode);
+    }
 
     Serial.println("Sensor now sleep...");
     sleep(display, submitter);
