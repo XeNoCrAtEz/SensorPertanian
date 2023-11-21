@@ -1,6 +1,9 @@
 #include "dataTable.h"
 
 
+const char SoilDataTable::filename[17] = "/soilReading.bin";
+
+
 SoilDataTable::SoilDataTable() {
     if (!filesystem.begin()) {
         Serial.println("LittleFS Mount Failed!");
@@ -8,43 +11,47 @@ SoilDataTable::SoilDataTable() {
     }
 
     File file = filesystem.open(filename, FILE_READ, true);
-    if (!file) return;
-    else Serial.println("File not found! Creation failed!");
+    if (!file) Serial.println("File not found! \"soilReading.bin\" created!");
 }
 
 
-uint8_t SoilDataTable::push(const SoilReading &soilReading) {
+SoilDataTable::ErrorCodes SoilDataTable::push(const SoilReading &soilReading) {
     File file = filesystem.open(filename, FILE_APPEND);
     if (!file) return OPEN_FAILED;
 
-    if (file.write((uint8_t*) &soilReading, sizeof(SoilReading))) return SUCCESS;
-    else return WRITE_FAILED;
+    if (!file.write(reinterpret_cast<const uint8_t*>(&soilReading), sizeof(SoilReading))) return WRITE_FAILED;
+    
+    return SUCCESS;
 }
 
 
-uint8_t SoilDataTable::pop(SoilReading& soilReading) {
+SoilDataTable::ErrorCodes SoilDataTable::pop(SoilReading& soilReading) {
     File file = filesystem.open(filename, FILE_READ);
     if (!file) return OPEN_FAILED;
 
-    if (file.size() == 0) return EMPTY_FILE;
+    if (is_empty()) return EMPTY_FILE;
 
-    if (file.read((uint8_t*) &soilReading, sizeof(SoilReading))) return SUCCESS;
-    else return READ_FAILED;
+    if (!file.read(reinterpret_cast<uint8_t*>(&soilReading), sizeof(SoilReading))) return READ_FAILED;
+    
+    // TODO: delete entry when done popping
+
+    return SUCCESS;
 }
 
 
-uint8_t SoilDataTable::pop_all(SoilReading* &soilReadings, uint32_t& count) {
+SoilDataTable::ErrorCodes SoilDataTable::pop_all(SoilReading* &soilReadings, uint16_t& count) {
     File file = filesystem.open(filename, FILE_READ);
     if (!file) return OPEN_FAILED;
 
-    if (file.size() == 0) return EMPTY_FILE;
+    if (is_empty()) return EMPTY_FILE;
 
     count = get_count();
     soilReadings = new SoilReading[count];
 
-    for (uint16_t i = 0; i < count; i++) {
-        if (!file.read((uint8_t*) &soilReadings[i], sizeof(SoilReading))) return READ_FAILED;
-    }
+    for (uint16_t i = 0; i < count; i++)
+        if (!file.read(reinterpret_cast<uint8_t*>(&soilReadings[i]), sizeof(SoilReading))) return READ_FAILED;
+
+    clear();
 
     return SUCCESS;
 }
@@ -52,25 +59,35 @@ uint8_t SoilDataTable::pop_all(SoilReading* &soilReadings, uint32_t& count) {
 
 uint32_t SoilDataTable::get_count() {
     File file = filesystem.open(filename, FILE_READ);
-    if (!file) return OPEN_FAILED;
+    if (!file) return 0;
 
     return file.size() / sizeof(SoilReading);
 }
 
 
-void SoilDataTable::clear() {
+SoilDataTable::ErrorCodes SoilDataTable::clear() {
     File file = filesystem.open(filename, FILE_WRITE);
+    if (!file) return OPEN_FAILED;
+
+    return SUCCESS;
 }
 
 
 bool SoilDataTable::is_empty() {
     File file = filesystem.open(filename, FILE_READ);
-    if (!file) return OPEN_FAILED;
+    if (!file) return false;
 
     if (file.size() == 0) return true;
-    else return false;
+    
+    return false;
 }
 
+
 bool SoilDataTable::is_full() {
+    File file = filesystem.open(filename, FILE_READ);
+    if (!file) return false;
+
+    if (get_count() >= MAX_COUNT) return true;
+
     return false;
 }

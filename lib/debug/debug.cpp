@@ -1,13 +1,13 @@
 #include "debug.h"
 
 void info_soil_data(const SoilData& soilData) {
-    const int& nitrogen = soilData.nitrogen;
-    const int& phosphorus = soilData.phosphorus;
-    const int& kalium = soilData.kalium;
+    const uint16_t& nitrogen = soilData.nitrogen;
+    const uint16_t& phosphorus = soilData.phosphorus;
+    const uint16_t& kalium = soilData.kalium;
     const float& pH = soilData.pH;
     const float& temperature = soilData.temperature;
     const float& humidity = soilData.humidity;
-    const int& EC = soilData.EC;
+    const uint16_t& EC = soilData.EC;
     const float& salt = soilData.salt; 
 
     // output to USB Serial
