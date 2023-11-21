@@ -9,4 +9,9 @@ const int PIN_PROBE_RX = 16;
 const int PIN_PROBE_TX = 17;
 
 
+const int PIN_RTC_RST  = 16;
+const int PIN_RTC_DATA = 17;
+const int PIN_RTC_CLK  = 5;
+
+
 #endif
