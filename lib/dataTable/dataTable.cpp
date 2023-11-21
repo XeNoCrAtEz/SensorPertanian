@@ -33,6 +33,8 @@ SoilDataTable::ErrorCodes SoilDataTable::pop(SoilReading& soilReading) {
 
     if (!file.read(reinterpret_cast<uint8_t*>(&soilReading), sizeof(SoilReading))) return READ_FAILED;
     
+    // TODO: delete entry when done popping
+
     return SUCCESS;
 }
 
@@ -48,6 +50,8 @@ SoilDataTable::ErrorCodes SoilDataTable::pop_all(SoilReading* &soilReadings, uin
 
     for (uint16_t i = 0; i < count; i++)
         if (!file.read(reinterpret_cast<uint8_t*>(&soilReadings[i]), sizeof(SoilReading))) return READ_FAILED;
+
+    clear();
 
     return SUCCESS;
 }
