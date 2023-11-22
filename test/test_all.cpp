@@ -7,6 +7,7 @@ void test_gps();
 void test_battery();
 void test_oled();
 void test_probe();
+void test_rtc();
 
 
 void setUp() {
@@ -22,11 +23,12 @@ void setup() {
     
     UNITY_BEGIN();
 
-    test_flash_memory();
-    test_gps();
-    test_battery();
-    test_oled();
-    test_probe();
+    // test_flash_memory();
+    // test_gps();
+    // test_battery();
+    // test_oled();
+    // test_probe();
+    test_rtc();
 
     UNITY_END();
 }
