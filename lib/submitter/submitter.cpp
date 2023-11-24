@@ -10,9 +10,6 @@ bool Submitter::is_connected() {
 SubmitterWiFi::SubmitterWiFi()
 {
     WiFi.mode(WIFI_STA);
-
-    // 7*3600 set timezone to Jakarta
-    configTime(7*3600, 0, NTP_SERVER);
     
     if (WiFi.SSID() != WIFI_SSID) {
         WiFi.persistent(true);
@@ -41,8 +38,12 @@ SubmitterWiFi::SubmitterWiFi()
     Serial.println(WiFi.localIP());
 	Serial.println();
 #endif
-    
+
     connected = true;
+    
+    // 7*3600 set timezone to Jakarta
+    configTime(7*3600, 0, NTP_SERVER);
+    
     return;
 }
 
@@ -256,13 +257,7 @@ int SubmitterGSM::submit_reading(SoilDataTable& dataTable) {
     }
     Serial.println(responseCodeStr);
 
-    client.stop();
-
     int responseCode = atoi(responseCodeStr);
-    if (responseCode != HTTP_CODE_OK ) {
-        Serial.print("Error when sending data to server: ");
-        Serial.println(responseCodeStr);
-    }
 
     client.stop();
 
