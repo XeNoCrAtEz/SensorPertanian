@@ -8,6 +8,7 @@ void test_battery();
 void test_oled();
 void test_probe();
 void test_rtc();
+void test_submitter();
 
 
 void setUp() {
@@ -28,7 +29,8 @@ void setup() {
     // test_battery();
     // test_oled();
     // test_probe();
-    test_rtc();
+    // test_rtc();
+    test_submitter();
 
     UNITY_END();
 }

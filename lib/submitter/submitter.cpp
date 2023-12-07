@@ -161,7 +161,7 @@ String SubmitterWiFi::to_timestamp(unsigned long epoch) {
 // ---------------------------- Submitter GSM ------------------------------
 SubmitterGSM::SubmitterGSM(int rx, int tx, int HWSerialNum)
         : serialAT(HWSerialNum), modem(serialAT) {
-    serialAT.begin(BAUDRATE, SERIAL_8N1, rx, tx, false);
+    serialAT.begin(BAUDRATE, SERIAL_8N1, rx, tx);
     if (!modem.init()) {
         Serial.println("Fatal Error! Failed to init GSM module!");
         return;
@@ -180,7 +180,72 @@ SubmitterGSM::SubmitterGSM(int rx, int tx, int HWSerialNum)
 
 // TODO: submit a single reading for GSM
 int SubmitterGSM::submit_reading(SoilReading& soilReading) {
-    return 0;
+    if (!is_connected()) return 0;
+    
+    String Link;
+    Link = "https://" + String(SERVERNAME) + String(SUBMIT_RESOURCE);
+    // Link = "http://" + String(SERVERNAME) + "/Sensor/kirimdata.php";
+
+    // try ping first
+    TinyGsmClientSecure client = TinyGsmClientSecure(modem);
+    if (!client.connect(SERVERNAME, PORT)) {
+        Serial.println("Fatal Error! Server is down!");
+        return 0;
+    }
+
+    DynamicJsonDocument data(32 + 1 * 170);     // based on this calculator https://arduinojson.org/v6/assistant/
+    
+    data["ID"] = SENSOR_ID;
+    
+    JsonArray dataArr = data.createNestedArray("data");
+    
+    JsonObject rowJson = dataArr.createNestedObject();
+    rowJson["timestamp"] = to_timestamp(soilReading.epoch);
+    rowJson["N"] = soilReading.soilData.nitrogen;
+    rowJson["P"] = soilReading.soilData.phosphorus;
+    rowJson["K"] = soilReading.soilData.kalium;
+    rowJson["pH"] = soilReading.soilData.pH;
+    rowJson["temp"] = soilReading.soilData.temperature;
+    rowJson["hum"] = soilReading.soilData.humidity;
+    rowJson["EC"] = soilReading.soilData.EC;
+    rowJson["salt"] = soilReading.soilData.salt;
+
+    String dataStr;
+    serializeJson(data, dataStr);
+
+#ifdef DEBUG
+    serializeJsonPretty(data, Serial);
+#endif
+
+    client.print(String("POST ") + SUBMIT_RESOURCE + " HTTP/1.1\r\n");
+    client.print(String("Host: ") + SERVERNAME + "\r\n");
+    client.println("Connection: keep-alive");
+    client.println("Content-Type: application/json");
+    client.print("Content-Length: ");
+    client.println(dataStr.length());
+    client.println();
+    client.println(dataStr);
+
+    // Wait for data to arrive
+    uint32_t startS = millis();
+    while (client.connected() && !client.available() && millis() - startS < 30000L) {
+        delay(100);
+    };
+
+    // Read data
+    char responseCodeStr[4] = "";
+    if (client.connected() && client.available()) {
+        char c;
+        for(int i = 0; i < 9; i++) c = client.read();   // skip "HTTP/1.1 "
+        for(int i = 0; i < 3; i++) responseCodeStr[i] = client.read();
+        responseCodeStr[3] = '\0';
+    }
+
+    int responseCode = atoi(responseCodeStr);
+
+    client.stop();
+
+    return responseCode;
 }
 
 
@@ -188,23 +253,27 @@ int SubmitterGSM::submit_reading(SoilDataTable& dataTable) {
     if (!is_connected()) return 0;
     
     String Link;
-    Link = "http://" + String(SERVERNAME) + String(SUBMIT_RESOURCE);
+    Link = "https://" + String(SERVERNAME) + String(SUBMIT_RESOURCE);
     // Link = "http://" + String(SERVERNAME) + "/Sensor/kirimdata.php";
 
     // try ping first
-    TinyGsmClient client = TinyGsmClient(modem);
+    TinyGsmClientSecure client = TinyGsmClientSecure(modem);
     if (!client.connect(SERVERNAME, PORT)) {
         Serial.println("Fatal Error! Server is down!");
         return 0;
     }
 
-    DynamicJsonDocument data(dataTable.get_count() * 200);      // dunno 200 is a good number
+    DynamicJsonDocument data(32 + dataTable.get_count() * 170);     // based on this calculator https://arduinojson.org/v6/assistant/
+    
     data["ID"] = SENSOR_ID;
+    
     JsonArray dataArr = data.createNestedArray("data");
     
-    while (!dataTable.is_empty()) {
-        SoilReading row;
-        dataTable.pop(row);
+    uint16_t totalData = 0;
+    SoilReading* soilReadings;
+    dataTable.pop_all(soilReadings, totalData);
+    for (int i = 0; i < totalData; i++) {
+        SoilReading row = soilReadings[i];
 
         JsonObject rowJson = dataArr.createNestedObject();
         rowJson["timestamp"] = to_timestamp(row.epoch);
@@ -218,6 +287,8 @@ int SubmitterGSM::submit_reading(SoilDataTable& dataTable) {
         rowJson["salt"] = row.soilData.salt;
     }
 
+    delete[] soilReadings;
+
     String dataStr;
     serializeJson(data, dataStr);
     
@@ -227,8 +298,10 @@ int SubmitterGSM::submit_reading(SoilDataTable& dataTable) {
 
     client.print(String("POST ") + SUBMIT_RESOURCE + " HTTP/1.1\r\n");
     client.print(String("Host: ") + SERVERNAME + "\r\n");
-    client.println("Connection: close");
+    client.println("Connection: keep-alive");
     client.println("Content-Type: application/json");
+    client.print("Content-Length: ");
+    client.println(dataStr.length());
     client.println();
     client.println(dataStr);
 
@@ -239,23 +312,13 @@ int SubmitterGSM::submit_reading(SoilDataTable& dataTable) {
     };
 
     // Read data
-    startS          = millis();
-    char responseCodeStr[4] = {
-        '\0',
-    };
-    uint8_t read_charsS = 0;
-    while (client.connected() && read_charsS < 4 && millis() - startS < 10000L) {
-        while (client.available()) {
-            char c = client.read();
-            if (isDigit(c)) {
-                responseCodeStr[read_charsS]     = c;
-                responseCodeStr[read_charsS + 1] = '\0';
-                read_charsS++;
-                startS = millis();
-            }
-        }
+    char responseCodeStr[4] = "";
+    if (client.connected() && client.available()) {
+        char c;
+        for(int i = 0; i < 9; i++) c = client.read();   // skip "HTTP/1.1 "
+        for(int i = 0; i < 3; i++) responseCodeStr[i] = client.read();
+        responseCodeStr[3] = '\0';
     }
-    Serial.println(responseCodeStr);
 
     int responseCode = atoi(responseCodeStr);
 
