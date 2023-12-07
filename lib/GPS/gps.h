@@ -9,6 +9,7 @@ class GPS {
 private:
     enum GPSParams {
         TIMEOUT = 2000,   // ms
+        BAUDRATE = 9600
     };
 
 
@@ -21,10 +22,6 @@ public:
 
 
 private:
-    const uint8_t RX_PIN;
-    const uint8_t TX_PIN;
-    const uint16_t BAUDRATE;
-
     double lat;
     double lng;
 
@@ -33,7 +30,7 @@ private:
 
 
 public:
-    GPS(uint16_t baudrate=9600, uint8_t rx=19, uint8_t tx=18, uint8_t HWSerialNum=1);
+    GPS(uint8_t rx, uint8_t tx, uint8_t HWSerialNum=1);
 
     bool get_location(double& lat, double& lng);
     uint8_t get_location_till_timeout();

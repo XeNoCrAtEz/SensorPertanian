@@ -1,9 +1,9 @@
 #include "gps.h"
 
 
-GPS::GPS(uint16_t baudrate, uint8_t rx, uint8_t tx, uint8_t HWSerialNum)
-        : BAUDRATE{baudrate}, RX_PIN{rx}, TX_PIN{tx}, _serial{HWSerialNum} {
-    _serial.begin(BAUDRATE, SERIAL_8N1, RX_PIN, TX_PIN);
+GPS::GPS(uint8_t rx, uint8_t tx, uint8_t HWSerialNum)
+        : _serial{HWSerialNum} {
+    _serial.begin(BAUDRATE, SERIAL_8N1, rx, tx);
 }
 
 
