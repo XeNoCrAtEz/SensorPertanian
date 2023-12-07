@@ -178,7 +178,6 @@ SubmitterGSM::SubmitterGSM(int rx, int tx, int HWSerialNum)
 }
 
 
-// TODO: submit a single reading for GSM
 int SubmitterGSM::submit_reading(SoilReading& soilReading) {
     if (!is_connected()) return 0;
     
@@ -329,19 +328,16 @@ int SubmitterGSM::submit_reading(SoilDataTable& dataTable) {
 
 
 unsigned long SubmitterGSM::get_curr_epoch() {
-    int   year     = 0;
-    int   month    = 0;
-    int   day      = 0;
-    int   hour     = 0;
-    int   min      = 0;
-    int   sec      = 0;
     float timezone = 0;
-    struct tm currentTime = {0, 0, 0, 0, 0, 0, 0, 0, 0};
+    struct tm currentTime = {0};
+    currentTime.tm_isdst = -1;
     if (modem.getNetworkTime(
             &currentTime.tm_year, &currentTime.tm_mon, &currentTime.tm_mday,
             &currentTime.tm_hour, &currentTime.tm_min, &currentTime.tm_sec,
             &timezone
     )) {
+        currentTime.tm_year -= 1900;        // years since 1900
+        currentTime.tm_mon -= 1;            // months since January
         return mktime(&currentTime);
     }
     return 0;
@@ -352,9 +348,10 @@ String SubmitterGSM::to_timestamp(unsigned long epoch) {
     struct tm *timeinfo;
     time_t rawtime = epoch;
 
-    timeinfo = localtime(&rawtime);
+    timeinfo = gmtime(&rawtime);
 
     char timeStringBuff[50];
     strftime(timeStringBuff, sizeof(timeStringBuff), "%Y-%m-%d %H:%M:%S", timeinfo);
-    return timeStringBuff;
+    // return timeStringBuff;
+    return String(ctime(&rawtime));
 }
