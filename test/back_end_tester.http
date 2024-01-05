@@ -1,8 +1,8 @@
-POST http://raspberrypi.local/Sensor/kirimdata.php HTTP/1.1
+POST https://tsth2.del.ac.id/Sensor/store_Sensor.php HTTP/1.1
 content-type: application/json
 
 {
-    "ID": 696,
+    "ID": 1,
     "data": [
         {
             "timestamp": "2023-07-31 07:50:57",

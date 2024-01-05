@@ -11,7 +11,7 @@
 #include <HTTPClient.h>
 #include <ArduinoJSON.h>
 #include <NTPClient.h>
-#include "time.h"
+#include <time.h>
 class Submitter {
 protected:
     enum SubmitterParams {
@@ -21,7 +21,7 @@ protected:
     
 
     const char SERVERNAME[16] = "tsth2.del.ac.id";
-    const uint8_t PORT = 80;
+    const uint16_t PORT = 443;
     const char SUBMIT_RESOURCE[25] = "/Sensor/store_Sensor.php";
 
     bool connected = false;
@@ -71,11 +71,9 @@ private:
         BAUDRATE = 115200,
     };
 
-    const char apn[14] = "M2MINTERNET"; // APN Telkomsel IoT
+    const char apn[14] = "internet"; // APN Telkomsel IoT
     const char gprsUser[1] = "";
     const char gprsPass[1] = "";
-
-    bool connected = false;
 
     HardwareSerial serialAT;
     TinyGsm modem;

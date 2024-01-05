@@ -4,9 +4,12 @@
 #include "gps.h"
 
 
+const uint8_t PIN_GPS_RX = 19;
+const uint8_t PIN_GPS_TX = 18;
+
 // test with GPS unconnected
 void test_gps_unconnected() {
-    GPS gps;
+    GPS gps(PIN_GPS_RX, PIN_GPS_TX);
 
     uint8_t resultCode = gps.get_location_till_timeout();
 
@@ -15,7 +18,7 @@ void test_gps_unconnected() {
 
 
 void test_gps_connected_no_fix() {
-    GPS gps;
+    GPS gps(PIN_GPS_RX, PIN_GPS_TX);
 
     uint8_t resultCode = gps.get_location_till_timeout();
 
@@ -24,7 +27,7 @@ void test_gps_connected_no_fix() {
 
 
 void test_gps_connected_fix() {
-    GPS gps;
+    GPS gps(PIN_GPS_RX, PIN_GPS_TX);
 
     uint8_t resultCode = gps.get_location_till_timeout();
     TEST_ASSERT_EQUAL(GPS::GPS_FIX, resultCode);
