@@ -74,8 +74,6 @@ Logger::ErrorCodes Logger::log(unsigned long time, const char* level, const char
         return SUCCESS;
     }
     else return WRITE_FAILED;
-
-    return SUCCESS;
 }
 
 
