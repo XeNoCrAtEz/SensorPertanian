@@ -6,14 +6,14 @@
 void test_single_msg() {
     String expectedMsg = "1 [E] - Error! JK just a normal message :)";
 
-    auto testDebug = Debugger();
+    auto testDebug = Logger();
     TEST_ASSERT_EQUAL(true, testDebug.isReady());
 
-    Debugger::ErrorCodes errCode = testDebug.log_E(1, "Error! JK just a normal message :)");
-    TEST_ASSERT_EQUAL(Debugger::SUCCESS, errCode);
+    Logger::ErrorCodes errCode = testDebug.log_E(1, "Error! JK just a normal message :)");
+    TEST_ASSERT_EQUAL(Logger::SUCCESS, errCode);
 
     errCode = testDebug.show();
-    TEST_ASSERT_EQUAL(Debugger::SUCCESS, errCode);
+    TEST_ASSERT_EQUAL(Logger::SUCCESS, errCode);
 
     testDebug.clear();
 }

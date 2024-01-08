@@ -1,11 +1,11 @@
 #include "debug.h"
 
 
-const char Debugger::filename[] = "/logging.jsonl";
+const char Logger::filename[] = "/logging.jsonl";
 
 
 #ifdef DEBUG
-Debugger::Debugger() {
+Logger::Logger() {
     if (!filesystem.begin()) {
         Serial.println("LittleFS Mount Failed!");
         return;
@@ -18,7 +18,7 @@ Debugger::Debugger() {
 }
 
 
-Debugger::ErrorCodes Debugger::show() {
+Logger::ErrorCodes Logger::show() {
     File file = filesystem.open(filename, FILE_READ);
     if (!file) return OPEN_FAILED;
 
@@ -41,7 +41,7 @@ Debugger::ErrorCodes Debugger::show() {
 }
 
 
-Debugger::ErrorCodes Debugger::clear() {
+Logger::ErrorCodes Logger::clear() {
     File file = filesystem.open(filename, FILE_WRITE);
     if (!file) return OPEN_FAILED;
 
@@ -49,12 +49,12 @@ Debugger::ErrorCodes Debugger::clear() {
 }
 
 
-bool Debugger::isReady() {
+bool Logger::isReady() {
     return ready;
 }
 
 
-Debugger::ErrorCodes Debugger::log(unsigned long time, const char* level, const char* msg) {
+Logger::ErrorCodes Logger::log(unsigned long time, const char* level, const char* msg) {
     File file = filesystem.open(filename, FILE_APPEND);
     if (!file) return OPEN_FAILED;
 
@@ -73,40 +73,43 @@ Debugger::ErrorCodes Debugger::log(unsigned long time, const char* level, const 
 }
 
 
-Debugger::ErrorCodes Debugger::log_E(unsigned long time, const char* msg) {
+Logger::ErrorCodes Logger::log_E(unsigned long time, const char* msg) {
     return log(time, "E", msg);
 }
 
 
-Debugger::ErrorCodes Debugger::log_W(unsigned long time, const char* msg) {
+Logger::ErrorCodes Logger::log_W(unsigned long time, const char* msg) {
     return log(time, "W", msg);
 }
 
 
-Debugger::ErrorCodes Debugger::log_I(unsigned long time, const char* msg) {
+Logger::ErrorCodes Logger::log_I(unsigned long time, const char* msg) {
     return log(time, "I", msg);
 }
 
 
-Debugger::ErrorCodes Debugger::log_D(unsigned long time, const char* msg) {
+Logger::ErrorCodes Logger::log_D(unsigned long time, const char* msg) {
     return log(time, "D", msg);
 }
 
 
-Debugger::ErrorCodes Debugger::log_V(unsigned long time, const char* msg) {
+Logger::ErrorCodes Logger::log_V(unsigned long time, const char* msg) {
     return log(time, "V", msg);
 }
 
 
 #else
-Debugger::Debugger() {}
-void Debugger::read() {}
-Debugger::ErrorCodes Debugger::log() {}
-Debugger::ErrorCodes Debugger::log_E() {}
-Debugger::ErrorCodes Debugger::log_W() {}
-Debugger::ErrorCodes Debugger::log_I() {}
-Debugger::ErrorCodes Debugger::log_D() {}
-Debugger::ErrorCodes Debugger::log_V() {}
+Logger::Logger() {}
+Logger::ErrorCodes Logger::show() { return SUCCESS; }
+Logger::ErrorCodes Logger::clear() { return SUCCESS; }
+bool Logger::isReady() { return false; }
+
+Logger::ErrorCodes Logger::log(unsigned long time, const char* level, const char* msg) { return SUCCESS; }
+Logger::ErrorCodes Logger::log_E(unsigned long time, const char* msg) { return SUCCESS; }
+Logger::ErrorCodes Logger::log_W(unsigned long time, const char* msg) { return SUCCESS; }
+Logger::ErrorCodes Logger::log_I(unsigned long time, const char* msg) { return SUCCESS; }
+Logger::ErrorCodes Logger::log_D(unsigned long time, const char* msg) { return SUCCESS; }
+Logger::ErrorCodes Logger::log_V(unsigned long time, const char* msg) { return SUCCESS; }
 
 
 #endif

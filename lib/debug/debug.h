@@ -10,7 +10,7 @@
 void info_soil_data(const SoilData& soilData);
 
 
-class Debugger {
+class Logger {
 // CLASS PARAMETERS
 public:
     enum ErrorCodes {
@@ -40,7 +40,7 @@ private:
 
 
 public:
-    Debugger();
+    Logger();
     ErrorCodes show();
     ErrorCodes clear();
     bool isReady();
