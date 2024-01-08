@@ -50,6 +50,8 @@ private:
     static const char filename[];
     fs::LittleFSFS filesystem = LittleFS;
 
+    bool ready = false;
+
 
 public:
     SoilDataTable();
@@ -60,6 +62,7 @@ public:
     uint32_t get_count();
     bool is_empty();
     bool is_full();
+    bool is_ready();
 };
 
 

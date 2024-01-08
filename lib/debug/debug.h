@@ -43,7 +43,7 @@ public:
     Logger();
     ErrorCodes show();
     ErrorCodes clear();
-    bool isReady();
+    bool is_ready();
     
     ErrorCodes log(unsigned long time, const char* level, const char* msg);
     ErrorCodes log_E(unsigned long time, const char* msg);

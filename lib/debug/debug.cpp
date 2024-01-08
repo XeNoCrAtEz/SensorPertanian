@@ -19,7 +19,7 @@ Logger::Logger() {
 
 
 Logger::ErrorCodes Logger::show() {
-    if (!isReady()) return LITTLEFS_FAILED;
+    if (!is_ready()) return LITTLEFS_FAILED;
     
     File file = filesystem.open(filename, FILE_READ);
     if (!file) return OPEN_FAILED;
@@ -44,7 +44,7 @@ Logger::ErrorCodes Logger::show() {
 
 
 Logger::ErrorCodes Logger::clear() {
-    if (!isReady()) return LITTLEFS_FAILED;
+    if (!is_ready()) return LITTLEFS_FAILED;
 
     File file = filesystem.open(filename, FILE_WRITE);
     if (!file) return OPEN_FAILED;
@@ -53,13 +53,13 @@ Logger::ErrorCodes Logger::clear() {
 }
 
 
-bool Logger::isReady() {
+bool Logger::is_ready() {
     return ready;
 }
 
 
 Logger::ErrorCodes Logger::log(unsigned long time, const char* level, const char* msg) {
-    if (!isReady()) return LITTLEFS_FAILED;
+    if (!is_ready()) return LITTLEFS_FAILED;
 
     File file = filesystem.open(filename, FILE_APPEND);
     if (!file) return OPEN_FAILED;
@@ -108,7 +108,7 @@ Logger::ErrorCodes Logger::log_V(unsigned long time, const char* msg) {
 Logger::Logger() {}
 Logger::ErrorCodes Logger::show() { return SUCCESS; }
 Logger::ErrorCodes Logger::clear() { return SUCCESS; }
-bool Logger::isReady() { return false; }
+bool Logger::is_ready() { return false; }
 
 Logger::ErrorCodes Logger::log(unsigned long time, const char* level, const char* msg) { return SUCCESS; }
 Logger::ErrorCodes Logger::log_E(unsigned long time, const char* msg) { return SUCCESS; }

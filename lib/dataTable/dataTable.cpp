@@ -12,10 +12,19 @@ SoilDataTable::SoilDataTable() {
 
     File file = filesystem.open(filename, FILE_READ, true);
     if (!file) Serial.println("File not found! \"soilReading.bin\" created!");
+
+    ready = true;
+}
+
+
+bool SoilDataTable::is_ready() {
+    return ready;
 }
 
 
 SoilDataTable::ErrorCodes SoilDataTable::push(const SoilReading &soilReading) {
+    if (!is_ready()) return LITTLEFS_FAILED;
+
     File file = filesystem.open(filename, FILE_APPEND);
     if (!file) return OPEN_FAILED;
 
@@ -26,6 +35,8 @@ SoilDataTable::ErrorCodes SoilDataTable::push(const SoilReading &soilReading) {
 
 
 SoilDataTable::ErrorCodes SoilDataTable::pop(SoilReading& soilReading) {
+    if (!is_ready()) return LITTLEFS_FAILED;
+
     File file = filesystem.open(filename, FILE_READ);
     if (!file) return OPEN_FAILED;
 
@@ -40,6 +51,8 @@ SoilDataTable::ErrorCodes SoilDataTable::pop(SoilReading& soilReading) {
 
 
 SoilDataTable::ErrorCodes SoilDataTable::pop_all(SoilReading* &soilReadings, uint16_t& count) {
+    if (!is_ready()) return LITTLEFS_FAILED;
+    
     File file = filesystem.open(filename, FILE_READ);
     if (!file) return OPEN_FAILED;
 
@@ -58,6 +71,8 @@ SoilDataTable::ErrorCodes SoilDataTable::pop_all(SoilReading* &soilReadings, uin
 
 
 uint32_t SoilDataTable::get_count() {
+    if (!is_ready()) return LITTLEFS_FAILED;
+
     File file = filesystem.open(filename, FILE_READ);
     if (!file) return 0;
 
@@ -66,6 +81,8 @@ uint32_t SoilDataTable::get_count() {
 
 
 SoilDataTable::ErrorCodes SoilDataTable::clear() {
+    if (!is_ready()) return LITTLEFS_FAILED;
+    
     File file = filesystem.open(filename, FILE_WRITE);
     if (!file) return OPEN_FAILED;
 
@@ -74,6 +91,8 @@ SoilDataTable::ErrorCodes SoilDataTable::clear() {
 
 
 bool SoilDataTable::is_empty() {
+    if (!is_ready()) return LITTLEFS_FAILED;
+
     File file = filesystem.open(filename, FILE_READ);
     if (!file) return false;
 
@@ -84,6 +103,8 @@ bool SoilDataTable::is_empty() {
 
 
 bool SoilDataTable::is_full() {
+    if (!is_ready()) return LITTLEFS_FAILED;
+    
     File file = filesystem.open(filename, FILE_READ);
     if (!file) return false;
 
