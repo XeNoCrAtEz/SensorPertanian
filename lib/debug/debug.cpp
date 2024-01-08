@@ -19,6 +19,8 @@ Logger::Logger() {
 
 
 Logger::ErrorCodes Logger::show() {
+    if (!isReady()) return LITTLEFS_FAILED;
+    
     File file = filesystem.open(filename, FILE_READ);
     if (!file) return OPEN_FAILED;
 
@@ -42,6 +44,8 @@ Logger::ErrorCodes Logger::show() {
 
 
 Logger::ErrorCodes Logger::clear() {
+    if (!isReady()) return LITTLEFS_FAILED;
+
     File file = filesystem.open(filename, FILE_WRITE);
     if (!file) return OPEN_FAILED;
 
@@ -55,6 +59,8 @@ bool Logger::isReady() {
 
 
 Logger::ErrorCodes Logger::log(unsigned long time, const char* level, const char* msg) {
+    if (!isReady()) return LITTLEFS_FAILED;
+
     File file = filesystem.open(filename, FILE_APPEND);
     if (!file) return OPEN_FAILED;
 
