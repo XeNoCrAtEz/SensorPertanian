@@ -2,6 +2,7 @@
 
 
 const char Logger::filename[] = "/logging.jsonl";
+Logger logger = Logger();
 
 
 #ifdef DEBUG

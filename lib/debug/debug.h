@@ -56,4 +56,7 @@ public:
 };
 
 
+extern Logger logger;
+
+
 #endif

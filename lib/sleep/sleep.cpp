@@ -28,10 +28,7 @@ void sleep(Display& display, Submitter &submitter) {
     preferences.putLong(epochKeyname, currentEpoch);
     preferences.end();
 
-#ifdef DEBUG
-    Serial.print("Time to sleep: ");
-    Serial.println(sleepTime);
-#endif
+    logger.log_I(time, "Time to sleep: --- please implement!");
 
     esp_deep_sleep(sleepTime * uS_TO_S_FACTOR);
 }
