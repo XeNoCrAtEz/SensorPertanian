@@ -9,6 +9,7 @@ void test_oled();
 void test_probe();
 void test_rtc();
 void test_submitter();
+void test_logger();
 
 
 void setUp() {
@@ -30,7 +31,8 @@ void setup() {
     // test_oled();
     // test_probe();
     // test_rtc();
-    test_submitter();
+    // test_submitter();
+    test_logger();
 
     UNITY_END();
 }
