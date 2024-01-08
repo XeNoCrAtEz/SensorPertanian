@@ -10,7 +10,7 @@ void setup() {
 #if defined(USE_WIFI)
     SubmitterWiFi submitter;
 #elif defined(USE_GSM)
-    SubmitterGSM submitter;
+    SubmitterGSM submitter(PIN_GSM_RX, PIN_GSM_TX);
 #endif
 
 #if defined(PROBE_DEFAULT)
@@ -35,7 +35,7 @@ void setup() {
         preferences.end();
     }
     
-    if (submitter.is_connected())
+    if (submitter.is_ready())
         currentEpoch = submitter.get_curr_epoch();
 
     dataTable.push(SoilReading(soilData, currentEpoch));

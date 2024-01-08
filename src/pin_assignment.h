@@ -8,10 +8,14 @@ const int PIN_SCREEN_SCL = 4;
 const int PIN_PROBE_RX = 16;
 const int PIN_PROBE_TX = 17;
 
-
 const int PIN_RTC_RST  = 16;
 const int PIN_RTC_DATA = 17;
 const int PIN_RTC_CLK  = 5;
+
+#ifdef USE_GSM
+const int PIN_GSM_RX = 1;
+const int PIN_GSM_TX = 1;
+#endif
 
 
 #endif

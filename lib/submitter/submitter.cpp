@@ -1,8 +1,8 @@
 #include "submitter.h"
 
 
-bool Submitter::is_connected() {
-    return connected;
+bool Submitter::is_ready() {
+    return ready;
 }
 
 
@@ -24,7 +24,7 @@ SubmitterWiFi::SubmitterWiFi()
         Serial.print(".");
         if (attempts >= MAX_REATTEMPT) {
             Serial.println("\nCannot connect to WiFi!");
-            connected = false;
+            ready = false;
             return;
         }
         WiFi.disconnect();
@@ -39,7 +39,7 @@ SubmitterWiFi::SubmitterWiFi()
 	Serial.println();
 #endif
 
-    connected = true;
+    ready = true;
     
     // 7*3600 set timezone to Jakarta
     configTime(7*3600, 0, NTP_SERVER);
@@ -49,7 +49,7 @@ SubmitterWiFi::SubmitterWiFi()
 
 
 int SubmitterWiFi::submit_reading(SoilReading& soilReading) {
-    if (!is_connected()) return 0;
+    if (!is_ready()) return 0;
     
     String Link;
     Link = "https://" + String(SERVERNAME) + String(SUBMIT_RESOURCE);
@@ -90,7 +90,7 @@ int SubmitterWiFi::submit_reading(SoilReading& soilReading) {
 
 
 int SubmitterWiFi::submit_reading(SoilDataTable& dataTable) {
-    if (!is_connected()) return 0;
+    if (!is_ready()) return 0;
     
     String Link;
     Link = "https://" + String(SERVERNAME) + String(SUBMIT_RESOURCE);
@@ -174,12 +174,12 @@ SubmitterGSM::SubmitterGSM(int rx, int tx, int HWSerialNum)
         Serial.println("Fatal Error! Cannot connect to GPRS!");
         return;
     }
-    connected = modem.isGprsConnected();
+    ready = modem.isGprsConnected();
 }
 
 
 int SubmitterGSM::submit_reading(SoilReading& soilReading) {
-    if (!is_connected()) return 0;
+    if (!is_ready()) return 0;
     
     String Link;
     Link = "https://" + String(SERVERNAME) + String(SUBMIT_RESOURCE);
@@ -249,7 +249,7 @@ int SubmitterGSM::submit_reading(SoilReading& soilReading) {
 
 
 int SubmitterGSM::submit_reading(SoilDataTable& dataTable) {
-    if (!is_connected()) return 0;
+    if (!is_ready()) return 0;
     
     String Link;
     Link = "https://" + String(SERVERNAME) + String(SUBMIT_RESOURCE);

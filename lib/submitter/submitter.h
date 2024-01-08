@@ -26,7 +26,7 @@ protected:
     const uint16_t PORT = 443;
     const char SUBMIT_RESOURCE[25] = "/Sensor/store_Sensor.php";
 
-    bool connected = false;
+    bool ready = false;
 
 
 public:
@@ -36,7 +36,7 @@ public:
     virtual unsigned long get_curr_epoch() = 0;
     virtual String to_timestamp(unsigned long epoch) = 0;
 
-    bool is_connected();
+    bool is_ready();
 
 
 };
