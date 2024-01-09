@@ -48,12 +48,31 @@ void print_date_time(const RtcDateTime& dt) {
         datestring, 
         26,
         "%02u/%02u/%04u %02u:%02u:%02u",
-        dt.Month(),
         dt.Day(),
+        dt.Month(),
         dt.Year(),
         dt.Hour(),
         dt.Minute(),
         dt.Second()
     );
     Serial.print(datestring);
+}
+
+
+String RtcDateTime_to_Str(const RtcDateTime& dt) {
+    char datestring[26];
+
+    snprintf(
+        datestring, 
+        26,
+        "%02u/%02u/%04u %02u:%02u:%02u",
+        dt.Day(),
+        dt.Month(),
+        dt.Year(),
+        dt.Hour(),
+        dt.Minute(),
+        dt.Second()
+    );
+
+    return datestring;
 }
