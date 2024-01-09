@@ -10,6 +10,7 @@ void test_probe();
 void test_rtc();
 void test_submitter();
 void test_logger();
+void test_sleep();
 
 
 void setUp() {
@@ -32,7 +33,8 @@ void setup() {
     // test_probe();
     // test_rtc();
     // test_submitter();
-    test_logger();
+    // test_logger();
+    test_sleep();
 
     UNITY_END();
 }
