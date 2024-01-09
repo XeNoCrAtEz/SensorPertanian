@@ -18,6 +18,7 @@ public:
         READ_FAILED,
         EMPTY_FILE,
         LITTLEFS_FAILED,
+        PRINT_MODE,
         UNKNOWN_ERROR,
     };
 
@@ -36,13 +37,17 @@ private:
     RTC& timekeeper;
     
     bool ready = false;
+    bool printMode = false;
+
+    void print(const String& time, const char* level, const char* msg);
 
 
 public:
-    Logger(RTC& rtc);
+    Logger(RTC& rtc, bool printMode=false);
     ErrorCodes show();
     ErrorCodes clear();
     bool is_ready();
+    bool is_print_mode();
     
     ErrorCodes log(const char* level, const char* msg);
     ErrorCodes log_E(const char* msg);

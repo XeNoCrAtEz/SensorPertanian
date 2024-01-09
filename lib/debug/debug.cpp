@@ -4,10 +4,21 @@
 const char Logger::filename[] = "/logging.jsonl";
 
 
+void Logger::print(const String& time, const char* level, const char* msg) {
+    Serial.print(time);
+    Serial.print(" [");
+    Serial.print(level);
+    Serial.print("] - ");
+    Serial.println(msg);
+}
+
+
 #ifdef DEBUG
-Logger::Logger(RTC& rtc)
-        : timekeeper(rtc)
+Logger::Logger(RTC& rtc, bool printMode)
+        : timekeeper(rtc), printMode(printMode)
 {
+    if (printMode) return;
+
     if (!filesystem.begin()) {
         Serial.println("LittleFS Mount Failed!");
         return;
@@ -21,7 +32,9 @@ Logger::Logger(RTC& rtc)
 
 
 Logger::ErrorCodes Logger::show() {
-    if (!is_ready()) return LITTLEFS_FAILED;
+    if (printMode) return PRINT_MODE;
+
+    if (!ready) return LITTLEFS_FAILED;
     
     File file = filesystem.open(filename, FILE_READ);
     if (!file) return OPEN_FAILED;
@@ -34,11 +47,7 @@ Logger::ErrorCodes Logger::show() {
         DeserializationError err = deserializeJson(logEntry, file);
         if (err) break;
 
-        Serial.print(logEntry["time"].as<String>());
-        Serial.print(" [");
-        Serial.print(logEntry["level"].as<const char*>());
-        Serial.print("] - ");
-        Serial.println(logEntry["msg"].as<const char*>());
+        print(logEntry["time"].as<String>(), logEntry["level"].as<const char*>(), logEntry["msg"].as<const char*>());
     }
 
     return SUCCESS;
@@ -46,7 +55,9 @@ Logger::ErrorCodes Logger::show() {
 
 
 Logger::ErrorCodes Logger::clear() {
-    if (!is_ready()) return LITTLEFS_FAILED;
+    if (printMode) return PRINT_MODE;
+
+    if (!ready) return LITTLEFS_FAILED;
 
     File file = filesystem.open(filename, FILE_WRITE);
     if (!file) return OPEN_FAILED;
@@ -60,8 +71,18 @@ bool Logger::is_ready() {
 }
 
 
+bool Logger::is_print_mode() {
+    return printMode;
+}
+
+
 Logger::ErrorCodes Logger::log(const char* level, const char* msg) {
-    if (!is_ready()) return LITTLEFS_FAILED;
+    if (printMode) {
+        print(RtcDateTime_to_Str(timekeeper.get_date_time()), level, msg);
+        return PRINT_MODE;
+    }
+
+    if (!ready) return LITTLEFS_FAILED;
 
     File file = filesystem.open(filename, FILE_APPEND);
     if (!file) return OPEN_FAILED;
