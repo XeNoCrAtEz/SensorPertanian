@@ -1,11 +1,9 @@
 #ifndef _SOIL_DATA_H_
 #define _SOIL_DATA_H_
 
+#include <Arduino.h>
 
-class SoilData {
-private:
-
-
+class SoilData : public Printable {
 public:
     uint16_t nitrogen, phosphorus, kalium;
     float pH, temperature, humidity, salt;
@@ -24,6 +22,22 @@ public:
             phosphorus == s2.phosphorus &&
             salt == s2.salt &&
             temperature == s2.temperature;
+    }
+
+    size_t printTo(Print& p) const {
+        size_t r = 0;
+
+        // output to USB Serial
+        r += p.println("Nitrogen   : " + String(nitrogen) + " mg/kg");
+        r += p.println("Phosphorous: " + String(phosphorus) + " mg/kg");
+        r += p.println("Potassium  : " + String(kalium) + " mg/kg");
+        r += p.println("pH         : " + String(pH));
+        r += p.println("Temperature: " + String(temperature) + " C");
+        r += p.println("Humidity   : " + String(humidity) + " %");
+        r += p.println("EC         : " + String(EC) + " uS/cm");
+        r += p.println("Salt       : " + String(salt) + " g/kg");
+
+        return r;
     }
 
 

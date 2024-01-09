@@ -2,11 +2,12 @@
 
 
 const char Logger::filename[] = "/logging.jsonl";
-Logger logger = Logger();
 
 
 #ifdef DEBUG
-Logger::Logger() {
+Logger::Logger(RTC& rtc)
+        : timekeeper(rtc)
+{
     if (!filesystem.begin()) {
         Serial.println("LittleFS Mount Failed!");
         return;
@@ -59,14 +60,14 @@ bool Logger::is_ready() {
 }
 
 
-Logger::ErrorCodes Logger::log(unsigned long time, const char* level, const char* msg) {
+Logger::ErrorCodes Logger::log(const char* level, const char* msg) {
     if (!is_ready()) return LITTLEFS_FAILED;
 
     File file = filesystem.open(filename, FILE_APPEND);
     if (!file) return OPEN_FAILED;
 
     StaticJsonDocument<JSON_ENTRY_SIZE> logEntry;
-    logEntry["time"] = time;
+    logEntry["time"] = timekeeper.get_date_time().Epoch32Time();
     logEntry["level"] = level;
     logEntry["msg"] = msg;
 
@@ -78,90 +79,43 @@ Logger::ErrorCodes Logger::log(unsigned long time, const char* level, const char
 }
 
 
-Logger::ErrorCodes Logger::log_E(unsigned long time, const char* msg) {
-    return log(time, "E", msg);
+Logger::ErrorCodes Logger::log_E(const char* msg) {
+    return log("E", msg);
 }
 
 
-Logger::ErrorCodes Logger::log_W(unsigned long time, const char* msg) {
-    return log(time, "W", msg);
+Logger::ErrorCodes Logger::log_W(const char* msg) {
+    return log("W", msg);
 }
 
 
-Logger::ErrorCodes Logger::log_I(unsigned long time, const char* msg) {
-    return log(time, "I", msg);
+Logger::ErrorCodes Logger::log_I(const char* msg) {
+    return log("I", msg);
 }
 
 
-Logger::ErrorCodes Logger::log_D(unsigned long time, const char* msg) {
-    return log(time, "D", msg);
+Logger::ErrorCodes Logger::log_D(const char* msg) {
+    return log("D", msg);
 }
 
 
-Logger::ErrorCodes Logger::log_V(unsigned long time, const char* msg) {
-    return log(time, "V", msg);
+Logger::ErrorCodes Logger::log_V(const char* msg) {
+    return log("V", msg);
 }
 
 
 #else
-Logger::Logger() {}
+Logger::Logger(RTC& rtc) {}
 Logger::ErrorCodes Logger::show() { return SUCCESS; }
 Logger::ErrorCodes Logger::clear() { return SUCCESS; }
 bool Logger::is_ready() { return false; }
 
-Logger::ErrorCodes Logger::log(unsigned long time, const char* level, const char* msg) { return SUCCESS; }
-Logger::ErrorCodes Logger::log_E(unsigned long time, const char* msg) { return SUCCESS; }
-Logger::ErrorCodes Logger::log_W(unsigned long time, const char* msg) { return SUCCESS; }
-Logger::ErrorCodes Logger::log_I(unsigned long time, const char* msg) { return SUCCESS; }
-Logger::ErrorCodes Logger::log_D(unsigned long time, const char* msg) { return SUCCESS; }
-Logger::ErrorCodes Logger::log_V(unsigned long time, const char* msg) { return SUCCESS; }
+Logger::ErrorCodes Logger::log(const char* level, const char* msg) { return SUCCESS; }
+Logger::ErrorCodes Logger::log_E(const char* msg) { return SUCCESS; }
+Logger::ErrorCodes Logger::log_W(const char* msg) { return SUCCESS; }
+Logger::ErrorCodes Logger::log_I(const char* msg) { return SUCCESS; }
+Logger::ErrorCodes Logger::log_D(const char* msg) { return SUCCESS; }
+Logger::ErrorCodes Logger::log_V(const char* msg) { return SUCCESS; }
 
 
 #endif
-
-
-void info_soil_data(const SoilData& soilData) {
-    const uint16_t& nitrogen = soilData.nitrogen;
-    const uint16_t& phosphorus = soilData.phosphorus;
-    const uint16_t& kalium = soilData.kalium;
-    const float& pH = soilData.pH;
-    const float& temperature = soilData.temperature;
-    const float& humidity = soilData.humidity;
-    const uint16_t& EC = soilData.EC;
-    const float& salt = soilData.salt; 
-
-    // output to USB Serial
-    Serial.print("Nitrogen: ");
-    Serial.print(nitrogen);
-    Serial.println(" mg/kg");
-
-    Serial.print("Phosphorous: ");
-    Serial.print(phosphorus);
-    Serial.println(" mg/kg");
-
-    Serial.print("Potassium: ");
-    Serial.print(kalium);
-    Serial.println(" mg/kg");
-
-    Serial.print("pH: ");
-    Serial.println(pH);
-
-    Serial.print("Temperature: ");
-    Serial.print(temperature);
-    Serial.println(" C");
-    
-    Serial.print("Humidity: ");
-    Serial.print(humidity);
-    Serial.println(" %");
-
-    Serial.print("EC: ");
-    Serial.print(EC);
-    Serial.println(" uS/cm");
-
-    Serial.println("Salt");
-    Serial.print(salt);
-    Serial.println("g/kg");
-
-    Serial.println();
-}
-

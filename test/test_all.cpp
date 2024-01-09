@@ -11,6 +11,7 @@ void test_rtc();
 void test_submitter();
 void test_logger();
 void test_sleep();
+void test_soil_data();
 
 
 void setUp() {
@@ -34,7 +35,8 @@ void setup() {
     // test_rtc();
     // test_submitter();
     // test_logger();
-    test_sleep();
+    // test_sleep();
+    test_soil_data();
 
     UNITY_END();
 }

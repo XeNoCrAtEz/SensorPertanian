@@ -5,9 +5,7 @@
 #include <LittleFS.h>
 #include <ArduinoJson.h>
 #include "soil_data.h"
-
-
-void info_soil_data(const SoilData& soilData);
+#include "RTCModule.h"
 
 
 class Logger {
@@ -35,22 +33,23 @@ private:
 private:
     static const char filename[];
     fs::LittleFSFS filesystem = LittleFS;
-
+    RTC& timekeeper;
+    
     bool ready = false;
 
 
 public:
-    Logger();
+    Logger(RTC& rtc);
     ErrorCodes show();
     ErrorCodes clear();
     bool is_ready();
     
-    ErrorCodes log(unsigned long time, const char* level, const char* msg);
-    ErrorCodes log_E(unsigned long time, const char* msg);
-    ErrorCodes log_W(unsigned long time, const char* msg);
-    ErrorCodes log_I(unsigned long time, const char* msg);
-    ErrorCodes log_D(unsigned long time, const char* msg);
-    ErrorCodes log_V(unsigned long time, const char* msg);
+    ErrorCodes log(const char* level, const char* msg);
+    ErrorCodes log_E(const char* msg);
+    ErrorCodes log_W(const char* msg);
+    ErrorCodes log_I(const char* msg);
+    ErrorCodes log_D(const char* msg);
+    ErrorCodes log_V(const char* msg);
 
 
 };
