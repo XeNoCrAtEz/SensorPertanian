@@ -34,7 +34,7 @@ Logger::ErrorCodes Logger::show() {
         DeserializationError err = deserializeJson(logEntry, file);
         if (err) break;
 
-        Serial.print(logEntry["time"].as<int>());
+        Serial.print(logEntry["time"].as<String>());
         Serial.print(" [");
         Serial.print(logEntry["level"].as<const char*>());
         Serial.print("] - ");
@@ -67,7 +67,7 @@ Logger::ErrorCodes Logger::log(const char* level, const char* msg) {
     if (!file) return OPEN_FAILED;
 
     StaticJsonDocument<JSON_ENTRY_SIZE> logEntry;
-    logEntry["time"] = timekeeper.get_date_time().Epoch32Time();
+    logEntry["time"] = RtcDateTime_to_Str(timekeeper.get_date_time());
     logEntry["level"] = level;
     logEntry["msg"] = msg;
 
