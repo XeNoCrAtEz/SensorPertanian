@@ -4,6 +4,7 @@
 const char Logger::filename[] = "/logging.jsonl";
 
 
+#ifdef DEBUG
 void Logger::print(const String& time, const char* level, const char* msg) {
     Serial.print(time);
     Serial.print(" [");
@@ -13,7 +14,6 @@ void Logger::print(const String& time, const char* level, const char* msg) {
 }
 
 
-#ifdef DEBUG
 Logger::Logger(RTC& rtc, bool printMode)
         : timekeeper(rtc), printMode(printMode)
 {
@@ -126,17 +126,20 @@ Logger::ErrorCodes Logger::log_V(const char* msg) {
 
 
 #else
-Logger::Logger(RTC& rtc) {}
-Logger::ErrorCodes Logger::show() { return SUCCESS; }
-Logger::ErrorCodes Logger::clear() { return SUCCESS; }
-bool Logger::is_ready() { return false; }
+Logger::Logger(RTC& rtc, bool printMode) : timekeeper(rtc) {}
+Logger::ErrorCodes Logger::show() { return DEBUG_INACTIVE; }
+Logger::ErrorCodes Logger::clear() { return DEBUG_INACTIVE; }
+bool Logger::is_ready() { return ready; }
+bool Logger::is_print_mode() { return printMode; }
 
-Logger::ErrorCodes Logger::log(const char* level, const char* msg) { return SUCCESS; }
-Logger::ErrorCodes Logger::log_E(const char* msg) { return SUCCESS; }
-Logger::ErrorCodes Logger::log_W(const char* msg) { return SUCCESS; }
-Logger::ErrorCodes Logger::log_I(const char* msg) { return SUCCESS; }
-Logger::ErrorCodes Logger::log_D(const char* msg) { return SUCCESS; }
-Logger::ErrorCodes Logger::log_V(const char* msg) { return SUCCESS; }
+Logger::ErrorCodes Logger::log(const char* level, const char* msg) { return DEBUG_INACTIVE; }
+Logger::ErrorCodes Logger::log_E(const char* msg) { return DEBUG_INACTIVE; }
+Logger::ErrorCodes Logger::log_W(const char* msg) { return DEBUG_INACTIVE; }
+Logger::ErrorCodes Logger::log_I(const char* msg) { return DEBUG_INACTIVE; }
+Logger::ErrorCodes Logger::log_D(const char* msg) { return DEBUG_INACTIVE; }
+Logger::ErrorCodes Logger::log_V(const char* msg) { return DEBUG_INACTIVE; }
+
+void Logger::print(const String& time, const char* level, const char* msg) {}
 
 
 #endif

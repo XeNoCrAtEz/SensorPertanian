@@ -19,6 +19,7 @@ public:
         EMPTY_FILE,
         LITTLEFS_FAILED,
         PRINT_MODE,
+        DEBUG_INACTIVE,
         UNKNOWN_ERROR,
     };
 
