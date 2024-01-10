@@ -40,7 +40,7 @@ private:
     bool ready = false;
     bool printMode = false;
 
-    void print(const String& time, const char* level, const char* msg);
+    void print(const String& time, const String& level, const String& msg);
 
 
 public:
@@ -50,12 +50,12 @@ public:
     bool is_ready();
     bool is_print_mode();
     
-    ErrorCodes log(const char* level, const char* msg);
-    ErrorCodes log_E(const char* msg);
-    ErrorCodes log_W(const char* msg);
-    ErrorCodes log_I(const char* msg);
-    ErrorCodes log_D(const char* msg);
-    ErrorCodes log_V(const char* msg);
+    ErrorCodes log(const String& level, const String& msg);
+    ErrorCodes log_E(const String& msg);
+    ErrorCodes log_W(const String& msg);
+    ErrorCodes log_I(const String& msg);
+    ErrorCodes log_D(const String& msg);
+    ErrorCodes log_V(const String& msg);
 
 
 };

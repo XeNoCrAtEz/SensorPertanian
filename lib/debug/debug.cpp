@@ -5,7 +5,7 @@ const char Logger::filename[] = "/logging.jsonl";
 
 
 #ifdef DEBUG
-void Logger::print(const String& time, const char* level, const char* msg) {
+void Logger::print(const String& time, const String& level, const String& msg) {
     Serial.print(time);
     Serial.print(" [");
     Serial.print(level);
@@ -47,8 +47,10 @@ Logger::ErrorCodes Logger::show() {
         DeserializationError err = deserializeJson(logEntry, file);
         if (err) break;
 
-        print(logEntry["time"].as<String>(), logEntry["level"].as<const char*>(), logEntry["msg"].as<const char*>());
+        print(logEntry["time"].as<String>(), logEntry["level"].as<String>(), logEntry["msg"].as<String>());
     }
+    
+    clear();
 
     return SUCCESS;
 }
@@ -76,7 +78,7 @@ bool Logger::is_print_mode() {
 }
 
 
-Logger::ErrorCodes Logger::log(const char* level, const char* msg) {
+Logger::ErrorCodes Logger::log(const String& level, const String& msg) {
     if (printMode) {
         print(RtcDateTime_to_Str(timekeeper.get_date_time()), level, msg);
         return PRINT_MODE;
@@ -100,27 +102,27 @@ Logger::ErrorCodes Logger::log(const char* level, const char* msg) {
 }
 
 
-Logger::ErrorCodes Logger::log_E(const char* msg) {
+Logger::ErrorCodes Logger::log_E(const String& msg) {
     return log("E", msg);
 }
 
 
-Logger::ErrorCodes Logger::log_W(const char* msg) {
+Logger::ErrorCodes Logger::log_W(const String& msg) {
     return log("W", msg);
 }
 
 
-Logger::ErrorCodes Logger::log_I(const char* msg) {
+Logger::ErrorCodes Logger::log_I(const String& msg) {
     return log("I", msg);
 }
 
 
-Logger::ErrorCodes Logger::log_D(const char* msg) {
+Logger::ErrorCodes Logger::log_D(const String& msg) {
     return log("D", msg);
 }
 
 
-Logger::ErrorCodes Logger::log_V(const char* msg) {
+Logger::ErrorCodes Logger::log_V(const String& msg) {
     return log("V", msg);
 }
 
@@ -132,14 +134,14 @@ Logger::ErrorCodes Logger::clear() { return DEBUG_INACTIVE; }
 bool Logger::is_ready() { return ready; }
 bool Logger::is_print_mode() { return printMode; }
 
-Logger::ErrorCodes Logger::log(const char* level, const char* msg) { return DEBUG_INACTIVE; }
-Logger::ErrorCodes Logger::log_E(const char* msg) { return DEBUG_INACTIVE; }
-Logger::ErrorCodes Logger::log_W(const char* msg) { return DEBUG_INACTIVE; }
-Logger::ErrorCodes Logger::log_I(const char* msg) { return DEBUG_INACTIVE; }
-Logger::ErrorCodes Logger::log_D(const char* msg) { return DEBUG_INACTIVE; }
-Logger::ErrorCodes Logger::log_V(const char* msg) { return DEBUG_INACTIVE; }
+Logger::ErrorCodes Logger::log(const String& level, const String& msg) { return DEBUG_INACTIVE; }
+Logger::ErrorCodes Logger::log_E(const String& msg) { return DEBUG_INACTIVE; }
+Logger::ErrorCodes Logger::log_W(const String& msg) { return DEBUG_INACTIVE; }
+Logger::ErrorCodes Logger::log_I(const String& msg) { return DEBUG_INACTIVE; }
+Logger::ErrorCodes Logger::log_D(const String& msg) { return DEBUG_INACTIVE; }
+Logger::ErrorCodes Logger::log_V(const String& msg) { return DEBUG_INACTIVE; }
 
-void Logger::print(const String& time, const char* level, const char* msg) {}
+void Logger::print(const String& time, const String& level, const String& msg) {}
 
 
 #endif
