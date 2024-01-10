@@ -42,37 +42,11 @@ void RTC::set_date_time(const RtcDateTime& dateTime) {
 
 
 void print_date_time(const RtcDateTime& dt) {
-    char datestring[26];
-
-    snprintf(
-        datestring, 
-        26,
-        "%02u/%02u/%04u %02u:%02u:%02u",
-        dt.Day(),
-        dt.Month(),
-        dt.Year(),
-        dt.Hour(),
-        dt.Minute(),
-        dt.Second()
-    );
-    Serial.print(datestring);
+    Serial.println(RtcDateTime_to_Str(dt));
 }
 
 
 String RtcDateTime_to_Str(const RtcDateTime& dt) {
-    char datestring[26];
-
-    snprintf(
-        datestring, 
-        26,
-        "%02u/%02u/%04u %02u:%02u:%02u",
-        dt.Day(),
-        dt.Month(),
-        dt.Year(),
-        dt.Hour(),
-        dt.Minute(),
-        dt.Second()
-    );
-
-    return datestring;
+    return String(dt.Year()) + "-" + String(dt.Month()) + "-" + String(dt.Day()) + " " +
+        String(dt.Hour()) + ":" + String(dt.Minute()) + ":" + String(dt.Second());
 }
