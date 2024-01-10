@@ -321,13 +321,8 @@ int SubmitterGSM::submit_reading(SoilDataTable& dataTable) {
 RtcDateTime SubmitterGSM::get_current_time() {
     int year, month, dayOfMonth, hour, minute, second;
     float timezone = 0;
-    if (modem.getNetworkTime(
-            &year, &month, &dayOfMonth,
-            &hour, &minute, &second,
-            &timezone
-    )) {
+    if (modem.getNetworkTime(&year, &month, &dayOfMonth, &hour, &minute, &second, &timezone))
         return RtcDateTime(year, month, dayOfMonth, hour+timezone, minute, second);
-    }
 
     return RtcDateTime(0);
 }
