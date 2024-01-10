@@ -10,7 +10,7 @@
 
 class SoilReading {
 public:
-    uint32_t epoch;
+    uint32_t epoch;         // seconds from 2000
     SoilData soilData;
 
 
