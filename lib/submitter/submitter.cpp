@@ -40,11 +40,6 @@ SubmitterWiFi::SubmitterWiFi()
 #endif
 
     ready = true;
-    
-    // 7*3600 set timezone to Jakarta
-    configTime(7*3600, 0, NTP_SERVER);
-    
-    return;
 }
 
 
@@ -64,7 +59,7 @@ int SubmitterWiFi::submit_reading(SoilReading& soilReading) {
     JsonArray dataArr = data.createNestedArray("data");
     
     JsonObject rowJson = dataArr.createNestedObject();
-    rowJson["timestamp"] = to_timestamp(soilReading.epoch);
+    rowJson["timestamp"] = RtcDateTime_to_Str(RtcDateTime(soilReading.epoch));
     rowJson["N"] = soilReading.soilData.nitrogen;
     rowJson["P"] = soilReading.soilData.phosphorus;
     rowJson["K"] = soilReading.soilData.kalium;
@@ -111,7 +106,7 @@ int SubmitterWiFi::submit_reading(SoilDataTable& dataTable) {
         SoilReading row = soilReadings[i];
 
         JsonObject rowJson = dataArr.createNestedObject();
-        rowJson["timestamp"] = to_timestamp(row.epoch);
+        rowJson["timestamp"] = RtcDateTime_to_Str(RtcDateTime(row.epoch));
         rowJson["N"] = row.soilData.nitrogen;
         rowJson["P"] = row.soilData.phosphorus;
         rowJson["K"] = row.soilData.kalium;
@@ -139,22 +134,18 @@ int SubmitterWiFi::submit_reading(SoilDataTable& dataTable) {
 }
 
 
-unsigned long SubmitterWiFi::get_curr_epoch() {
-    time_t now;
-    time(&now);
+RtcDateTime SubmitterWiFi::get_current_time() {
+    WiFiUDP ntpUDP;
+    NTPClient timeClient(ntpUDP, "id.pool.ntp.org", 7*3600);
+    timeClient.begin();
+    while(!timeClient.update()) {
+        timeClient.forceUpdate();
+    }
+    
+    uint32_t epoch = timeClient.getEpochTime();
+    RtcDateTime now;
+    now.InitWithUnix32Time(epoch);
     return now;
-}
-
-
-String SubmitterWiFi::to_timestamp(unsigned long epoch) {
-    struct tm *timeinfo;
-    time_t rawtime = epoch;
-
-    timeinfo = localtime(&rawtime);
-
-    char timeStringBuff[50];
-    strftime(timeStringBuff, sizeof(timeStringBuff), "%Y-%m-%d %H:%M:%S", timeinfo);
-    return timeStringBuff;
 }
 
 
@@ -199,7 +190,7 @@ int SubmitterGSM::submit_reading(SoilReading& soilReading) {
     JsonArray dataArr = data.createNestedArray("data");
     
     JsonObject rowJson = dataArr.createNestedObject();
-    rowJson["timestamp"] = to_timestamp(soilReading.epoch);
+    rowJson["timestamp"] = RtcDateTime_to_Str(RtcDateTime(soilReading.epoch));
     rowJson["N"] = soilReading.soilData.nitrogen;
     rowJson["P"] = soilReading.soilData.phosphorus;
     rowJson["K"] = soilReading.soilData.kalium;
@@ -275,7 +266,7 @@ int SubmitterGSM::submit_reading(SoilDataTable& dataTable) {
         SoilReading row = soilReadings[i];
 
         JsonObject rowJson = dataArr.createNestedObject();
-        rowJson["timestamp"] = to_timestamp(row.epoch);
+        rowJson["timestamp"] = RtcDateTime_to_Str(RtcDateTime(row.epoch));
         rowJson["N"] = row.soilData.nitrogen;
         rowJson["P"] = row.soilData.phosphorus;
         rowJson["K"] = row.soilData.kalium;
@@ -327,31 +318,16 @@ int SubmitterGSM::submit_reading(SoilDataTable& dataTable) {
 }
 
 
-unsigned long SubmitterGSM::get_curr_epoch() {
+RtcDateTime SubmitterGSM::get_current_time() {
+    int year, month, dayOfMonth, hour, minute, second;
     float timezone = 0;
-    struct tm currentTime = {0};
-    currentTime.tm_isdst = -1;
     if (modem.getNetworkTime(
-            &currentTime.tm_year, &currentTime.tm_mon, &currentTime.tm_mday,
-            &currentTime.tm_hour, &currentTime.tm_min, &currentTime.tm_sec,
+            &year, &month, &dayOfMonth,
+            &hour, &minute, &second,
             &timezone
     )) {
-        currentTime.tm_year -= 1900;        // years since 1900
-        currentTime.tm_mon -= 1;            // months since January
-        return mktime(&currentTime);
+        return RtcDateTime(year, month, dayOfMonth, hour+timezone, minute, second);
     }
-    return 0;
-}
 
-
-String SubmitterGSM::to_timestamp(unsigned long epoch) {
-    struct tm *timeinfo;
-    time_t rawtime = epoch;
-
-    timeinfo = gmtime(&rawtime);
-
-    char timeStringBuff[50];
-    strftime(timeStringBuff, sizeof(timeStringBuff), "%Y-%m-%d %H:%M:%S", timeinfo);
-    // return timeStringBuff;
-    return String(ctime(&rawtime));
+    return RtcDateTime(0);
 }

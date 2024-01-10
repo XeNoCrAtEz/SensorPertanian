@@ -14,9 +14,9 @@ void test_get_time() {
 #elif defined(USE_GSM)
     SubmitterGSM testSubmitter(PIN_GSM_RX, PIN_GSM_TX);
 #endif
-    unsigned long epoch = testSubmitter.get_curr_epoch();
+    RtcDateTime currentDateTime = testSubmitter.get_current_time();
     Serial.print("Timestamp: ");
-    Serial.println(testSubmitter.to_timestamp(epoch));
+    Serial.println(RtcDateTime_to_Str(currentDateTime));
 }
 
 
@@ -26,9 +26,9 @@ void test_submit_one_data() {
 #elif defined(USE_GSM)
     SubmitterGSM testSubmitter(PIN_GSM_RX, PIN_GSM_TX);
 #endif
-    unsigned long epoch = testSubmitter.get_curr_epoch();
+    RtcDateTime currentDateTime = testSubmitter.get_current_time();
 
-    SoilReading testSoilReading(SoilData(1, 1, 1, 1, 1, 1, 1, 1), epoch);
+    SoilReading testSoilReading(SoilData(1, 1, 1, 1, 1, 1, 1, 1), currentDateTime.TotalSeconds());
     
     int responseCode = testSubmitter.submit_reading(testSoilReading);
 
@@ -44,11 +44,11 @@ void test_submit_table() {
 #endif
     SoilDataTable testTable;
 
-    unsigned long epoch = testSubmitter.get_curr_epoch();
+    RtcDateTime currentDateTime = testSubmitter.get_current_time();
 
-    testTable.push(SoilReading(SoilData(7, 7, 7, 7, 7, 7, 7, 7), epoch));
-    testTable.push(SoilReading(SoilData(8, 8, 8, 8, 8, 8, 8, 8), epoch + 4*3600));
-    testTable.push(SoilReading(SoilData(9, 9, 9, 9, 9, 9, 9, 9), epoch + 8*3600));
+    testTable.push(SoilReading(SoilData(7, 7, 7, 7, 7, 7, 7, 7), currentDateTime.TotalSeconds()));
+    testTable.push(SoilReading(SoilData(8, 8, 8, 8, 8, 8, 8, 8), currentDateTime.TotalSeconds() + 4*3600));
+    testTable.push(SoilReading(SoilData(9, 9, 9, 9, 9, 9, 9, 9), currentDateTime.TotalSeconds() + 8*3600));
     
     int responseCode = testSubmitter.submit_reading(testTable);
     
