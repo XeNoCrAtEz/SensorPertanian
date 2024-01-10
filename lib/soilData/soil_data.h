@@ -40,6 +40,17 @@ public:
         return r;
     }
 
+    String toString() const {
+        return "Nitrogen   : " + String(nitrogen) + " mg/kg\n" +
+            "Phosphorous: " + String(phosphorus) + " mg/kg\n" +
+            "Potassium  : " + String(kalium) + " mg/kg\n" +
+            "pH         : " + String(pH) + "\n" +
+            "Temperature: " + String(temperature) + " C\n" +
+            "Humidity   : " + String(humidity) + " %\n" +
+            "EC         : " + String(EC) + " uS/cm\n" +
+            "Salt       : " + String(salt) + " g/kg\n";
+    }
+
 
 };
 
