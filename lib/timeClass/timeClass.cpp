@@ -11,7 +11,11 @@ TimeClass::TimeClass(RTC& rtc, Submitter& submitter)
 
 
 TimeClass::ErrorCodes TimeClass::update_RTC() {
+    if (!RTCAvailable) return RTC_UNAVAILABLE;
+    else if (!NTPAvailable) return NTP_UNAVAILABLE;
+
     rtc.set_date_time(submitter.get_current_time());
+    return SUCCESS;
 }
 
 
