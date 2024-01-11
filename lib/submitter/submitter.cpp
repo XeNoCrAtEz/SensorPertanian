@@ -46,7 +46,7 @@ SubmitterWiFi::SubmitterWiFi()
 
     ready = true;
 
-    if (get_current_time().TotalSeconds() != 0) timeAvailable = true;
+    if (get_current_time() != RtcDateTime()) timeAvailable = true;
 }
 
 
@@ -151,7 +151,7 @@ RtcDateTime SubmitterWiFi::get_current_time() {
         if (attempts >= MAX_REATTEMPT) {
             return RtcDateTime();
         }
-        Serial.print("Re-attempt time update... (re-attempt: " + String(attempts) + ")");
+        Serial.println("Re-attempt time update... (re-attempt: " + String(attempts) + ")");
         
         timeClient.forceUpdate();
     }
@@ -181,7 +181,7 @@ SubmitterGSM::SubmitterGSM(int rx, int tx, int HWSerialNum)
     }
     ready = modem.isGprsConnected();
 
-    if (get_current_time().TotalSeconds() != 0) timeAvailable = true;
+    if (get_current_time() != RtcDateTime()) timeAvailable = true;
 }
 
 
