@@ -15,8 +15,7 @@ void test_get_time() {
     SubmitterGSM testSubmitter(PIN_GSM_RX, PIN_GSM_TX);
 #endif
     RtcDateTime currentDateTime = testSubmitter.get_current_time();
-    Serial.print("Timestamp: ");
-    Serial.println(RtcDateTime_to_Str(currentDateTime));
+    Serial.println("Time from network: " + String(currentDateTime.TotalSeconds()) + " = " + RtcDateTime_to_Str(currentDateTime));
 }
 
 
