@@ -136,9 +136,16 @@ int SubmitterWiFi::submit_reading(SoilDataTable& dataTable) {
 
 RtcDateTime SubmitterWiFi::get_current_time() {
     WiFiUDP ntpUDP;
-    NTPClient timeClient(ntpUDP, "id.pool.ntp.org", 7*3600);
+    NTPClient timeClient(ntpUDP, "pool.ntp.org", 7*3600);
     timeClient.begin();
-    while(!timeClient.update()) {
+
+    for(int attempts = 0; !timeClient.update(); attempts++) {
+        Serial.println("Cannot update time from network!");
+        if (attempts >= MAX_REATTEMPT) {
+            return RtcDateTime();
+        }
+        Serial.print("Re-attempt time update... (re-attempt: " + String(attempts) + ")");
+        
         timeClient.forceUpdate();
     }
     
