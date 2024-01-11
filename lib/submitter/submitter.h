@@ -27,6 +27,7 @@ protected:
     const char SUBMIT_RESOURCE[25] = "/Sensor/store_Sensor.php";
 
     bool ready = false;
+    bool timeAvailable = false;
 
 
 public:
@@ -34,6 +35,7 @@ public:
     virtual int submit_reading(SoilDataTable& dataTable) = 0;
 
     virtual RtcDateTime get_current_time() = 0;
+    bool is_time_available();
 
     bool is_ready();
 

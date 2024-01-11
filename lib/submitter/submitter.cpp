@@ -1,6 +1,11 @@
 #include "submitter.h"
 
 
+bool Submitter::is_time_available() {
+    return timeAvailable;
+}
+
+
 bool Submitter::is_ready() {
     return ready;
 }
@@ -40,6 +45,8 @@ SubmitterWiFi::SubmitterWiFi()
 #endif
 
     ready = true;
+
+    if (get_current_time().TotalSeconds() != 0) timeAvailable = true;
 }
 
 
@@ -173,6 +180,8 @@ SubmitterGSM::SubmitterGSM(int rx, int tx, int HWSerialNum)
         return;
     }
     ready = modem.isGprsConnected();
+
+    if (get_current_time().TotalSeconds() != 0) timeAvailable = true;
 }
 
 
