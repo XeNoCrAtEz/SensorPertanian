@@ -27,6 +27,7 @@ public:
     TimeClass(RTC& rtc, Submitter& submitter);
     ErrorCodes update_RTC();
     RtcDateTime get_date_time();
+    ErrorCodes availability();
 
 
 };

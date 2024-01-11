@@ -24,3 +24,11 @@ RtcDateTime TimeClass::get_date_time() {
     else if (NTPAvailable) return submitter.get_current_time();
     else return RtcDateTime();
 }
+
+
+TimeClass::ErrorCodes TimeClass::availability() {
+    if (NTPAvailable && RTCAvailable) return SUCCESS;
+    else if (!NTPAvailable) return NTP_UNAVAILABLE;
+    else if (!RTCAvailable) return RTC_UNAVAILABLE;
+    else return NO_TIME;
+}
