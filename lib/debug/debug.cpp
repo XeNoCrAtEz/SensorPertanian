@@ -17,7 +17,10 @@ void Logger::print(const String& time, const String& level, const String& msg) {
 Logger::Logger(RTC& rtc, bool printMode)
         : timekeeper(rtc), printMode(printMode)
 {
-    if (printMode) return;
+    if (printMode) {
+        ready = true;
+        return;
+    }
 
     if (!filesystem.begin()) {
         Serial.println("LittleFS Mount Failed!");
@@ -50,8 +53,6 @@ Logger::ErrorCodes Logger::show() {
         print(logEntry["time"].as<String>(), logEntry["level"].as<String>(), logEntry["msg"].as<String>());
     }
     
-    clear();
-
     return SUCCESS;
 }
 
