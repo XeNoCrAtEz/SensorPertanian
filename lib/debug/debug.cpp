@@ -14,8 +14,8 @@ void Logger::print(const String& time, const String& level, const String& msg) {
 }
 
 
-Logger::Logger(RTC& rtc, bool printMode)
-        : timekeeper(rtc), printMode(printMode)
+Logger::Logger(TimeClass& time, bool printMode)
+        : timekeeper(time), printMode(printMode)
 {
     if (printMode) {
         ready = true;
@@ -129,7 +129,7 @@ Logger::ErrorCodes Logger::log_V(const String& msg) {
 
 
 #else
-Logger::Logger(RTC& rtc, bool printMode) : timekeeper(rtc) {}
+Logger::Logger(RTC& time, bool printMode) : timekeeper(time) {}
 Logger::ErrorCodes Logger::show() { return DEBUG_INACTIVE; }
 Logger::ErrorCodes Logger::clear() { return DEBUG_INACTIVE; }
 bool Logger::is_ready() { return ready; }

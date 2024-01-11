@@ -5,7 +5,7 @@
 #include <LittleFS.h>
 #include <ArduinoJson.h>
 #include "soil_data.h"
-#include "RTCModule.h"
+#include "timeClass.h"
 
 
 class Logger {
@@ -35,7 +35,7 @@ private:
 private:
     static const char filename[];
     fs::LittleFSFS filesystem = LittleFS;
-    RTC& timekeeper;
+    TimeClass& timekeeper;
     
     bool ready = false;
     bool printMode = false;
@@ -44,7 +44,7 @@ private:
 
 
 public:
-    Logger(RTC& rtc, bool printMode=false);
+    Logger(TimeClass&, bool printMode=false);
     ErrorCodes show();
     ErrorCodes clear();
     bool is_ready();
