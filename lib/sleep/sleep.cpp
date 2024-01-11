@@ -12,16 +12,11 @@ RtcDateTime schedule[SCHEDULE_LENGTH] = {
 };
 
 const int uS_TO_S_FACTOR = 1000000;
+const int DEFAULT_SLEEP = 4 * 3600;     // seconds = 4 hours
 
 
-void sleep(RTC& rtc, Display& display) {
-    display.clear_display();
-
-    auto sleepTime = get_sleep_seconds(rtc);
-
-    // logger.log_I("Time to sleep: --- please implement!");
-
-    // logger.log_I("Sleeping.");
+void sleep(TimeClass& time) {
+    auto sleepTime = get_sleep_seconds(time);
     Serial.print("Time to sleep: ");
     Serial.println(sleepTime);
 
@@ -31,8 +26,10 @@ void sleep(RTC& rtc, Display& display) {
 }
 
 
-uint64_t get_sleep_seconds(RTC& rtc) {
-    RtcDateTime current_time = rtc.get_date_time();
+uint64_t get_sleep_seconds(TimeClass& time) {
+    RtcDateTime current_time = time.get_time();
+    if (current_time.TotalSeconds() == 0) return DEFAULT_SLEEP;      // time unavailable, sleep 4 hours
+
     unsigned long current_H_M_secs = RtcDateTime(0, 0, 0, current_time.Hour(), current_time.Minute(), current_time.Second()).TotalSeconds();
 
     double min_sec = INFINITY;
@@ -43,7 +40,7 @@ uint64_t get_sleep_seconds(RTC& rtc) {
     }
     // jika tidak ditemukan jadwal selanjutnya, paksa tidur 4 jam
     if (min_sec == 0 || min_sec == INFINITY)
-        min_sec = 4 * 3600;
+        min_sec = DEFAULT_SLEEP;
 
     return min_sec;
 }

@@ -4,11 +4,10 @@
 #include <Arduino.h>
 #include "display.h"
 
-#include "time.h"
-#include "RTCModule.h"
+#include "timeClass.h"
 
 
-void sleep(RTC& rtc, Display& display);
+void sleep(RTC& rtc);
 uint64_t get_sleep_seconds(RTC& rtc);
 
 
