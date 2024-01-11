@@ -35,6 +35,6 @@ uint8_t BatteryMonitor::level(uint16_t voltage) {
 	} else if (voltage >= maxVoltage) {
 		return 100;
 	} else {
-		return (voltage - minVoltage) / (maxVoltage - minVoltage) * 100;
+		return (float) (voltage - minVoltage) / (maxVoltage - minVoltage) * 100;
 	}
 }
