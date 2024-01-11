@@ -7,8 +7,8 @@
 #include "timeClass.h"
 
 
-void sleep(RTC& rtc);
-uint64_t get_sleep_seconds(RTC& rtc);
+void sleep(TimeClass& time);
+uint64_t get_sleep_seconds(TimeClass& time);
 
 
 #endif
