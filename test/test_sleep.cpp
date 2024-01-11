@@ -17,11 +17,19 @@ const int PIN_GSM_TX = 1;
 
 
 void test_sleep_at_current_time() {
-    Display testDisplay(PIN_SCREEN_SDA, PIN_SCREEN_SCL);
+    RTC testRTC = RTC(PIN_RTC_DATA, PIN_RTC_CLK, PIN_RTC_RST);
 
-    RTC testRTC(PIN_RTC_DATA, PIN_RTC_CLK, PIN_RTC_RST);
+#if defined(USE_WIFI)
+    SubmitterWiFi testSubmitter;
+log_i("Using WiFi.");
+#elif defined(USE_GSM)
+    SubmitterGSM testSubmitter(PIN_GSM_RX, PIN_GSM_TX);
+log_i("Using GSM.");
+#endif
 
-    sleep(testRTC, testDisplay);
+    TimeClass testTimeClass = TimeClass(testRTC, testSubmitter);
+
+    sleep(testTimeClass);
 }
 
 

@@ -9,9 +9,17 @@ const int PIN_RTC_CLK  = 15;
 
 
 void test_show() {
+#if defined(USE_WIFI)
+    SubmitterWiFi testSubmitter;
+log_i("Using WiFi.");
+#elif defined(USE_GSM)
+    SubmitterGSM testSubmitter(PIN_GSM_RX, PIN_GSM_TX);
+log_i("Using GSM.");
+#endif
     RTC testRTC = RTC(PIN_RTC_DATA, PIN_RTC_CLK, PIN_RTC_RST);
+    TimeClass testTimeClass = TimeClass(testRTC, testSubmitter);
 
-    auto testDebug = Logger(testRTC);
+    auto testDebug = Logger(testTimeClass);
     TEST_ASSERT_EQUAL(true, testDebug.is_ready());
 
     auto errCode = testDebug.show();
@@ -22,9 +30,17 @@ void test_show() {
 void test_single_msg() {
     String expectedMsg = "1 [E] - Error! JK just a normal message :)";
 
+#if defined(USE_WIFI)
+    SubmitterWiFi testSubmitter;
+log_i("Using WiFi.");
+#elif defined(USE_GSM)
+    SubmitterGSM testSubmitter(PIN_GSM_RX, PIN_GSM_TX);
+log_i("Using GSM.");
+#endif
     RTC testRTC = RTC(PIN_RTC_DATA, PIN_RTC_CLK, PIN_RTC_RST);
+    TimeClass testTimeClass = TimeClass(testRTC, testSubmitter);
 
-    auto testDebug = Logger(testRTC);
+    auto testDebug = Logger(testTimeClass);
     TEST_ASSERT_EQUAL(true, testDebug.is_ready());
 
     Logger::ErrorCodes errCode = testDebug.log_E("Error! JK just a normal message :)");
@@ -40,9 +56,17 @@ void test_single_msg() {
 void test_single_msg_print_mode() {
     String expectedMsg = "1 [E] - Error! JK just a normal message :)";
 
+#if defined(USE_WIFI)
+    SubmitterWiFi testSubmitter;
+log_i("Using WiFi.");
+#elif defined(USE_GSM)
+    SubmitterGSM testSubmitter(PIN_GSM_RX, PIN_GSM_TX);
+log_i("Using GSM.");
+#endif
     RTC testRTC = RTC(PIN_RTC_DATA, PIN_RTC_CLK, PIN_RTC_RST);
+    TimeClass testTimeClass = TimeClass(testRTC, testSubmitter);
 
-    auto testDebug = Logger(testRTC, true);
+    auto testDebug = Logger(testTimeClass);
     TEST_ASSERT_EQUAL(true, testDebug.is_ready());
     TEST_ASSERT_EQUAL(true, testDebug.is_print_mode());
 
@@ -61,9 +85,17 @@ void test_single_msg_print_mode() {
 void test_debug_disabled() {
     String expectedMsg = "1 [E] - Error! JK just a normal message :)";
 
+#if defined(USE_WIFI)
+    SubmitterWiFi testSubmitter;
+log_i("Using WiFi.");
+#elif defined(USE_GSM)
+    SubmitterGSM testSubmitter(PIN_GSM_RX, PIN_GSM_TX);
+log_i("Using GSM.");
+#endif
     RTC testRTC = RTC(PIN_RTC_DATA, PIN_RTC_CLK, PIN_RTC_RST);
+    TimeClass testTimeClass = TimeClass(testRTC, testSubmitter);
 
-    auto testDebug = Logger(testRTC, true);
+    auto testDebug = Logger(testTimeClass);
     TEST_ASSERT_EQUAL(false, testDebug.is_ready());
     TEST_ASSERT_EQUAL(false, testDebug.is_print_mode());
 
@@ -79,9 +111,17 @@ void test_debug_disabled() {
 
 
 void test_clear_logger() {
+#if defined(USE_WIFI)
+    SubmitterWiFi testSubmitter;
+log_i("Using WiFi.");
+#elif defined(USE_GSM)
+    SubmitterGSM testSubmitter(PIN_GSM_RX, PIN_GSM_TX);
+log_i("Using GSM.");
+#endif
     RTC testRTC = RTC(PIN_RTC_DATA, PIN_RTC_CLK, PIN_RTC_RST);
+    TimeClass testTimeClass = TimeClass(testRTC, testSubmitter);
 
-    auto testDebug = Logger(testRTC);
+    auto testDebug = Logger(testTimeClass);
     TEST_ASSERT_EQUAL(true, testDebug.is_ready());
 
     auto errCode = testDebug.clear();
