@@ -6,7 +6,8 @@ RTC::RTC(uint8_t dataPin, uint8_t clkPin, uint8_t rstPin)
     m_RTC.Begin();
 
     if (!m_RTC.IsDateTimeValid()) {
-        log_e("Error! Invalid Date Time! Continuing...");
+        log_e("Error! Invalid Date Time!");
+        return;
     }
 
     if (m_RTC.GetIsWriteProtected()) {
@@ -20,6 +21,8 @@ RTC::RTC(uint8_t dataPin, uint8_t clkPin, uint8_t rstPin)
         m_RTC.SetIsRunning(true);
         log_i("OK");
     }
+
+    ready = true;
 }
             
 
@@ -38,6 +41,11 @@ void RTC::set_date_time(
 
 void RTC::set_date_time(const RtcDateTime& dateTime) {
     m_RTC.SetDateTime(dateTime);
+}
+
+
+bool RTC::is_ready() {
+    return ready;
 }
 
 
