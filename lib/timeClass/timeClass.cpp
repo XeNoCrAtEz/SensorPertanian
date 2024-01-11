@@ -19,7 +19,7 @@ TimeClass::ErrorCodes TimeClass::update_RTC() {
 }
 
 
-RtcDateTime TimeClass::get_time() {
+RtcDateTime TimeClass::get_date_time() {
     if (RTCAvailable) return rtc.get_date_time();
     else if (NTPAvailable) return submitter.get_current_time();
     else return RtcDateTime();

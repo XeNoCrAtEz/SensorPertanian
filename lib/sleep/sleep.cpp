@@ -27,7 +27,7 @@ void sleep(TimeClass& time) {
 
 
 uint64_t get_sleep_seconds(TimeClass& time) {
-    RtcDateTime current_time = time.get_time();
+    RtcDateTime current_time = time.get_date_time();
     if (current_time.TotalSeconds() == 0) return DEFAULT_SLEEP;      // time unavailable, sleep 4 hours
 
     unsigned long current_H_M_secs = RtcDateTime(0, 0, 0, current_time.Hour(), current_time.Minute(), current_time.Second()).TotalSeconds();
