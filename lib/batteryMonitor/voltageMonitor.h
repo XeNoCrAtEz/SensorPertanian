@@ -5,6 +5,10 @@
 #include <Arduino.h>
 
 
+const uint16_t MIN_VOLT_LIPO = 3000;
+const uint16_t MAX_VOLT_LIPO = 4200;
+
+
 class VoltageMonitor  {
 private:
     enum VoltMonParams {
