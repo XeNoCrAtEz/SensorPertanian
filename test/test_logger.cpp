@@ -78,7 +78,7 @@ void test_debug_disabled() {
 #endif
 
 
-void test_clear() {
+void test_clear_logger() {
     RTC testRTC = RTC(PIN_RTC_DATA, PIN_RTC_CLK, PIN_RTC_RST);
 
     auto testDebug = Logger(testRTC);
