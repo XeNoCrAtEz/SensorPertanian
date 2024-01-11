@@ -6,9 +6,6 @@
 #include <RtcDS1302.h>
 
 
-const uint32_t ZERO_EPOCH_SECONDS = 3348282496;
-
-
 class RTC {
 private:
     ThreeWire m_RTCWire; // IO, SCLK, CE
