@@ -136,5 +136,5 @@ void test_logger() {
 #ifndef DEBUG
     // RUN_TEST(test_debug_disabled);
 #endif
-    // RUN_TEST(test_clear);
+    // RUN_TEST(test_clear_logger);
 }

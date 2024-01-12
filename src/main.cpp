@@ -17,17 +17,15 @@ log_i("Using GSM.");
 #endif
 
     TimeClass timeClass = TimeClass(rtc, submitter);
-    Logger logger = Logger(timeClass, true);
+    Logger logger = Logger(timeClass);
 
 logger.log_I("Starting Sensor-" + String(SENSOR_ID));
 if (!timeClass.availability() == TimeClass::RTC_UNAVAILABLE) logger.log_E("Error! RTC not available!");
 if (!timeClass.availability() == TimeClass::NTP_UNAVAILABLE) logger.log_E("Error! Network time not available!");
 if (!timeClass.availability() == TimeClass::NO_TIME) logger.log_E("Error! No time available!");
 
-    BatteryMonitor battMon(PIN_VOLT_BAT, MIN_VOLT_LIPO, MAX_VOLT_LIPO);
-    battMon.begin(ESP32_REF_VOLTAGE, VOLT_MON_DIVIDER_RATIO);
-    VoltageMonitor solarCellMon(PIN_VOLT_SC);
-    solarCellMon.begin(ESP32_REF_VOLTAGE, VOLT_MON_DIVIDER_RATIO);
+    BatteryMonitor battMon(PIN_VOLT_BAT, ESP32_REF_VOLTAGE, VOLT_MON_DIVIDER_RATIO, MIN_VOLT_LIPO, MAX_VOLT_LIPO);
+    VoltageMonitor solarCellMon(PIN_VOLT_SC, ESP32_REF_VOLTAGE, VOLT_MON_DIVIDER_RATIO);
 logger.log_I("Battery voltage: " + String(battMon.voltage()) + " mV (" + String(battMon.level()) + "%)");
 logger.log_I("Solar cell voltage: " + String(solarCellMon.voltage()) + " mV");
     if (battMon.level() == 0) {
