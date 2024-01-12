@@ -9,7 +9,7 @@ const uint8_t BATT_MON_PIN = 34;
 
 
 void test_battery_volt() {
-    BatteryMonitor batt(BATT_MON_PIN, 3300, 2 3000, 4200);
+    BatteryMonitor batt(BATT_MON_PIN, 3300, 2, 3000, 4200);
 
     Serial.print("Battery voltage is: ");
 	Serial.print(batt.voltage());
