@@ -5,13 +5,15 @@
 #include <Arduino.h>
 #include "soil_data.h"
 #include "dataTable.h"
+#include "RTCModule.h"
 
 
 #include <WiFi.h>
 #include <HTTPClient.h>
 #include <ArduinoJSON.h>
 #include <NTPClient.h>
-#include <time.h>
+
+
 class Submitter {
 protected:
     enum SubmitterParams {
@@ -24,17 +26,18 @@ protected:
     const uint16_t PORT = 443;
     const char SUBMIT_RESOURCE[25] = "/Sensor/store_Sensor.php";
 
-    bool connected = false;
+    bool ready = false;
+    bool timeAvailable = false;
 
 
 public:
     virtual int submit_reading(SoilReading& soilReading) = 0;
     virtual int submit_reading(SoilDataTable& dataTable) = 0;
 
-    virtual unsigned long get_curr_epoch() = 0;
-    virtual String to_timestamp(unsigned long epoch) = 0;
+    virtual RtcDateTime get_current_time() = 0;
+    bool is_time_available();
 
-    bool is_connected();
+    bool is_ready();
 
 
 };
@@ -42,9 +45,6 @@ public:
 
 class SubmitterWiFi : public Submitter {
 private:
-    // NTP server to request epoch time
-    const char* NTP_SERVER = "pool.ntp.org";
-
     const char WIFI_SSID[11] = "KHDTK_JAYA";
     const char WIFI_PASS[11] = "khdtk_jaya";
 
@@ -54,8 +54,7 @@ public:
     int submit_reading(SoilReading& soilReading);
     int submit_reading(SoilDataTable& dataTable);
 
-    unsigned long get_curr_epoch();
-    String to_timestamp(unsigned long epoch);
+    RtcDateTime get_current_time();
 
 
 };
@@ -84,8 +83,7 @@ public:
     int submit_reading(SoilReading& soilReading);
     int submit_reading(SoilDataTable& dataTable);
 
-    unsigned long get_curr_epoch();
-    String to_timestamp(unsigned long epoch);
+    RtcDateTime get_current_time();
 
 
 };

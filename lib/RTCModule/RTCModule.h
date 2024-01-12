@@ -10,6 +10,7 @@ class RTC {
 private:
     ThreeWire m_RTCWire; // IO, SCLK, CE
     RtcDS1302<ThreeWire> m_RTC;
+    bool ready = false;
 
 public:
     RTC(uint8_t dataPin, uint8_t clkPin, uint8_t rstPin);
@@ -23,12 +24,14 @@ public:
         uint8_t second
     );
     void set_date_time (const RtcDateTime& dateTime);
+    bool is_ready();
 
 
 };
 
 
 void print_date_time(const RtcDateTime& dt);
+String RtcDateTime_to_Str(const RtcDateTime& dt);
 
 
 #endif

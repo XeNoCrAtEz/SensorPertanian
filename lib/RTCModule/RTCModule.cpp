@@ -6,7 +6,8 @@ RTC::RTC(uint8_t dataPin, uint8_t clkPin, uint8_t rstPin)
     m_RTC.Begin();
 
     if (!m_RTC.IsDateTimeValid()) {
-        log_e("Error! Invalid Date Time! Continuing...");
+        log_e("Error! Invalid Date Time!");
+        return;
     }
 
     if (m_RTC.GetIsWriteProtected()) {
@@ -20,6 +21,8 @@ RTC::RTC(uint8_t dataPin, uint8_t clkPin, uint8_t rstPin)
         m_RTC.SetIsRunning(true);
         log_i("OK");
     }
+
+    ready = true;
 }
             
 
@@ -41,19 +44,17 @@ void RTC::set_date_time(const RtcDateTime& dateTime) {
 }
 
 
-void print_date_time(const RtcDateTime& dt) {
-    char datestring[26];
+bool RTC::is_ready() {
+    return ready;
+}
 
-    snprintf(
-        datestring, 
-        26,
-        "%02u/%02u/%04u %02u:%02u:%02u",
-        dt.Month(),
-        dt.Day(),
-        dt.Year(),
-        dt.Hour(),
-        dt.Minute(),
-        dt.Second()
-    );
-    Serial.print(datestring);
+
+void print_date_time(const RtcDateTime& dt) {
+    Serial.println(RtcDateTime_to_Str(dt));
+}
+
+
+String RtcDateTime_to_Str(const RtcDateTime& dt) {
+    return String(dt.Year()) + "-" + String(dt.Month()) + "-" + String(dt.Day()) + " " +
+        String(dt.Hour()) + ":" + String(dt.Minute()) + ":" + String(dt.Second());
 }

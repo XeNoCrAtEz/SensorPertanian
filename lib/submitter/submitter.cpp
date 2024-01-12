@@ -1,8 +1,13 @@
 #include "submitter.h"
 
 
-bool Submitter::is_connected() {
-    return connected;
+bool Submitter::is_time_available() {
+    return timeAvailable;
+}
+
+
+bool Submitter::is_ready() {
+    return ready;
 }
 
 
@@ -24,7 +29,7 @@ SubmitterWiFi::SubmitterWiFi()
         Serial.print(".");
         if (attempts >= MAX_REATTEMPT) {
             Serial.println("\nCannot connect to WiFi!");
-            connected = false;
+            ready = false;
             return;
         }
         WiFi.disconnect();
@@ -39,17 +44,14 @@ SubmitterWiFi::SubmitterWiFi()
 	Serial.println();
 #endif
 
-    connected = true;
-    
-    // 7*3600 set timezone to Jakarta
-    configTime(7*3600, 0, NTP_SERVER);
-    
-    return;
+    ready = true;
+
+    if (get_current_time() != RtcDateTime()) timeAvailable = true;
 }
 
 
 int SubmitterWiFi::submit_reading(SoilReading& soilReading) {
-    if (!is_connected()) return 0;
+    if (!is_ready()) return 0;
     
     String Link;
     Link = "https://" + String(SERVERNAME) + String(SUBMIT_RESOURCE);
@@ -64,7 +66,7 @@ int SubmitterWiFi::submit_reading(SoilReading& soilReading) {
     JsonArray dataArr = data.createNestedArray("data");
     
     JsonObject rowJson = dataArr.createNestedObject();
-    rowJson["timestamp"] = to_timestamp(soilReading.epoch);
+    rowJson["timestamp"] = RtcDateTime_to_Str(RtcDateTime(soilReading.epoch));
     rowJson["N"] = soilReading.soilData.nitrogen;
     rowJson["P"] = soilReading.soilData.phosphorus;
     rowJson["K"] = soilReading.soilData.kalium;
@@ -90,7 +92,7 @@ int SubmitterWiFi::submit_reading(SoilReading& soilReading) {
 
 
 int SubmitterWiFi::submit_reading(SoilDataTable& dataTable) {
-    if (!is_connected()) return 0;
+    if (!is_ready()) return 0;
     
     String Link;
     Link = "https://" + String(SERVERNAME) + String(SUBMIT_RESOURCE);
@@ -111,7 +113,7 @@ int SubmitterWiFi::submit_reading(SoilDataTable& dataTable) {
         SoilReading row = soilReadings[i];
 
         JsonObject rowJson = dataArr.createNestedObject();
-        rowJson["timestamp"] = to_timestamp(row.epoch);
+        rowJson["timestamp"] = RtcDateTime_to_Str(RtcDateTime(row.epoch));
         rowJson["N"] = row.soilData.nitrogen;
         rowJson["P"] = row.soilData.phosphorus;
         rowJson["K"] = row.soilData.kalium;
@@ -139,22 +141,25 @@ int SubmitterWiFi::submit_reading(SoilDataTable& dataTable) {
 }
 
 
-unsigned long SubmitterWiFi::get_curr_epoch() {
-    time_t now;
-    time(&now);
+RtcDateTime SubmitterWiFi::get_current_time() {
+    WiFiUDP ntpUDP;
+    NTPClient timeClient(ntpUDP, "pool.ntp.org", 7*3600);
+    timeClient.begin();
+
+    for(int attempts = 0; !timeClient.update(); attempts++) {
+        Serial.println("Cannot update time from network!");
+        if (attempts >= MAX_REATTEMPT) {
+            return RtcDateTime();
+        }
+        Serial.println("Re-attempt time update... (re-attempt: " + String(attempts) + ")");
+        
+        timeClient.forceUpdate();
+    }
+    
+    uint32_t epoch = timeClient.getEpochTime();
+    RtcDateTime now;
+    now.InitWithUnix32Time(epoch);
     return now;
-}
-
-
-String SubmitterWiFi::to_timestamp(unsigned long epoch) {
-    struct tm *timeinfo;
-    time_t rawtime = epoch;
-
-    timeinfo = localtime(&rawtime);
-
-    char timeStringBuff[50];
-    strftime(timeStringBuff, sizeof(timeStringBuff), "%Y-%m-%d %H:%M:%S", timeinfo);
-    return timeStringBuff;
 }
 
 
@@ -174,12 +179,14 @@ SubmitterGSM::SubmitterGSM(int rx, int tx, int HWSerialNum)
         Serial.println("Fatal Error! Cannot connect to GPRS!");
         return;
     }
-    connected = modem.isGprsConnected();
+    ready = modem.isGprsConnected();
+
+    if (get_current_time() != RtcDateTime()) timeAvailable = true;
 }
 
 
 int SubmitterGSM::submit_reading(SoilReading& soilReading) {
-    if (!is_connected()) return 0;
+    if (!is_ready()) return 0;
     
     String Link;
     Link = "https://" + String(SERVERNAME) + String(SUBMIT_RESOURCE);
@@ -199,7 +206,7 @@ int SubmitterGSM::submit_reading(SoilReading& soilReading) {
     JsonArray dataArr = data.createNestedArray("data");
     
     JsonObject rowJson = dataArr.createNestedObject();
-    rowJson["timestamp"] = to_timestamp(soilReading.epoch);
+    rowJson["timestamp"] = RtcDateTime_to_Str(RtcDateTime(soilReading.epoch));
     rowJson["N"] = soilReading.soilData.nitrogen;
     rowJson["P"] = soilReading.soilData.phosphorus;
     rowJson["K"] = soilReading.soilData.kalium;
@@ -249,7 +256,7 @@ int SubmitterGSM::submit_reading(SoilReading& soilReading) {
 
 
 int SubmitterGSM::submit_reading(SoilDataTable& dataTable) {
-    if (!is_connected()) return 0;
+    if (!is_ready()) return 0;
     
     String Link;
     Link = "https://" + String(SERVERNAME) + String(SUBMIT_RESOURCE);
@@ -275,7 +282,7 @@ int SubmitterGSM::submit_reading(SoilDataTable& dataTable) {
         SoilReading row = soilReadings[i];
 
         JsonObject rowJson = dataArr.createNestedObject();
-        rowJson["timestamp"] = to_timestamp(row.epoch);
+        rowJson["timestamp"] = RtcDateTime_to_Str(RtcDateTime(row.epoch));
         rowJson["N"] = row.soilData.nitrogen;
         rowJson["P"] = row.soilData.phosphorus;
         rowJson["K"] = row.soilData.kalium;
@@ -327,31 +334,11 @@ int SubmitterGSM::submit_reading(SoilDataTable& dataTable) {
 }
 
 
-unsigned long SubmitterGSM::get_curr_epoch() {
+RtcDateTime SubmitterGSM::get_current_time() {
+    int year, month, dayOfMonth, hour, minute, second;
     float timezone = 0;
-    struct tm currentTime = {0};
-    currentTime.tm_isdst = -1;
-    if (modem.getNetworkTime(
-            &currentTime.tm_year, &currentTime.tm_mon, &currentTime.tm_mday,
-            &currentTime.tm_hour, &currentTime.tm_min, &currentTime.tm_sec,
-            &timezone
-    )) {
-        currentTime.tm_year -= 1900;        // years since 1900
-        currentTime.tm_mon -= 1;            // months since January
-        return mktime(&currentTime);
-    }
-    return 0;
-}
+    if (modem.getNetworkTime(&year, &month, &dayOfMonth, &hour, &minute, &second, &timezone))
+        return RtcDateTime(year, month, dayOfMonth, hour+timezone, minute, second);
 
-
-String SubmitterGSM::to_timestamp(unsigned long epoch) {
-    struct tm *timeinfo;
-    time_t rawtime = epoch;
-
-    timeinfo = gmtime(&rawtime);
-
-    char timeStringBuff[50];
-    strftime(timeStringBuff, sizeof(timeStringBuff), "%Y-%m-%d %H:%M:%S", timeinfo);
-    // return timeStringBuff;
-    return String(ctime(&rawtime));
+    return RtcDateTime(0);
 }

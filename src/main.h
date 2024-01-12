@@ -9,8 +9,12 @@
 #include "dataTable.h"
 #include "submitter.h"
 #include "sleep.h"
+#include "voltageMonitor.h"
 
 #include "pin_assignment.h"
+
+
+const float VOLT_MON_DIVIDER_RATIO = 2.0;
 
 
 // pre-define DEBUG when compiling to enable debug
