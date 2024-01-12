@@ -37,7 +37,7 @@ protected:
 
 
 public:
-    Probe(int rx, int tx, int HWSerialNum=1, int addr=0x01);
+    Probe(int HWSerialNum=1, int addr=0x01);
 
     ErrorCodes get_data(uint16_t& data, int regNum);
     void calibrateNPK(SoilData& soilData);
