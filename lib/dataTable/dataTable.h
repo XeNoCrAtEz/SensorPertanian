@@ -28,15 +28,21 @@ public:
 
 class SoilDataTable {
 public:
-    // ERROR CODES
-    enum ErrorCodes {
+    // class status codes
+    enum Status {
+        READY,
+        LITTLEFS_FAILED,
+        UNKNOWN_ERROR,
+    };
+    
+    // Operation status codes
+    enum OpStatus {
         SUCCESS,
         OPEN_FAILED,
         WRITE_FAILED,
         READ_FAILED,
         EMPTY_FILE,
-        LITTLEFS_FAILED,
-        UNKNOWN_ERROR,
+        STATUS_ERROR,
     };
 
 
@@ -48,21 +54,21 @@ private:
 
 private:
     static const char m_filename[];
-    fs::LittleFSFS m_filesystem = LittleFS;
+    fs::LittleFSFS& m_filesystem = LittleFS;
 
-    bool m_ready = false;
+    Status m_status = UNKNOWN_ERROR;
 
 
 public:
     SoilDataTable();
-    ErrorCodes push(const SoilReading& soilReading);
-    ErrorCodes pop(SoilReading& soilReading);
-    ErrorCodes pop_all(SoilReading* &soilReadings, uint16_t& size);
-    ErrorCodes clear();
+    OpStatus push(const SoilReading& soilReading);
+    OpStatus pop(SoilReading& soilReading);
+    OpStatus pop_all(SoilReading* &soilReadings, uint16_t& size);
+    OpStatus clear();
     uint32_t get_count();
     bool is_empty();
     bool is_full();
-    bool is_ready();
+    Status status();
 };
 
 
