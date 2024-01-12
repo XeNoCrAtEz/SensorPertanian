@@ -3,9 +3,9 @@
 
 VoltageMonitor::VoltageMonitor(uint8_t sensePin, uint16_t refVoltage, float dividerRatio) 
         : m_sensePin(sensePin) {
-    this->m_refVoltage = refVoltage;
-	this->m_dividerRatio = dividerRatio;
-	pinMode(this->m_sensePin, INPUT);
+    m_refVoltage = refVoltage;
+	m_dividerRatio = dividerRatio;
+	pinMode(m_sensePin, INPUT);
 }
 
 
