@@ -24,9 +24,9 @@ public:
 
 
 protected:
-    uint16_t refVoltage;        // refVoltage is in mV, typically the value of max ADC voltage
-    float dividerRatio;         // value of (R1 + R2) / R2 in a typical voltage divider circuit
-    uint8_t sensePin;
+    uint16_t m_refVoltage;        // refVoltage is in mV, typically the value of max ADC voltage
+    float m_dividerRatio;         // value of (R1 + R2) / R2 in a typical voltage divider circuit
+    uint8_t m_sensePin;
 
 
 };
@@ -42,8 +42,8 @@ public:
 
 
 private:
-    uint16_t minVoltage;        // value of measured voltage (in mV) that corresponds to 0%
-    uint16_t maxVoltage;        // value of measured voltage (in mV) that corresponds to 100%
+    uint16_t m_minVoltage;        // value of measured voltage (in mV) that corresponds to 0%
+    uint16_t m_maxVoltage;        // value of measured voltage (in mV) that corresponds to 100%
 
 };
 

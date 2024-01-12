@@ -10,18 +10,18 @@
 
 class SoilReading {
 public:
-    uint32_t epoch;         // seconds from 2000
-    SoilData soilData;
+    uint32_t m_epoch;         // seconds from 2000
+    SoilData m_soilData;
 
 
     SoilReading()
-            : soilData{}, epoch{0} {}
+            : m_soilData{}, m_epoch{0} {}
     SoilReading(const SoilData& data, const uint32_t& epch)
-            : soilData{data}, epoch{epch} { }
+            : m_soilData{data}, m_epoch{epch} { }
 
     bool operator==(const SoilReading& s2) {
-        return soilData == s2.soilData &&
-                epoch == s2.epoch;
+        return m_soilData == s2.m_soilData &&
+                m_epoch == s2.m_epoch;
     }
 };
 
@@ -47,10 +47,10 @@ private:
 
 
 private:
-    static const char filename[];
-    fs::LittleFSFS filesystem = LittleFS;
+    static const char m_filename[];
+    fs::LittleFSFS m_filesystem = LittleFS;
 
-    bool ready = false;
+    bool m_ready = false;
 
 
 public:

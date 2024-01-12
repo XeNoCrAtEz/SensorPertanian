@@ -33,12 +33,12 @@ private:
 
 // CLASS ATTRIBUTES AND METHODS
 private:
-    static const char filename[];
-    fs::LittleFSFS filesystem = LittleFS;
-    TimeClass& timekeeper;
+    static const char m_filename[];
+    fs::LittleFSFS m_filesystem = LittleFS;
+    TimeClass& m_timekeeper;
     
-    bool ready = false;
-    bool printMode = false;
+    bool m_ready = false;
+    bool m_printMode = false;
 
     void print(const String& time, const String& level, const String& msg);
 

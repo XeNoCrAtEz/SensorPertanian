@@ -2,16 +2,16 @@
 
 
 VoltageMonitor::VoltageMonitor(uint8_t sensePin, uint16_t refVoltage, float dividerRatio) 
-        : sensePin(sensePin) {
-    this->refVoltage = refVoltage;
-	this->dividerRatio = dividerRatio;
-	pinMode(this->sensePin, INPUT);
+        : m_sensePin(sensePin) {
+    this->m_refVoltage = refVoltage;
+	this->m_dividerRatio = dividerRatio;
+	pinMode(this->m_sensePin, INPUT);
 }
 
 
 uint16_t VoltageMonitor::voltage() {
-	analogRead(sensePin);   delay(2);   // allow the ADC to stabilize
-	uint16_t reading = analogRead(sensePin) * dividerRatio * refVoltage / ADC_MAX_VALUE;
+	analogRead(m_sensePin);   delay(2);   // allow the ADC to stabilize
+	uint16_t reading = analogRead(m_sensePin) * m_dividerRatio * m_refVoltage / ADC_MAX_VALUE;
 	return reading;
 }
 
@@ -21,7 +21,7 @@ BatteryMonitor::BatteryMonitor(
 	uint8_t sensePin, uint16_t refVoltage, float dividerRatio,
 	uint16_t minVoltage, uint16_t maxVoltage) 
         : VoltageMonitor(sensePin, refVoltage, dividerRatio),
-		  minVoltage(minVoltage), maxVoltage(maxVoltage) {}
+		  m_minVoltage(minVoltage), m_maxVoltage(maxVoltage) {}
     
     
 uint8_t BatteryMonitor::level() {
@@ -30,11 +30,11 @@ uint8_t BatteryMonitor::level() {
 
 
 uint8_t BatteryMonitor::level(uint16_t voltage) {
-    if (voltage <= minVoltage) {
+    if (voltage <= m_minVoltage) {
 		return 0;
-	} else if (voltage >= maxVoltage) {
+	} else if (voltage >= m_maxVoltage) {
 		return 100;
 	} else {
-		return (float) (voltage - minVoltage) / (maxVoltage - minVoltage) * 100;
+		return (float) (voltage - m_minVoltage) / (m_maxVoltage - m_minVoltage) * 100;
 	}
 }

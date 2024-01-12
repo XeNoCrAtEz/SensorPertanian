@@ -26,8 +26,8 @@ protected:
     const uint16_t PORT = 443;
     const char SUBMIT_RESOURCE[25] = "/Sensor/store_Sensor.php";
 
-    bool ready = false;
-    bool timeAvailable = false;
+    bool m_ready = false;
+    bool m_timeAvailable = false;
 
 
 public:
@@ -70,12 +70,12 @@ private:
         BAUDRATE = 115200,
     };
 
-    const char apn[14] = "internet"; // APN Telkomsel IoT
-    const char gprsUser[1] = "";
-    const char gprsPass[1] = "";
+    const char APN[14] = "internet"; // APN Telkomsel IoT
+    const char GPRS_USER[1] = "";
+    const char GPRS_PASS[1] = "";
 
-    HardwareSerial serialAT;
-    TinyGsm modem;
+    HardwareSerial m_serialAT;
+    TinyGsm m_modem;
 
 
 public:

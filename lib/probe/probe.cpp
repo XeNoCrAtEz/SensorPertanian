@@ -2,8 +2,8 @@
 
 
 Probe::Probe(int HWSerialNum, int addr)
-        : ModbusMaster(), probe(HWSerialNum) {
-    begin(addr, probe);
+        : ModbusMaster(), m_probe(HWSerialNum) {
+    begin(addr, m_probe);
 }
 
 
@@ -65,7 +65,7 @@ void Probe::calibrateNPK(SoilData &soilData)
 // ---------------------------- Probe KHDTK ------------------------------
 ProbeKHDTK::ProbeKHDTK(int rx, int tx, int HWSerialNum, int addr)
         : Probe(HWSerialNum, addr) {
-    probe.begin(PROBE_BAUDRATE, SERIAL_8N1, rx, tx);
+    m_probe.begin(PROBE_BAUDRATE, SERIAL_8N1, rx, tx);
 }
 
 
@@ -99,7 +99,7 @@ Probe::ErrorCodes ProbeKHDTK::sample(SoilData& soilData) {
 // ------------------------- Probe Default (Aliexpress) ---------------------------
 ProbeDefault::ProbeDefault(int rx, int tx, int HWSerialNum, int addr)
         : Probe(HWSerialNum, addr) {
-    probe.begin(PROBE_BAUDRATE, SERIAL_8N1, rx, tx);
+    m_probe.begin(PROBE_BAUDRATE, SERIAL_8N1, rx, tx);
 }
 
 
@@ -165,7 +165,7 @@ ProbeDefault::ErrorCodes ProbeDefault::sample(SoilData& soilData) {
 // ------------------------- Probe New (Mas Nando) ---------------------------
 ProbeNew::ProbeNew(int rx, int tx, int HWSerialNum, int addr)
         : Probe(HWSerialNum, addr) {
-    probe.begin(PROBE_BAUDRATE, SERIAL_8N1, rx, tx);
+    m_probe.begin(PROBE_BAUDRATE, SERIAL_8N1, rx, tx);
 }
 
 

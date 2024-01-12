@@ -22,11 +22,11 @@ public:
 
 
 private:
-    double lat;
-    double lng;
+    double m_lat;
+    double m_lng;
 
-    TinyGPSPlus _gps;
-    HardwareSerial _serial;
+    TinyGPSPlus m_gps;
+    HardwareSerial m_serial;
 
 
 public:

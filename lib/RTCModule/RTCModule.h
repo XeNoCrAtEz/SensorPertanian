@@ -10,7 +10,7 @@ class RTC {
 private:
     ThreeWire m_RTCWire; // IO, SCLK, CE
     RtcDS1302<ThreeWire> m_RTC;
-    bool ready = false;
+    bool m_ready = false;
 
 public:
     RTC(uint8_t dataPin, uint8_t clkPin, uint8_t rstPin);

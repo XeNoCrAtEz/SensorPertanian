@@ -33,7 +33,7 @@ protected:
     };
     static const uint16_t ku16MBResponseTimeout = 100;  // ms
 
-    HardwareSerial probe;
+    HardwareSerial m_probe;
 
 
 public:

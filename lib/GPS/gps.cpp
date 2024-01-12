@@ -2,8 +2,8 @@
 
 
 GPS::GPS(uint8_t rx, uint8_t tx, uint8_t HWSerialNum)
-        : _serial{HWSerialNum} {
-    _serial.begin(BAUDRATE, SERIAL_8N1, rx, tx);
+        : m_serial{HWSerialNum} {
+    m_serial.begin(BAUDRATE, SERIAL_8N1, rx, tx);
 }
 
 
@@ -20,8 +20,8 @@ bool GPS::get_location(double& lat, double& lng) {
     if (resultCode == GPS_NO_FIX)
         Serial.println("GPS Connected, but no fix!");
     
-    lat = _gps.location.lat();
-    lng = _gps.location.lng();
+    lat = m_gps.location.lat();
+    lng = m_gps.location.lng();
 
     return true;
 }
@@ -32,11 +32,11 @@ uint8_t GPS::get_location_till_timeout() {
     bool isCharsProcessed = false;
     bool isAvailable = false;
     while ((millis() - start <  TIMEOUT) && (!isAvailable || !isCharsProcessed)) {
-        if (_serial.available() > 0) {
-            _gps.encode(_serial.read());
+        if (m_serial.available() > 0) {
+            m_gps.encode(m_serial.read());
 
-            isCharsProcessed = _gps.charsProcessed() > 10;
-            isAvailable = _gps.location.isValid() || _gps.location.isUpdated();
+            isCharsProcessed = m_gps.charsProcessed() > 10;
+            isAvailable = m_gps.location.isValid() || m_gps.location.isUpdated();
         }
     }
     

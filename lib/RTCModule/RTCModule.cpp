@@ -22,7 +22,7 @@ RTC::RTC(uint8_t dataPin, uint8_t clkPin, uint8_t rstPin)
         log_i("OK");
     }
 
-    ready = true;
+    m_ready = true;
 }
             
 
@@ -45,7 +45,7 @@ void RTC::set_date_time(const RtcDateTime& dateTime) {
 
 
 bool RTC::is_ready() {
-    return ready;
+    return m_ready;
 }
 
 

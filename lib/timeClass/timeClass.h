@@ -18,9 +18,9 @@ public:
 
 
 private:
-    RTC& rtc;
-    Submitter& submitter;
-    bool RTCAvailable=false, NTPAvailable=false;
+    RTC& m_rtc;
+    Submitter& m_submitter;
+    bool m_RTCAvailable=false, m_NTPAvailable=false;
 
 
 public:

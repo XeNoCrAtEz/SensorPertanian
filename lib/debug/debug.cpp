@@ -1,7 +1,7 @@
 #include "debug.h"
 
 
-const char Logger::filename[] = "/logging.jsonl";
+const char Logger::m_filename[] = "/logging.jsonl";
 
 
 #ifdef DEBUG
@@ -15,31 +15,31 @@ void Logger::print(const String& time, const String& level, const String& msg) {
 
 
 Logger::Logger(TimeClass& time, bool printMode)
-        : timekeeper(time), printMode(printMode)
+        : m_timekeeper(time), m_printMode(printMode)
 {
     if (printMode) {
-        ready = true;
+        m_ready = true;
         return;
     }
 
-    if (!filesystem.begin()) {
+    if (!m_filesystem.begin()) {
         Serial.println("LittleFS Mount Failed!");
         return;
     }
 
-    File file = filesystem.open(filename, FILE_READ, true);
+    File file = m_filesystem.open(m_filename, FILE_READ, true);
     if (!file) Serial.println("File not found! \"logging.jsonl\" created!");
 
-    ready = true;
+    m_ready = true;
 }
 
 
 Logger::ErrorCodes Logger::show() {
-    if (printMode) return PRINT_MODE;
+    if (m_printMode) return PRINT_MODE;
 
-    if (!ready) return LITTLEFS_FAILED;
+    if (!m_ready) return LITTLEFS_FAILED;
     
-    File file = filesystem.open(filename, FILE_READ);
+    File file = m_filesystem.open(m_filename, FILE_READ);
     if (!file) return OPEN_FAILED;
 
     if (!file.size()) return EMPTY_FILE;
@@ -58,11 +58,11 @@ Logger::ErrorCodes Logger::show() {
 
 
 Logger::ErrorCodes Logger::clear() {
-    if (printMode) return PRINT_MODE;
+    if (m_printMode) return PRINT_MODE;
 
-    if (!ready) return LITTLEFS_FAILED;
+    if (!m_ready) return LITTLEFS_FAILED;
 
-    File file = filesystem.open(filename, FILE_WRITE);
+    File file = m_filesystem.open(m_filename, FILE_WRITE);
     if (!file) return OPEN_FAILED;
 
     return SUCCESS;
@@ -70,28 +70,28 @@ Logger::ErrorCodes Logger::clear() {
 
 
 bool Logger::is_ready() {
-    return ready;
+    return m_ready;
 }
 
 
 bool Logger::is_print_mode() {
-    return printMode;
+    return m_printMode;
 }
 
 
 Logger::ErrorCodes Logger::log(const String& level, const String& msg) {
-    if (printMode) {
-        print(RtcDateTime_to_Str(timekeeper.get_date_time()), level, msg);
+    if (m_printMode) {
+        print(RtcDateTime_to_Str(m_timekeeper.get_date_time()), level, msg);
         return PRINT_MODE;
     }
 
-    if (!ready) return LITTLEFS_FAILED;
+    if (!m_ready) return LITTLEFS_FAILED;
 
-    File file = filesystem.open(filename, FILE_APPEND);
+    File file = m_filesystem.open(m_filename, FILE_APPEND);
     if (!file) return OPEN_FAILED;
 
     StaticJsonDocument<JSON_ENTRY_SIZE> logEntry;
-    logEntry["time"] = RtcDateTime_to_Str(timekeeper.get_date_time());
+    logEntry["time"] = RtcDateTime_to_Str(m_timekeeper.get_date_time());
     logEntry["level"] = level;
     logEntry["msg"] = msg;
 
@@ -129,10 +129,10 @@ Logger::ErrorCodes Logger::log_V(const String& msg) {
 
 
 #else
-Logger::Logger(RTC& time, bool printMode) : timekeeper(time) {}
+Logger::Logger(RTC& time, bool printMode) : m_timekeeper(time) {}
 Logger::ErrorCodes Logger::show() { return DEBUG_INACTIVE; }
 Logger::ErrorCodes Logger::clear() { return DEBUG_INACTIVE; }
-bool Logger::is_ready() { return ready; }
+bool Logger::is_ready() { return m_ready; }
 bool Logger::is_print_mode() { return printMode; }
 
 Logger::ErrorCodes Logger::log(const String& level, const String& msg) { return DEBUG_INACTIVE; }

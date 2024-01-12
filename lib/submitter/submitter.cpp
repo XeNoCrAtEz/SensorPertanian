@@ -2,12 +2,12 @@
 
 
 bool Submitter::is_time_available() {
-    return timeAvailable;
+    return m_timeAvailable;
 }
 
 
 bool Submitter::is_ready() {
-    return ready;
+    return m_ready;
 }
 
 
@@ -29,7 +29,7 @@ SubmitterWiFi::SubmitterWiFi()
         Serial.print(".");
         if (attempts >= MAX_REATTEMPT) {
             Serial.println("\nCannot connect to WiFi!");
-            ready = false;
+            m_ready = false;
             return;
         }
         WiFi.disconnect();
@@ -44,9 +44,9 @@ SubmitterWiFi::SubmitterWiFi()
 	Serial.println();
 #endif
 
-    ready = true;
+    m_ready = true;
 
-    if (get_current_time() != RtcDateTime()) timeAvailable = true;
+    if (get_current_time() != RtcDateTime()) m_timeAvailable = true;
 }
 
 
@@ -66,15 +66,15 @@ int SubmitterWiFi::submit_reading(SoilReading& soilReading) {
     JsonArray dataArr = data.createNestedArray("data");
     
     JsonObject rowJson = dataArr.createNestedObject();
-    rowJson["timestamp"] = RtcDateTime_to_Str(RtcDateTime(soilReading.epoch));
-    rowJson["N"] = soilReading.soilData.nitrogen;
-    rowJson["P"] = soilReading.soilData.phosphorus;
-    rowJson["K"] = soilReading.soilData.kalium;
-    rowJson["pH"] = soilReading.soilData.pH;
-    rowJson["temp"] = soilReading.soilData.temperature;
-    rowJson["hum"] = soilReading.soilData.humidity;
-    rowJson["EC"] = soilReading.soilData.EC;
-    rowJson["salt"] = soilReading.soilData.salt;
+    rowJson["timestamp"] = RtcDateTime_to_Str(RtcDateTime(soilReading.m_epoch));
+    rowJson["N"] = soilReading.m_soilData.nitrogen;
+    rowJson["P"] = soilReading.m_soilData.phosphorus;
+    rowJson["K"] = soilReading.m_soilData.kalium;
+    rowJson["pH"] = soilReading.m_soilData.pH;
+    rowJson["temp"] = soilReading.m_soilData.temperature;
+    rowJson["hum"] = soilReading.m_soilData.humidity;
+    rowJson["EC"] = soilReading.m_soilData.EC;
+    rowJson["salt"] = soilReading.m_soilData.salt;
 
     String dataStr;
     serializeJson(data, dataStr);
@@ -113,15 +113,15 @@ int SubmitterWiFi::submit_reading(SoilDataTable& dataTable) {
         SoilReading row = soilReadings[i];
 
         JsonObject rowJson = dataArr.createNestedObject();
-        rowJson["timestamp"] = RtcDateTime_to_Str(RtcDateTime(row.epoch));
-        rowJson["N"] = row.soilData.nitrogen;
-        rowJson["P"] = row.soilData.phosphorus;
-        rowJson["K"] = row.soilData.kalium;
-        rowJson["pH"] = row.soilData.pH;
-        rowJson["temp"] = row.soilData.temperature;
-        rowJson["hum"] = row.soilData.humidity;
-        rowJson["EC"] = row.soilData.EC;
-        rowJson["salt"] = row.soilData.salt;
+        rowJson["timestamp"] = RtcDateTime_to_Str(RtcDateTime(row.m_epoch));
+        rowJson["N"] = row.m_soilData.nitrogen;
+        rowJson["P"] = row.m_soilData.phosphorus;
+        rowJson["K"] = row.m_soilData.kalium;
+        rowJson["pH"] = row.m_soilData.pH;
+        rowJson["temp"] = row.m_soilData.temperature;
+        rowJson["hum"] = row.m_soilData.humidity;
+        rowJson["EC"] = row.m_soilData.EC;
+        rowJson["salt"] = row.m_soilData.salt;
     }
 
     delete[] soilReadings;
@@ -165,23 +165,23 @@ RtcDateTime SubmitterWiFi::get_current_time() {
 
 // ---------------------------- Submitter GSM ------------------------------
 SubmitterGSM::SubmitterGSM(int rx, int tx, int HWSerialNum)
-        : serialAT(HWSerialNum), modem(serialAT) {
-    serialAT.begin(BAUDRATE, SERIAL_8N1, rx, tx);
-    if (!modem.init()) {
+        : m_serialAT(HWSerialNum), m_modem(m_serialAT) {
+    m_serialAT.begin(BAUDRATE, SERIAL_8N1, rx, tx);
+    if (!m_modem.init()) {
         Serial.println("Fatal Error! Failed to init GSM module!");
         return;
     }
-    if (!modem.waitForNetwork()) {
+    if (!m_modem.waitForNetwork()) {
         Serial.println("Fatal Error! Cannot connect to Network!");
         return;
     }
-    if (!modem.gprsConnect(apn, gprsUser, gprsPass)) {
+    if (!m_modem.gprsConnect(APN, GPRS_USER, GPRS_PASS)) {
         Serial.println("Fatal Error! Cannot connect to GPRS!");
         return;
     }
-    ready = modem.isGprsConnected();
+    m_ready = m_modem.isGprsConnected();
 
-    if (get_current_time() != RtcDateTime()) timeAvailable = true;
+    if (get_current_time() != RtcDateTime()) m_timeAvailable = true;
 }
 
 
@@ -193,7 +193,7 @@ int SubmitterGSM::submit_reading(SoilReading& soilReading) {
     // Link = "http://" + String(SERVERNAME) + "/Sensor/kirimdata.php";
 
     // try ping first
-    TinyGsmClientSecure client = TinyGsmClientSecure(modem);
+    TinyGsmClientSecure client = TinyGsmClientSecure(m_modem);
     if (!client.connect(SERVERNAME, PORT)) {
         Serial.println("Fatal Error! Server is down!");
         return 0;
@@ -206,15 +206,15 @@ int SubmitterGSM::submit_reading(SoilReading& soilReading) {
     JsonArray dataArr = data.createNestedArray("data");
     
     JsonObject rowJson = dataArr.createNestedObject();
-    rowJson["timestamp"] = RtcDateTime_to_Str(RtcDateTime(soilReading.epoch));
-    rowJson["N"] = soilReading.soilData.nitrogen;
-    rowJson["P"] = soilReading.soilData.phosphorus;
-    rowJson["K"] = soilReading.soilData.kalium;
-    rowJson["pH"] = soilReading.soilData.pH;
-    rowJson["temp"] = soilReading.soilData.temperature;
-    rowJson["hum"] = soilReading.soilData.humidity;
-    rowJson["EC"] = soilReading.soilData.EC;
-    rowJson["salt"] = soilReading.soilData.salt;
+    rowJson["timestamp"] = RtcDateTime_to_Str(RtcDateTime(soilReading.m_epoch));
+    rowJson["N"] = soilReading.m_soilData.nitrogen;
+    rowJson["P"] = soilReading.m_soilData.phosphorus;
+    rowJson["K"] = soilReading.m_soilData.kalium;
+    rowJson["pH"] = soilReading.m_soilData.pH;
+    rowJson["temp"] = soilReading.m_soilData.temperature;
+    rowJson["hum"] = soilReading.m_soilData.humidity;
+    rowJson["EC"] = soilReading.m_soilData.EC;
+    rowJson["salt"] = soilReading.m_soilData.salt;
 
     String dataStr;
     serializeJson(data, dataStr);
@@ -263,7 +263,7 @@ int SubmitterGSM::submit_reading(SoilDataTable& dataTable) {
     // Link = "http://" + String(SERVERNAME) + "/Sensor/kirimdata.php";
 
     // try ping first
-    TinyGsmClientSecure client = TinyGsmClientSecure(modem);
+    TinyGsmClientSecure client = TinyGsmClientSecure(m_modem);
     if (!client.connect(SERVERNAME, PORT)) {
         Serial.println("Fatal Error! Server is down!");
         return 0;
@@ -282,15 +282,15 @@ int SubmitterGSM::submit_reading(SoilDataTable& dataTable) {
         SoilReading row = soilReadings[i];
 
         JsonObject rowJson = dataArr.createNestedObject();
-        rowJson["timestamp"] = RtcDateTime_to_Str(RtcDateTime(row.epoch));
-        rowJson["N"] = row.soilData.nitrogen;
-        rowJson["P"] = row.soilData.phosphorus;
-        rowJson["K"] = row.soilData.kalium;
-        rowJson["pH"] = row.soilData.pH;
-        rowJson["temp"] = row.soilData.temperature;
-        rowJson["hum"] = row.soilData.humidity;
-        rowJson["EC"] = row.soilData.EC;
-        rowJson["salt"] = row.soilData.salt;
+        rowJson["timestamp"] = RtcDateTime_to_Str(RtcDateTime(row.m_epoch));
+        rowJson["N"] = row.m_soilData.nitrogen;
+        rowJson["P"] = row.m_soilData.phosphorus;
+        rowJson["K"] = row.m_soilData.kalium;
+        rowJson["pH"] = row.m_soilData.pH;
+        rowJson["temp"] = row.m_soilData.temperature;
+        rowJson["hum"] = row.m_soilData.humidity;
+        rowJson["EC"] = row.m_soilData.EC;
+        rowJson["salt"] = row.m_soilData.salt;
     }
 
     delete[] soilReadings;
@@ -337,7 +337,7 @@ int SubmitterGSM::submit_reading(SoilDataTable& dataTable) {
 RtcDateTime SubmitterGSM::get_current_time() {
     int year, month, dayOfMonth, hour, minute, second;
     float timezone = 0;
-    if (modem.getNetworkTime(&year, &month, &dayOfMonth, &hour, &minute, &second, &timezone))
+    if (m_modem.getNetworkTime(&year, &month, &dayOfMonth, &hour, &minute, &second, &timezone))
         return RtcDateTime(year, month, dayOfMonth, hour+timezone, minute, second);
 
     return RtcDateTime(0);

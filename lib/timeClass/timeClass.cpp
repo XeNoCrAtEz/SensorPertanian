@@ -2,33 +2,33 @@
 
 
 TimeClass::TimeClass(RTC& rtc, Submitter& submitter) 
-        : rtc(rtc), submitter(submitter) {
-    RTCAvailable = rtc.is_ready();
-    NTPAvailable = submitter.is_time_available();
+        : m_rtc(rtc), m_submitter(submitter) {
+    m_RTCAvailable = rtc.is_ready();
+    m_NTPAvailable = submitter.is_time_available();
     
-    if (NTPAvailable && RTCAvailable) update_RTC();
+    if (m_NTPAvailable && m_RTCAvailable) update_RTC();
 }
 
 
 TimeClass::ErrorCodes TimeClass::update_RTC() {
-    if (!RTCAvailable) return RTC_UNAVAILABLE;
-    else if (!NTPAvailable) return NTP_UNAVAILABLE;
+    if (!m_RTCAvailable) return RTC_UNAVAILABLE;
+    else if (!m_NTPAvailable) return NTP_UNAVAILABLE;
 
-    rtc.set_date_time(submitter.get_current_time());
+    m_rtc.set_date_time(m_submitter.get_current_time());
     return SUCCESS;
 }
 
 
 RtcDateTime TimeClass::get_date_time() {
-    if (RTCAvailable) return rtc.get_date_time();
-    else if (NTPAvailable) return submitter.get_current_time();
+    if (m_RTCAvailable) return m_rtc.get_date_time();
+    else if (m_NTPAvailable) return m_submitter.get_current_time();
     else return RtcDateTime();
 }
 
 
 TimeClass::ErrorCodes TimeClass::availability() {
-    if (NTPAvailable && RTCAvailable) return SUCCESS;
-    else if (!NTPAvailable) return NTP_UNAVAILABLE;
-    else if (!RTCAvailable) return RTC_UNAVAILABLE;
+    if (m_NTPAvailable && m_RTCAvailable) return SUCCESS;
+    else if (!m_NTPAvailable) return NTP_UNAVAILABLE;
+    else if (!m_RTCAvailable) return RTC_UNAVAILABLE;
     else return NO_TIME;
 }
