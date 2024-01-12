@@ -72,7 +72,7 @@ private:
 public:
     ProbeKHDTK(int rx, int tx, int HWSerialNum=1, int addr=0x01);
 
-    ErrorCodes sample(SoilData& soilData);
+    ErrorCodes sample(SoilData& soilData) override;
 };
 
 
@@ -102,7 +102,7 @@ private:
 public:
     ProbeDefault(int rx, int tx, int HWSerialNum=1, int addr=0x01);
 
-    ErrorCodes sample(SoilData& soilData);
+    ErrorCodes sample(SoilData& soilData) override;
 };
 
 class ProbeNew : public Probe {
