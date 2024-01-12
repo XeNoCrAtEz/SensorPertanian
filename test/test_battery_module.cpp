@@ -9,8 +9,7 @@ const uint8_t BATT_MON_PIN = 34;
 
 
 void test_battery_volt() {
-    BatteryMonitor batt(BATT_MON_PIN, 3000, 4200);
-	batt.begin(3300, 2);
+    BatteryMonitor batt(BATT_MON_PIN, 3300, 2 3000, 4200);
 
     Serial.print("Battery voltage is: ");
 	Serial.print(batt.voltage());
@@ -21,8 +20,7 @@ void test_battery_volt() {
 
 
 void test_solar_panel_volt() {
-	VoltageMonitor sc(SC_MON_PIN);
-	sc.begin(3300, 2);
+	VoltageMonitor sc(SC_MON_PIN, 3300, 2);
 
     Serial.print("Solar Panel voltage is: ");
 	Serial.print(sc.voltage());

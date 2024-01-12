@@ -1,11 +1,8 @@
 #include "voltageMonitor.h"
 
 
-VoltageMonitor::VoltageMonitor(uint8_t sensePin) 
-        : sensePin(sensePin) {}
-
-
-void VoltageMonitor::begin(uint16_t refVoltage, float dividerRatio) {
+VoltageMonitor::VoltageMonitor(uint8_t sensePin, uint16_t refVoltage, float dividerRatio) 
+        : sensePin(sensePin) {
     this->refVoltage = refVoltage;
 	this->dividerRatio = dividerRatio;
 	pinMode(this->sensePin, INPUT);
@@ -20,8 +17,11 @@ uint16_t VoltageMonitor::voltage() {
 
 
 // ----------------------------------------- BATTERY MONITOR ------------------------------------
-BatteryMonitor::BatteryMonitor(uint8_t sensePin, uint16_t minVoltage, uint16_t maxVoltage) 
-        : VoltageMonitor(sensePin), minVoltage(minVoltage), maxVoltage(maxVoltage) {}
+BatteryMonitor::BatteryMonitor(
+	uint8_t sensePin, uint16_t refVoltage, float dividerRatio,
+	uint16_t minVoltage, uint16_t maxVoltage) 
+        : VoltageMonitor(sensePin, refVoltage, dividerRatio),
+		  minVoltage(minVoltage), maxVoltage(maxVoltage) {}
     
     
 uint8_t BatteryMonitor::level() {

@@ -19,8 +19,7 @@ private:
 
 
 public:
-    VoltageMonitor(uint8_t sensePin);
-    void begin(uint16_t refVoltage, float dividerRatio);
+    VoltageMonitor(uint8_t sensePin, uint16_t refVoltage, float dividerRatio);
     uint16_t voltage();
 
 
@@ -32,9 +31,12 @@ protected:
 
 };
 
+
 class BatteryMonitor : public VoltageMonitor {
 public:
-    BatteryMonitor(uint8_t sensePin, uint16_t minVoltage, uint16_t maxVoltage);
+    BatteryMonitor(
+        uint8_t sensePin, uint16_t refVoltage, float dividerRatio, 
+        uint16_t minVoltage, uint16_t maxVoltage);
     uint8_t level();
     uint8_t level(uint16_t voltage);
 
