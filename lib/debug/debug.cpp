@@ -15,30 +15,29 @@ void Logger::print(const String& time, const String& level, const String& msg) {
 
 
 Logger::Logger(TimeClass& time, bool printMode)
-        : m_timekeeper(time), m_printMode(printMode)
-{
+        : m_timekeeper(time) {
     if (printMode) {
-        m_ready = true;
+        m_status = PRINT_MODE;
         return;
     }
 
     if (!m_filesystem.begin()) {
         Serial.println("LittleFS Mount Failed!");
+        m_status = LITTLEFS_FAILED;
         return;
     }
 
     File file = m_filesystem.open(m_filename, FILE_READ, true);
     if (!file) Serial.println("File not found! \"logging.jsonl\" created!");
 
-    m_ready = true;
+    m_status = READY;
 }
 
 
-Logger::ErrorCodes Logger::show() {
-    if (m_printMode) return PRINT_MODE;
+Logger::OpStatus Logger::show() {
+    if (status() == PRINT_MODE) return STATUS_PRINT_MODE;
+    if (status() != READY) return STATUS_ERROR;
 
-    if (!m_ready) return LITTLEFS_FAILED;
-    
     File file = m_filesystem.open(m_filename, FILE_READ);
     if (!file) return OPEN_FAILED;
 
@@ -57,10 +56,9 @@ Logger::ErrorCodes Logger::show() {
 }
 
 
-Logger::ErrorCodes Logger::clear() {
-    if (m_printMode) return PRINT_MODE;
-
-    if (!m_ready) return LITTLEFS_FAILED;
+Logger::OpStatus Logger::clear() {
+    if (status() == PRINT_MODE) return STATUS_PRINT_MODE;
+    if (status() != READY) return STATUS_ERROR;
 
     File file = m_filesystem.open(m_filename, FILE_WRITE);
     if (!file) return OPEN_FAILED;
@@ -69,23 +67,23 @@ Logger::ErrorCodes Logger::clear() {
 }
 
 
-bool Logger::is_ready() {
-    return m_ready;
+Logger::Status Logger::status() {
+    return m_status;
 }
 
 
 bool Logger::is_print_mode() {
-    return m_printMode;
+    return (status() == PRINT_MODE);
 }
 
 
-Logger::ErrorCodes Logger::log(const String& level, const String& msg) {
-    if (m_printMode) {
+Logger::OpStatus Logger::log(const String& level, const String& msg) {
+    if (is_print_mode()) {
         print(RtcDateTime_to_Str(m_timekeeper.get_date_time()), level, msg);
-        return PRINT_MODE;
+        return STATUS_PRINT_MODE;
     }
 
-    if (!m_ready) return LITTLEFS_FAILED;
+    if (status() != READY) return STATUS_ERROR;
 
     File file = m_filesystem.open(m_filename, FILE_APPEND);
     if (!file) return OPEN_FAILED;
@@ -103,44 +101,44 @@ Logger::ErrorCodes Logger::log(const String& level, const String& msg) {
 }
 
 
-Logger::ErrorCodes Logger::log_E(const String& msg) {
+Logger::OpStatus Logger::log_E(const String& msg) {
     return log("E", msg);
 }
 
 
-Logger::ErrorCodes Logger::log_W(const String& msg) {
+Logger::OpStatus Logger::log_W(const String& msg) {
     return log("W", msg);
 }
 
 
-Logger::ErrorCodes Logger::log_I(const String& msg) {
+Logger::OpStatus Logger::log_I(const String& msg) {
     return log("I", msg);
 }
 
 
-Logger::ErrorCodes Logger::log_D(const String& msg) {
+Logger::OpStatus Logger::log_D(const String& msg) {
     return log("D", msg);
 }
 
 
-Logger::ErrorCodes Logger::log_V(const String& msg) {
+Logger::OpStatus Logger::log_V(const String& msg) {
     return log("V", msg);
 }
 
 
 #else
-Logger::Logger(RTC& time, bool printMode) : m_timekeeper(time) {}
-Logger::ErrorCodes Logger::show() { return DEBUG_INACTIVE; }
-Logger::ErrorCodes Logger::clear() { return DEBUG_INACTIVE; }
-bool Logger::is_ready() { return m_ready; }
-bool Logger::is_print_mode() { return printMode; }
+Logger::Logger(TimeClass& time, bool printMode) : m_timekeeper(time), m_status(NO_DEBUG) {}
+Logger::OpStatus Logger::show() { return DEBUG_INACTIVE; }
+Logger::OpStatus Logger::clear() { return DEBUG_INACTIVE; }
+Logger::Status Logger::status() { return NO_DEBUG; }
+bool Logger::is_print_mode() { return false; }
 
-Logger::ErrorCodes Logger::log(const String& level, const String& msg) { return DEBUG_INACTIVE; }
-Logger::ErrorCodes Logger::log_E(const String& msg) { return DEBUG_INACTIVE; }
-Logger::ErrorCodes Logger::log_W(const String& msg) { return DEBUG_INACTIVE; }
-Logger::ErrorCodes Logger::log_I(const String& msg) { return DEBUG_INACTIVE; }
-Logger::ErrorCodes Logger::log_D(const String& msg) { return DEBUG_INACTIVE; }
-Logger::ErrorCodes Logger::log_V(const String& msg) { return DEBUG_INACTIVE; }
+Logger::OpStatus Logger::log(const String& level, const String& msg) { return DEBUG_INACTIVE; }
+Logger::OpStatus Logger::log_E(const String& msg) { return DEBUG_INACTIVE; }
+Logger::OpStatus Logger::log_W(const String& msg) { return DEBUG_INACTIVE; }
+Logger::OpStatus Logger::log_I(const String& msg) { return DEBUG_INACTIVE; }
+Logger::OpStatus Logger::log_D(const String& msg) { return DEBUG_INACTIVE; }
+Logger::OpStatus Logger::log_V(const String& msg) { return DEBUG_INACTIVE; }
 
 void Logger::print(const String& time, const String& level, const String& msg) {}
 
