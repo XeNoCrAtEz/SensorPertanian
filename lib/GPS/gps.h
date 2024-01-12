@@ -8,32 +8,41 @@
 class GPS {
 private:
     enum GPSParams {
-        TIMEOUT = 2000,   // ms
+        GPS_TIMEOUT = 2000,   // ms
         BAUDRATE = 9600
     };
 
 
 public:
-    enum ErrorCodes {
+    // class status codes
+    enum Status {
         GPS_FIX,
         GPS_NO_FIX,
         GPS_FAILED,
+        UNKNOWN_ERROR,
+    };
+
+    // operation status codes
+    enum OpStatus {
+        SUCCESS,
+        STATUS_NO_FIX,
+        STATUS_ERROR,
     };
 
 
 private:
-    double m_lat;
-    double m_lng;
-
     TinyGPSPlus m_gps;
     HardwareSerial m_serial;
+
+    Status m_status = UNKNOWN_ERROR;
 
 
 public:
     GPS(uint8_t rx, uint8_t tx, uint8_t HWSerialNum=1);
 
-    bool get_location(double& lat, double& lng);
-    uint8_t get_location_till_timeout();
+    OpStatus get_location(double& lat, double& lng);
+    Status status();
+    Status get_location_till_timeout();
 };
 
 
