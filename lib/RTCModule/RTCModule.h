@@ -30,7 +30,6 @@ public:
 };
 
 
-void print_date_time(const RtcDateTime& dt);
 String RtcDateTime_to_Str(const RtcDateTime& dt);
 
 

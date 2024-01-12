@@ -49,10 +49,6 @@ bool RTC::is_ready() {
 }
 
 
-void print_date_time(const RtcDateTime& dt) {
-    Serial.println(RtcDateTime_to_Str(dt));
-}
-
 
 String RtcDateTime_to_Str(const RtcDateTime& dt) {
     return String(dt.Year()) + "-" + String(dt.Month()) + "-" + String(dt.Day()) + " " +
