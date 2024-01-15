@@ -4,8 +4,6 @@
 Probe::Probe(int HWSerialNum, int addr)
         : ModbusMaster(), m_probe(HWSerialNum) {
     begin(addr, m_probe);
-
-    // m_status = check_status();       // TODO: implement this method
 }
 
 
@@ -15,36 +13,15 @@ Probe::OpStatus Probe::get_data(uint16_t& data, int regNum) {
     if (status() != READY) return STATUS_ERROR;
     
     for (int i = 0; i < NUM_SAMPLES; i++) {
-        int resultCode = readHoldingRegisters(regNum, 0x01);     // read one register only
-        
-        for(int attempts = 0; resultCode == ku8MBResponseTimedOut; attempts++) {
-            Serial.println("Probe not responding!");
-            if (attempts >= MAX_RESEND) {
-                Serial.println("Fatal Error! Probe is not connected");
-                return STATUS_NO_PROBE;
-            }
-            Serial.print("Resending... (resend attempt: ");
-            Serial.print(attempts);
-            Serial.println(")");
-            resultCode = readHoldingRegisters(regNum, 0x01);
-        }
-
-        if(resultCode != ku8MBSuccess) {
-            Serial.print("Probe Error! Result code: ");
-            Serial.print(resultCode);
-            Serial.println("");
-
-            return STATUS_ERROR;
-        }
-
-        data += getResponseBuffer(0);
-    }
-
+        int resultCode = readHoldingRegisters(regNum, 0x01);
+        uint16_t receivedData = getResponseBuffer(0);
 #ifdef DEBUG
     // tampilkan respond bytes
     Serial.print("Received bytes: ");
-    Serial.println(getResponseBuffer(0x00), HEX);
+    Serial.println(receivedData, HEX);
 #endif
+        data += receivedData;
+    }
 
     data /= NUM_SAMPLES;
     
@@ -71,36 +48,63 @@ Probe::Status Probe::status() {
 }
 
 
+Probe::Status Probe::check() {
+    int resultCode = readHoldingRegisters(0x01, 0x01);
+    
+    for(int attempts = 0; resultCode == ku8MBResponseTimedOut; attempts++) {
+        Serial.println("Probe not responding!");
+        if (attempts >= MAX_RESEND) {
+            Serial.println("Error! Probe is not connected!");
+            return NO_PROBE;
+        }
+        Serial.print("Resending... (resend attempt: ");
+        Serial.print(attempts);
+        Serial.println(")");
+        resultCode = readHoldingRegisters(0x01, 0x01);
+    }
+
+    if(resultCode != ku8MBSuccess) {
+        Serial.print("Error! Probe result code: ");
+        Serial.print(resultCode);
+        Serial.println("");
+
+        return PROBE_ERROR;
+    }
+
+    return READY;
+}
+
+
 // ---------------------------- Probe KHDTK ------------------------------
 ProbeKHDTK::ProbeKHDTK(int rx, int tx, int HWSerialNum, int addr)
         : Probe(HWSerialNum, addr) {
     m_probe.begin(PROBE_BAUDRATE, SERIAL_8N1, rx, tx);
 
-    // m_status = check_status();
+    m_status = check();
 }
 
 
 Probe::OpStatus ProbeKHDTK::sample(SoilData& soilData) {
-    // if (status() == NO_PROBE) return STATUS_NO_PROBE;        // TODO: implement to enable this writing
-    // if (status() != READY) return STATUS_ERROR;
+    if (status() == NO_PROBE) return STATUS_NO_PROBE;
+    if (status() != READY) return STATUS_ERROR;
 
-    if (get_data(soilData.nitrogen, REG_NITRO) != SUCCESS) return STATUS_ERROR;
-    if (get_data(soilData.phosphorus, REG_PHOS) != SUCCESS) return STATUS_ERROR;
-    if (get_data(soilData.kalium, REG_KALI) != SUCCESS) return STATUS_ERROR;
+    get_data(soilData.nitrogen, REG_NITRO);
+    get_data(soilData.phosphorus, REG_PHOS);
+    get_data(soilData.kalium, REG_KALI);
 
     uint16_t temp_pH = 0;
-    if (get_data(temp_pH, REG_PH) != SUCCESS) return STATUS_ERROR;
+    get_data(temp_pH, REG_PH);
     soilData.pH = temp_pH / (float) 100;
 
     uint16_t temp_temperature = 0;
-    if (get_data(temp_temperature, REG_TEMP) != SUCCESS) return STATUS_ERROR;
+    get_data(temp_temperature, REG_TEMP);
     soilData.temperature = temp_temperature / (float) 10;
     
     uint16_t temp_humidity = 0;
-    if (get_data(temp_humidity, REG_HUM) != SUCCESS) return STATUS_ERROR;  
+    get_data(temp_humidity, REG_HUM);
     soilData.humidity = temp_humidity / (float) 10;
     
-    if (get_data(soilData.EC, REG_EC) != SUCCESS) return STATUS_ERROR;
+    get_data(soilData.EC, REG_EC);
 
 #ifndef NO_CALIB
     calibrateNPK(soilData);
@@ -114,33 +118,17 @@ Probe::OpStatus ProbeKHDTK::sample(SoilData& soilData) {
 ProbeDefault::ProbeDefault(int rx, int tx, int HWSerialNum, int addr)
         : Probe(HWSerialNum, addr) {
     m_probe.begin(PROBE_BAUDRATE, SERIAL_8N1, rx, tx);
+
+    m_status = check();
 }
 
 
 ProbeDefault::OpStatus ProbeDefault::sample(SoilData& soilData) {
+    if (status() == NO_PROBE) return STATUS_NO_PROBE;
+    if (status() != READY) return STATUS_ERROR;
+
     for (int i = 0; i < NUM_SAMPLES; i++) {
         int resultCode = readHoldingRegisters(0x00, TOTAL_DATA);     // read from 0x00-0x06
-        
-        for(int attempts = 0; resultCode == ku8MBResponseTimedOut; attempts++) {
-            Serial.println("Probe not responding!");
-            if (attempts >= MAX_RESEND) {
-                Serial.println("Fatal Error! Probe is not connected");
-                return STATUS_NO_PROBE;
-            }
-            Serial.print("Resending... (resend attempt: ");
-            Serial.print(attempts);
-            Serial.println(")");
-            resultCode = readHoldingRegisters(0x00, TOTAL_DATA);
-        }
-
-        if(resultCode != ku8MBSuccess) {
-            Serial.print("Probe Error! Result code: ");
-            Serial.print(resultCode);
-            Serial.println("");
-
-            return STATUS_ERROR;
-        }
-
 #ifdef DEBUG
         // tampilkan respond bytes
         Serial.print("Received bytes: ");
@@ -150,7 +138,6 @@ ProbeDefault::OpStatus ProbeDefault::sample(SoilData& soilData) {
         }
         Serial.println();
 #endif
-
         soilData.nitrogen += getResponseBuffer(INDEX_NITRO);
         soilData.phosphorus += getResponseBuffer(INDEX_PHOS);
         soilData.kalium += getResponseBuffer(INDEX_KALI);
@@ -180,32 +167,17 @@ ProbeDefault::OpStatus ProbeDefault::sample(SoilData& soilData) {
 ProbeNew::ProbeNew(int rx, int tx, int HWSerialNum, int addr)
         : Probe(HWSerialNum, addr) {
     m_probe.begin(PROBE_BAUDRATE, SERIAL_8N1, rx, tx);
+
+    m_status = check();
 }
 
 
 ProbeNew::OpStatus ProbeNew::sample(SoilData& soilData) {
+    if (status() == NO_PROBE) return STATUS_NO_PROBE;
+    if (status() != READY) return STATUS_ERROR;
+
     for (int i = 0; i < NUM_SAMPLES; i++) {
         int resultCode = readHoldingRegisters(0x00, TOTAL_DATA);     // read from 0x00-0x07
-        
-        for(int attempts = 0; resultCode == ku8MBResponseTimedOut; attempts++) {
-            Serial.println("Probe not responding!");
-            if (attempts >= MAX_RESEND) {
-                Serial.println("Fatal Error! Probe is not connected");
-                return STATUS_NO_PROBE;
-            }
-            Serial.print("Resending... (resend attempt: ");
-            Serial.print(attempts);
-            Serial.println(")");
-            resultCode = readHoldingRegisters(0x00, TOTAL_DATA);
-        }
-
-        if(resultCode != ku8MBSuccess) {
-            Serial.print("Probe Error! Result code: ");
-            Serial.print(resultCode);
-            Serial.println("");
-
-            return STATUS_ERROR;
-        }
 #ifdef DEBUG
         // tampilkan respond bytes
         Serial.print("Received bytes: ");
@@ -215,7 +187,6 @@ ProbeNew::OpStatus ProbeNew::sample(SoilData& soilData) {
         }
         Serial.println();
 #endif
-
         soilData.nitrogen += getResponseBuffer(INDEX_NITRO);
         soilData.phosphorus += getResponseBuffer(INDEX_PHOS);
         soilData.kalium += getResponseBuffer(INDEX_KALI);

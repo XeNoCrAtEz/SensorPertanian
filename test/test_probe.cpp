@@ -17,6 +17,8 @@ void test_ProbeKHDTK_sample() {
     SoilData sampledData = SoilData();
     TEST_ASSERT_EQUAL(Probe::SUCCESS, testProbe.sample(sampledData));
 
+    Serial.print(sampledData);
+
     Display display(PIN_SDA, PIN_SCL);
     display.display_data(sampledData);
 }
@@ -27,6 +29,8 @@ void test_ProbeDefault_sample() {
 
     SoilData sampledData = SoilData();
     TEST_ASSERT_EQUAL(Probe::SUCCESS, testProbe.sample(sampledData));
+    
+    Serial.print(sampledData);
 
     Display display(PIN_SDA, PIN_SCL);
     display.display_data(sampledData);
@@ -37,6 +41,8 @@ void test_ProbeNew_sample() {
 
     SoilData sampledData = SoilData();
     TEST_ASSERT_EQUAL(Probe::SUCCESS, testProbe.sample(sampledData));
+    
+    Serial.print(sampledData);
 
     Display display(PIN_SDA, PIN_SCL);
     display.display_data(sampledData);

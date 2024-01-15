@@ -47,8 +47,8 @@ protected:
     HardwareSerial m_probe;
 
 
-private:                  // TODO: determine whether this is private or protected
-    Status check_status();      // TODO: implement method for determining probe status
+protected:
+    Status check();
 
 
 public:
