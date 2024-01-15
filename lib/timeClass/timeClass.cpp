@@ -37,6 +37,7 @@ TimeClass::OpStatus TimeClass::get_date_time(RtcDateTime& now) {
         m_rtc.get_date_time(now);
         return (status() == READY ? SUCCESS : STATUS_NO_NTP);
     }
+    return STATUS_ERROR;
 }
 
 
