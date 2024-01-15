@@ -9,25 +9,38 @@
 
 class TimeClass {
 public:
-    enum ErrorCodes {
-        SUCCESS,
-        RTC_UNAVAILABLE,
-        NTP_UNAVAILABLE,
+    // class status codes
+    enum Status {
+        READY,
+        READY_NO_RTC,
+        READY_NO_NTP,
         NO_TIME,
+        UNKNOWN_ERROR,
+    };
+
+    // operation status codes
+    enum OpStatus {
+        SUCCESS,
+        STATUS_NO_RTC,
+        STATUS_NO_NTP,
+        STATUS_NO_TIME,
+        STATUS_ERROR,
     };
 
 
 private:
     RTC& m_rtc;
     Submitter& m_submitter;
+    
+    Status m_status = UNKNOWN_ERROR;
     bool m_RTCAvailable=false, m_NTPAvailable=false;
 
 
 public:
     TimeClass(RTC& rtc, Submitter& submitter);
-    ErrorCodes update_RTC();
-    RtcDateTime get_date_time();
-    ErrorCodes availability();
+    OpStatus update_RTC();
+    OpStatus get_date_time(RtcDateTime& time);
+    Status status();
 
 
 };

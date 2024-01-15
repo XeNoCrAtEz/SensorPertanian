@@ -3,32 +3,46 @@
 
 TimeClass::TimeClass(RTC& rtc, Submitter& submitter) 
         : m_rtc(rtc), m_submitter(submitter) {
-    m_RTCAvailable = rtc.is_ready();
+    m_RTCAvailable = rtc.status();
     m_NTPAvailable = submitter.is_time_available();
-    
-    if (m_NTPAvailable && m_RTCAvailable) update_RTC();
+
+    if      (!m_RTCAvailable && m_NTPAvailable)  m_status = READY_NO_RTC;
+    else if (m_RTCAvailable && !m_NTPAvailable)  m_status = READY_NO_NTP;
+    else if (!m_RTCAvailable && !m_NTPAvailable) m_status = NO_TIME;
+    else if (m_NTPAvailable && m_RTCAvailable) {
+        update_RTC();
+
+        m_status = READY;
+    }
 }
 
 
-TimeClass::ErrorCodes TimeClass::update_RTC() {
-    if (!m_RTCAvailable) return RTC_UNAVAILABLE;
-    else if (!m_NTPAvailable) return NTP_UNAVAILABLE;
+TimeClass::OpStatus TimeClass::update_RTC() {
+    if (status() != READY) return STATUS_ERROR;
 
-    m_rtc.set_date_time(m_submitter.get_current_time());
+    RtcDateTime now;
+    m_submitter.get_current_time(now);
+    m_rtc.set_date_time(now);
     return SUCCESS;
 }
 
 
-RtcDateTime TimeClass::get_date_time() {
-    if (m_RTCAvailable) return m_rtc.get_date_time();
-    else if (m_NTPAvailable) return m_submitter.get_current_time();
-    else return RtcDateTime();
+TimeClass::OpStatus TimeClass::get_date_time(RtcDateTime& now) {
+    if (status() == NO_TIME) return STATUS_ERROR;
+    else if (status() == READY_NO_RTC) {
+        m_submitter.get_current_time(now);
+        return STATUS_NO_RTC;
+    }
+    else if (status() == READY_NO_NTP || status() == READY) {
+        m_rtc.get_date_time(now);
+        return (status() == READY ? SUCCESS : STATUS_NO_NTP);
+    }
 }
 
 
-TimeClass::ErrorCodes TimeClass::availability() {
-    if (m_NTPAvailable && m_RTCAvailable) return SUCCESS;
-    else if (!m_NTPAvailable) return NTP_UNAVAILABLE;
-    else if (!m_RTCAvailable) return RTC_UNAVAILABLE;
+TimeClass::Status TimeClass::status() {
+    if (m_NTPAvailable && m_RTCAvailable) return READY;
+    else if (!m_NTPAvailable) return READY_NO_NTP;
+    else if (!m_RTCAvailable) return READY_NO_RTC;
     else return NO_TIME;
 }
