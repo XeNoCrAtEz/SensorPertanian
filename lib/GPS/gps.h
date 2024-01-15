@@ -16,9 +16,8 @@ private:
 public:
     // class status codes
     enum Status {
-        GPS_FIX,
-        GPS_NO_FIX,
-        GPS_FAILED,
+        READY,
+        NO_GPS,
         UNKNOWN_ERROR,
     };
 
@@ -41,8 +40,8 @@ public:
     GPS(uint8_t rx, uint8_t tx, uint8_t HWSerialNum=1);
 
     OpStatus get_location(double& lat, double& lng);
+    OpStatus get_location_till_timeout();
     Status status();
-    Status get_location_till_timeout();
 };
 
 

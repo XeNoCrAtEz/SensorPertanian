@@ -5,15 +5,16 @@ GPS::GPS(uint8_t rx, uint8_t tx, uint8_t HWSerialNum)
         : m_serial(HWSerialNum) {
     m_serial.begin(BAUDRATE, SERIAL_8N1, rx, tx);
 
-    m_status = get_location_till_timeout();
+    if (m_serial.available() > 0) m_status = READY;
+    else m_status = NO_GPS;
 }
 
 
 GPS::OpStatus GPS::get_location(double& lat, double& lng) {
     lat = lng = 0;
 
-    if (status() == GPS_FAILED) return STATUS_ERROR;
-    if (status() == GPS_NO_FIX) return STATUS_NO_FIX;
+    OpStatus errCode = get_location_till_timeout();
+    if (errCode != SUCCESS) return errCode;
     
     lat = m_gps.location.lat();
     lng = m_gps.location.lng();
@@ -27,7 +28,9 @@ GPS::Status GPS::status() {
 }
 
 
-GPS::Status GPS::get_location_till_timeout() {
+GPS::OpStatus GPS::get_location_till_timeout() {
+    if (status() != READY) return STATUS_ERROR;
+
     uint32_t start = millis();
     bool isCharsProcessed = false;
     bool isAvailable = false;
@@ -40,7 +43,6 @@ GPS::Status GPS::get_location_till_timeout() {
         }
     }
     
-    if (isCharsProcessed && isAvailable) return GPS_FIX;
-    else if (isCharsProcessed && !isAvailable) return GPS_NO_FIX;
-    else return GPS_FAILED;
+    if (isCharsProcessed && !isAvailable) return STATUS_NO_FIX;
+    else return STATUS_ERROR;
 }
