@@ -7,15 +7,32 @@
 
 
 class RTC {
+public:
+    // class status codes
+    enum Status {
+        READY,
+        NO_RTC,
+        UNKNOWN_ERROR,
+    };
+
+    // operation status codes
+    enum OpStatus {
+        SUCCESS,
+        STATUS_NO_RTC,
+        STATUS_ERROR,
+    };
+
+
 private:
     ThreeWire m_RTCWire; // IO, SCLK, CE
     RtcDS1302<ThreeWire> m_RTC;
-    bool m_ready = false;
+    Status m_status = UNKNOWN_ERROR;
+
 
 public:
     RTC(uint8_t dataPin, uint8_t clkPin, uint8_t rstPin);
-    RtcDateTime get_date_time();
-    void set_date_time(
+    OpStatus get_date_time(RtcDateTime& time);
+    OpStatus set_date_time(
         uint16_t year,
         uint8_t month,
         uint8_t dayOfMonth,
@@ -23,8 +40,8 @@ public:
         uint8_t minute,
         uint8_t second
     );
-    void set_date_time (const RtcDateTime& dateTime);
-    bool is_ready();
+    OpStatus set_date_time(const RtcDateTime& dateTime);
+    Status status();
 
 
 };
