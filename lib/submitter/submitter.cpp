@@ -112,7 +112,7 @@ Submitter::OpStatus SubmitterWiFi::submit_reading(SoilDataTable& dataTable) {
     JsonArray dataArr = data.createNestedArray("data");
     
     uint16_t totalData = 0;
-    SoilReading* soilReadings;
+    SoilReading* soilReadings = nullptr;
     dataTable.pop_all(soilReadings, totalData);
     for (int i = 0; i < totalData; i++) {
         SoilReading row = soilReadings[i];
