@@ -78,8 +78,11 @@ bool Logger::is_print_mode() {
 
 
 Logger::OpStatus Logger::log(const String& level, const String& msg) {
-    if (is_print_mode()) {
-        print(RtcDateTime_to_Str(m_timekeeper.get_date_time()), level, msg);
+    RtcDateTime now;
+    m_timekeeper.get_date_time(now);
+
+    if (is_print_mode()) {    
+        print(RtcDateTime_to_Str(now), level, msg);
         return STATUS_PRINT_MODE;
     }
 
@@ -89,7 +92,7 @@ Logger::OpStatus Logger::log(const String& level, const String& msg) {
     if (!file) return OPEN_FAILED;
 
     StaticJsonDocument<JSON_ENTRY_SIZE> logEntry;
-    logEntry["time"] = RtcDateTime_to_Str(m_timekeeper.get_date_time());
+    logEntry["time"] = RtcDateTime_to_Str(now);
     logEntry["level"] = level;
     logEntry["msg"] = msg;
 
