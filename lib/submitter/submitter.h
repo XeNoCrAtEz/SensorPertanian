@@ -15,6 +15,24 @@
 
 
 class Submitter {
+public:
+    // class status codes
+    enum Status {
+        READY,
+        NO_CONNECTION,
+        UNKNOWN_ERROR,
+    };
+
+    // operation status codes
+    enum OpStatus {
+        SUCCESS,
+        STATUS_NO_CONNECTION,
+        STATUS_NO_TIME,
+        UPLOAD_FAILED,
+        STATUS_ERROR,
+    };
+
+
 protected:
     enum SubmitterParams {
         MAX_REATTEMPT = 10,
@@ -26,18 +44,18 @@ protected:
     const uint16_t PORT = 443;
     const char SUBMIT_RESOURCE[25] = "/Sensor/store_Sensor.php";
 
-    bool m_ready = false;
+    Status m_status = UNKNOWN_ERROR;
     bool m_timeAvailable = false;
 
 
 public:
-    virtual int submit_reading(SoilReading& soilReading) = 0;
-    virtual int submit_reading(SoilDataTable& dataTable) = 0;
+    virtual OpStatus submit_reading(SoilReading& soilReading) = 0;
+    virtual OpStatus submit_reading(SoilDataTable& dataTable) = 0;
 
-    virtual RtcDateTime get_current_time() = 0;
+    virtual OpStatus get_current_time(RtcDateTime& time) = 0;
     bool is_time_available();
 
-    bool is_ready();
+    Status status();
 
 
 };
@@ -51,10 +69,11 @@ private:
 
 public:
     SubmitterWiFi();
-    int submit_reading(SoilReading& soilReading);
-    int submit_reading(SoilDataTable& dataTable);
 
-    RtcDateTime get_current_time();
+    OpStatus submit_reading(SoilReading& soilReading) override;
+    OpStatus submit_reading(SoilDataTable& dataTable) override;
+
+    OpStatus get_current_time(RtcDateTime& time) override;
 
 
 };
@@ -80,10 +99,11 @@ private:
 
 public:
     SubmitterGSM(int rx, int tx, int HWSerialNum=1);
-    int submit_reading(SoilReading& soilReading);
-    int submit_reading(SoilDataTable& dataTable);
 
-    RtcDateTime get_current_time();
+    OpStatus submit_reading(SoilReading& soilReading) override;
+    OpStatus submit_reading(SoilDataTable& dataTable) override;
+
+    OpStatus get_current_time(RtcDateTime& time) override;
 
 
 };

@@ -6,8 +6,8 @@ bool Submitter::is_time_available() {
 }
 
 
-bool Submitter::is_ready() {
-    return m_ready;
+Submitter::Status Submitter::status() {
+    return m_status;
 }
 
 
@@ -29,7 +29,7 @@ SubmitterWiFi::SubmitterWiFi()
         Serial.print(".");
         if (attempts >= MAX_REATTEMPT) {
             Serial.println("\nCannot connect to WiFi!");
-            m_ready = false;
+            m_status = NO_CONNECTION;
             return;
         }
         WiFi.disconnect();
@@ -44,15 +44,17 @@ SubmitterWiFi::SubmitterWiFi()
 	Serial.println();
 #endif
 
-    m_ready = true;
+    m_status = READY;
 
-    if (get_current_time() != RtcDateTime()) m_timeAvailable = true;
+    RtcDateTime testTime;
+    if (get_current_time(testTime) == SUCCESS) m_timeAvailable = true;
 }
 
 
-int SubmitterWiFi::submit_reading(SoilReading& soilReading) {
-    if (!is_ready()) return 0;
-    
+Submitter::OpStatus SubmitterWiFi::submit_reading(SoilReading& soilReading) {
+    if (m_status == NO_CONNECTION) return STATUS_NO_CONNECTION;
+    if (m_status != READY) return STATUS_ERROR;
+
     String Link;
     Link = "https://" + String(SERVERNAME) + String(SUBMIT_RESOURCE);
     HTTPClient http;
@@ -87,13 +89,16 @@ int SubmitterWiFi::submit_reading(SoilReading& soilReading) {
 
     http.end();
 
-    return responseCode;
+    if (responseCode == 200) return SUCCESS;
+
+    return UPLOAD_FAILED;
 }
 
 
-int SubmitterWiFi::submit_reading(SoilDataTable& dataTable) {
-    if (!is_ready()) return 0;
-    
+Submitter::OpStatus SubmitterWiFi::submit_reading(SoilDataTable& dataTable) {
+    if (m_status == NO_CONNECTION) return STATUS_NO_CONNECTION;
+    if (m_status != READY) return STATUS_ERROR;
+
     String Link;
     Link = "https://" + String(SERVERNAME) + String(SUBMIT_RESOURCE);
     HTTPClient http;
@@ -137,11 +142,16 @@ int SubmitterWiFi::submit_reading(SoilDataTable& dataTable) {
 
     http.end();
 
-    return responseCode;
+    if (responseCode == 200) return SUCCESS;
+
+    return UPLOAD_FAILED;
 }
 
 
-RtcDateTime SubmitterWiFi::get_current_time() {
+Submitter::OpStatus SubmitterWiFi::get_current_time(RtcDateTime& time) {
+    if (m_status == NO_CONNECTION) return STATUS_NO_CONNECTION;
+    if (m_status != READY) return STATUS_ERROR;
+
     WiFiUDP ntpUDP;
     NTPClient timeClient(ntpUDP, "pool.ntp.org", 7*3600);
     timeClient.begin();
@@ -149,7 +159,8 @@ RtcDateTime SubmitterWiFi::get_current_time() {
     for(int attempts = 0; !timeClient.update(); attempts++) {
         Serial.println("Cannot update time from network!");
         if (attempts >= MAX_REATTEMPT) {
-            return RtcDateTime();
+            time = RtcDateTime();
+            return STATUS_NO_TIME;
         }
         Serial.println("Re-attempt time update... (re-attempt: " + String(attempts) + ")");
         
@@ -157,9 +168,8 @@ RtcDateTime SubmitterWiFi::get_current_time() {
     }
     
     uint32_t epoch = timeClient.getEpochTime();
-    RtcDateTime now;
-    now.InitWithUnix32Time(epoch);
-    return now;
+    time.InitWithUnix32Time(epoch);
+    return SUCCESS;
 }
 
 
@@ -169,24 +179,34 @@ SubmitterGSM::SubmitterGSM(int rx, int tx, int HWSerialNum)
     m_serialAT.begin(BAUDRATE, SERIAL_8N1, rx, tx);
     if (!m_modem.init()) {
         Serial.println("Fatal Error! Failed to init GSM module!");
+        m_status = NO_CONNECTION;
         return;
     }
     if (!m_modem.waitForNetwork()) {
         Serial.println("Fatal Error! Cannot connect to Network!");
+        m_status = NO_CONNECTION;
         return;
     }
     if (!m_modem.gprsConnect(APN, GPRS_USER, GPRS_PASS)) {
         Serial.println("Fatal Error! Cannot connect to GPRS!");
+        m_status = NO_CONNECTION;
         return;
     }
-    m_ready = m_modem.isGprsConnected();
 
-    if (get_current_time() != RtcDateTime()) m_timeAvailable = true;
+    if (!m_modem.isGprsConnected()) {
+        m_status = NO_CONNECTION;
+        return;
+    }
+
+    m_status = READY;
+    RtcDateTime testTime;
+    if (get_current_time(testTime) == SUCCESS) m_timeAvailable = true;
 }
 
 
-int SubmitterGSM::submit_reading(SoilReading& soilReading) {
-    if (!is_ready()) return 0;
+Submitter::OpStatus SubmitterGSM::submit_reading(SoilReading& soilReading) {
+    if (m_status == NO_CONNECTION) return STATUS_NO_CONNECTION;
+    if (m_status != READY) return STATUS_ERROR;
     
     String Link;
     Link = "https://" + String(SERVERNAME) + String(SUBMIT_RESOURCE);
@@ -196,7 +216,7 @@ int SubmitterGSM::submit_reading(SoilReading& soilReading) {
     TinyGsmClientSecure client = TinyGsmClientSecure(m_modem);
     if (!client.connect(SERVERNAME, PORT)) {
         Serial.println("Fatal Error! Server is down!");
-        return 0;
+        return UPLOAD_FAILED;
     }
 
     DynamicJsonDocument data(32 + 1 * 170);     // based on this calculator https://arduinojson.org/v6/assistant/
@@ -251,12 +271,15 @@ int SubmitterGSM::submit_reading(SoilReading& soilReading) {
 
     client.stop();
 
-    return responseCode;
+    if (responseCode == 200) return SUCCESS;
+
+    return UPLOAD_FAILED;
 }
 
 
-int SubmitterGSM::submit_reading(SoilDataTable& dataTable) {
-    if (!is_ready()) return 0;
+Submitter::OpStatus SubmitterGSM::submit_reading(SoilDataTable& dataTable) {
+    if (m_status == NO_CONNECTION) return STATUS_NO_CONNECTION;
+    if (m_status != READY) return STATUS_ERROR;
     
     String Link;
     Link = "https://" + String(SERVERNAME) + String(SUBMIT_RESOURCE);
@@ -266,7 +289,7 @@ int SubmitterGSM::submit_reading(SoilDataTable& dataTable) {
     TinyGsmClientSecure client = TinyGsmClientSecure(m_modem);
     if (!client.connect(SERVERNAME, PORT)) {
         Serial.println("Fatal Error! Server is down!");
-        return 0;
+        return UPLOAD_FAILED;
     }
 
     DynamicJsonDocument data(32 + dataTable.get_count() * 170);     // based on this calculator https://arduinojson.org/v6/assistant/
@@ -330,15 +353,23 @@ int SubmitterGSM::submit_reading(SoilDataTable& dataTable) {
 
     client.stop();
 
-    return responseCode;
+    if (responseCode == 200) return SUCCESS;
+
+    return UPLOAD_FAILED;
 }
 
 
-RtcDateTime SubmitterGSM::get_current_time() {
+Submitter::OpStatus SubmitterGSM::get_current_time(RtcDateTime& time) {
+    if (m_status == NO_CONNECTION) return STATUS_NO_CONNECTION;
+    if (m_status != READY) return STATUS_ERROR;
+
     int year, month, dayOfMonth, hour, minute, second;
     float timezone = 0;
-    if (m_modem.getNetworkTime(&year, &month, &dayOfMonth, &hour, &minute, &second, &timezone))
-        return RtcDateTime(year, month, dayOfMonth, hour+timezone, minute, second);
+    if (m_modem.getNetworkTime(&year, &month, &dayOfMonth, &hour, &minute, &second, &timezone)) {
+        time = RtcDateTime(year, month, dayOfMonth, hour+timezone, minute, second);
+        return SUCCESS;
+    }
 
-    return RtcDateTime(0);
+    time = RtcDateTime(0);
+    return STATUS_NO_TIME;
 }
