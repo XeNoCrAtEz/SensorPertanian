@@ -33,8 +33,7 @@ void test_gps_connected_fix() {
     uint8_t resultCode = gps.get_location(lat, lng);
     TEST_ASSERT_EQUAL(GPS::SUCCESS, resultCode);
     
-    double lat = 0, lng = 0;
-    if (gps.get_location(lat, lng)) {
+    if (resultCode == GPS::SUCCESS) {
         Serial.print(F("- latitude: "));
         Serial.println(lat, 10);
 
