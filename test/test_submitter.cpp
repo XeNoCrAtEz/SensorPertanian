@@ -14,7 +14,8 @@ void test_get_time() {
 #elif defined(USE_GSM)
     SubmitterGSM testSubmitter(PIN_GSM_RX, PIN_GSM_TX);
 #endif
-    RtcDateTime currentDateTime = testSubmitter.get_current_time();
+    RtcDateTime currentDateTime;
+    testSubmitter.get_current_time(currentDateTime);
     Serial.println("Time from network: " + String(currentDateTime.TotalSeconds()) + " = " + RtcDateTime_to_Str(currentDateTime));
 }
 
@@ -25,13 +26,14 @@ void test_submit_one_data() {
 #elif defined(USE_GSM)
     SubmitterGSM testSubmitter(PIN_GSM_RX, PIN_GSM_TX);
 #endif
-    RtcDateTime currentDateTime = testSubmitter.get_current_time();
+    RtcDateTime currentDateTime;
+    testSubmitter.get_current_time(currentDateTime);
 
     SoilReading testSoilReading(SoilData(1, 1, 1, 1, 1, 1, 1, 1), currentDateTime.TotalSeconds());
     
-    int responseCode = testSubmitter.submit_reading(testSoilReading);
+    Submitter::OpStatus responseCode = testSubmitter.submit_reading(testSoilReading);
 
-    TEST_ASSERT_EQUAL(200, responseCode);
+    TEST_ASSERT_EQUAL(Submitter::SUCCESS, responseCode);
 }
 
 
@@ -43,7 +45,8 @@ void test_submit_table() {
 #endif
     SoilDataTable testTable;
 
-    RtcDateTime currentDateTime = testSubmitter.get_current_time();
+    RtcDateTime currentDateTime;
+    testSubmitter.get_current_time(currentDateTime);
 
     testTable.push(SoilReading(SoilData(7, 7, 7, 7, 7, 7, 7, 7), currentDateTime.TotalSeconds()));
     testTable.push(SoilReading(SoilData(8, 8, 8, 8, 8, 8, 8, 8), currentDateTime.TotalSeconds() + 4*3600));
@@ -51,12 +54,12 @@ void test_submit_table() {
     
     int responseCode = testSubmitter.submit_reading(testTable);
     
-    TEST_ASSERT_EQUAL(200, responseCode);
+    TEST_ASSERT_EQUAL(Submitter::SUCCESS, responseCode);
 }
 
 
 void test_submitter() {
     RUN_TEST(test_get_time);
-    // RUN_TEST(test_submit_one_data);
-    // RUN_TEST(test_submit_table);
+    RUN_TEST(test_submit_one_data);
+    RUN_TEST(test_submit_table);
 }
