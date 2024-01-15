@@ -20,9 +20,9 @@ log_i("Using GSM.");
     Logger logger = Logger(timeClass);
 
 logger.log_I("Starting Sensor-" + String(SENSOR_ID));
-if (!timeClass.availability() == TimeClass::RTC_UNAVAILABLE) logger.log_E("Error! RTC not available!");
-if (!timeClass.availability() == TimeClass::NTP_UNAVAILABLE) logger.log_E("Error! Network time not available!");
-if (!timeClass.availability() == TimeClass::NO_TIME) logger.log_E("Error! No time available!");
+if (!timeClass.status() == TimeClass::READY_NO_RTC) logger.log_E("Error! RTC not available!");
+if (!timeClass.status() == TimeClass::READY_NO_NTP) logger.log_E("Error! Network time not available!");
+if (!timeClass.status() == TimeClass::NO_TIME) logger.log_E("Error! No time available!");
 
     BatteryMonitor battMon(PIN_VOLT_BAT, ESP32_REF_VOLTAGE, VOLT_MON_DIVIDER_RATIO, MIN_VOLT_LIPO, MAX_VOLT_LIPO);
     VoltageMonitor solarCellMon(PIN_VOLT_SC, ESP32_REF_VOLTAGE, VOLT_MON_DIVIDER_RATIO);
@@ -45,15 +45,17 @@ logger.log_I("Initialized probe type: NEW");
 #endif
 
     SoilData soilData;
-    Probe::ErrorCodes probeErr = probe.sample(soilData);
-if (probeErr == Probe::PROBE_ERROR) logger.log_E("Error! Internal probe error!");
-else if (probeErr == Probe::NO_PROBE) logger.log_E("Error! No probe connected!");
+    Probe::OpStatus probeErr = probe.sample(soilData);
+if (probeErr == Probe::STATUS_ERROR) logger.log_E("Error! Internal probe error!");
+else if (probeErr == Probe::STATUS_NO_PROBE) logger.log_E("Error! No probe connected!");
 else logger.log_I("Sampled soil data:\n" + soilData.toString());
 
-    SoilReading currentReading = SoilReading(soilData, timeClass.get_date_time().TotalSeconds());
+    RtcDateTime now;
+    timeClass.get_date_time(now);
+    SoilReading currentReading = SoilReading(soilData, now.TotalSeconds());
 
     SoilDataTable dataTable;
-if (!dataTable.is_ready()) logger.log_E("Error! dataTable not ready!");
+if (!dataTable.status()) logger.log_E("Error! dataTable not ready!");
 else logger.log_I("dataTable is initialized and ready!");
 
     if (dataTable.is_empty()) {
@@ -72,7 +74,7 @@ else logger.log_E("Error! Data send failed! Error code: " + String(responseCode)
 }
 
     Display display(PIN_SCREEN_SDA, PIN_SCREEN_SCL);
-if (!display.isOK()) logger.log_E("Error! Display is not ready!");
+if (display.status() != Display::READY) logger.log_E("Error! Display is not ready!");
 else logger.log_I("Display is ready!");
 
     display.display_splash_screen();
