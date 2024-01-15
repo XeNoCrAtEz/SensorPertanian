@@ -18,10 +18,19 @@
 // class for a probe
 class Probe: public ModbusMaster {
 public:
-    enum ErrorCodes {
-        SUCCESS,
+    // class status codes
+    enum Status {
+        READY,
         NO_PROBE,
         PROBE_ERROR,
+        UNKNOWN_ERROR,
+    };
+
+    // operation status codes
+    enum OpStatus {
+        SUCCESS,
+        STATUS_NO_PROBE,
+        STATUS_ERROR,
     };
 
 
@@ -33,16 +42,26 @@ protected:
     };
     static const uint16_t ku16MBResponseTimeout = 100;  // ms
 
+    Status m_status = UNKNOWN_ERROR;
+
     HardwareSerial m_probe;
+
+
+private:                  // TODO: determine whether this is private or protected
+    Status check_status();      // TODO: implement method for determining probe status
 
 
 public:
     Probe(int HWSerialNum=1, int addr=0x01);
 
-    ErrorCodes get_data(uint16_t& data, int regNum);
+    OpStatus get_data(uint16_t& data, int regNum);
     void calibrateNPK(SoilData& soilData);
 
-    virtual ErrorCodes sample(SoilData& soilData) = 0;
+    Status status();
+
+    virtual OpStatus sample(SoilData& soilData) = 0;
+
+
 };
 
 
@@ -72,7 +91,7 @@ private:
 public:
     ProbeKHDTK(int rx, int tx, int HWSerialNum=1, int addr=0x01);
 
-    ErrorCodes sample(SoilData& soilData) override;
+    OpStatus sample(SoilData& soilData) override;
 };
 
 
@@ -102,7 +121,7 @@ private:
 public:
     ProbeDefault(int rx, int tx, int HWSerialNum=1, int addr=0x01);
 
-    ErrorCodes sample(SoilData& soilData) override;
+    OpStatus sample(SoilData& soilData) override;
 };
 
 class ProbeNew : public Probe {
@@ -136,7 +155,7 @@ private:
 public:
     ProbeNew(int rx, int tx, int HWSerialNum=1, int addr=0x01);
 
-    ErrorCodes sample(SoilData& soilData);
+    OpStatus sample(SoilData& soilData);
 };
 
 
