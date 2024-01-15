@@ -27,16 +27,16 @@ void setup() {
     
     UNITY_BEGIN();
 
-    // test_flash_memory();
-    // test_gps();
-    // test_voltage_monitor();
-    // test_oled();
-    // test_probe();
-    // test_rtc();
-    // test_submitter();
+    test_flash_memory();
+    test_gps();
+    test_voltage_monitor();
+    test_oled();
+    test_probe();
+    test_rtc();
+    test_submitter();
     test_logger();
-    // test_sleep();
-    // test_soil_data();
+    test_soil_data();
+    test_sleep();
 
     UNITY_END();
 }
