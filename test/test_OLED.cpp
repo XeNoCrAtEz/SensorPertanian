@@ -11,15 +11,15 @@ const uint8_t PIN_SCL = 22;
 void test_oled_init() {
     Display display(PIN_SDA, PIN_SCL);
 
-    TEST_ASSERT_EQUAL(Display::DISPLAY_OK, display.isOK());
+    TEST_ASSERT_EQUAL(Display::READY, display.status());
 }
 
 
 void test_oled_display_splash() {
     Display display(PIN_SDA, PIN_SCL);
 
-    TEST_ASSERT_EQUAL(Display::DISPLAY_OK, display.isOK());
-    TEST_ASSERT_EQUAL(Display::DISPLAY_OK, display.display_splash_screen());
+    TEST_ASSERT_EQUAL(Display::READY, display.status());
+    TEST_ASSERT_EQUAL(Display::SUCCESS, display.display_splash_screen());
 
     delay(1000);
 }
@@ -28,10 +28,10 @@ void test_oled_display_splash() {
 void test_oled_display_data() {
     Display display(PIN_SDA, PIN_SCL);
 
-    TEST_ASSERT_EQUAL(Display::DISPLAY_OK, display.isOK());
+    TEST_ASSERT_EQUAL(Display::READY, display.status());
     
     SoilData testData = {1, 1, 1, 1, 1, 1, 1, 1};
-    TEST_ASSERT_EQUAL(Display::DISPLAY_OK, display.display_data(testData));
+    TEST_ASSERT_EQUAL(Display::SUCCESS, display.display_data(testData));
 }
 
 

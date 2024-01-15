@@ -20,9 +20,33 @@ log_i("Using GSM.");
     TimeClass testTimeClass = TimeClass(testRTC, testSubmitter);
 
     auto testDebug = Logger(testTimeClass);
-    TEST_ASSERT_EQUAL(true, testDebug.is_ready());
+    TEST_ASSERT_EQUAL(Logger::READY, testDebug.status());
 
     auto errCode = testDebug.show();
+    TEST_ASSERT_EQUAL(Logger::SUCCESS, errCode);
+}
+
+
+void test_single_msg_no_clear() {
+    String expectedMsg = "1 [E] - Error! JK just a normal message :)";
+
+#if defined(USE_WIFI)
+    SubmitterWiFi testSubmitter;
+log_i("Using WiFi.");
+#elif defined(USE_GSM)
+    SubmitterGSM testSubmitter(PIN_GSM_RX, PIN_GSM_TX);
+log_i("Using GSM.");
+#endif
+    RTC testRTC = RTC(PIN_RTC_DATA, PIN_RTC_CLK, PIN_RTC_RST);
+    TimeClass testTimeClass = TimeClass(testRTC, testSubmitter);
+
+    auto testDebug = Logger(testTimeClass);
+    TEST_ASSERT_EQUAL(Logger::READY, testDebug.status());
+
+    Logger::OpStatus errCode = testDebug.log_E("Error! JK just a normal message :)");
+    TEST_ASSERT_EQUAL(Logger::SUCCESS, errCode);
+
+    errCode = testDebug.show();
     TEST_ASSERT_EQUAL(Logger::SUCCESS, errCode);
 }
 
@@ -41,9 +65,9 @@ log_i("Using GSM.");
     TimeClass testTimeClass = TimeClass(testRTC, testSubmitter);
 
     auto testDebug = Logger(testTimeClass);
-    TEST_ASSERT_EQUAL(true, testDebug.is_ready());
+    TEST_ASSERT_EQUAL(Logger::READY, testDebug.status());
 
-    Logger::ErrorCodes errCode = testDebug.log_E("Error! JK just a normal message :)");
+    Logger::OpStatus errCode = testDebug.log_E("Error! JK just a normal message :)");
     TEST_ASSERT_EQUAL(Logger::SUCCESS, errCode);
 
     errCode = testDebug.show();
@@ -67,10 +91,10 @@ log_i("Using GSM.");
     TimeClass testTimeClass = TimeClass(testRTC, testSubmitter);
 
     auto testDebug = Logger(testTimeClass);
-    TEST_ASSERT_EQUAL(true, testDebug.is_ready());
+    TEST_ASSERT_EQUAL(Logger::READY, testDebug.status());
     TEST_ASSERT_EQUAL(true, testDebug.is_print_mode());
 
-    Logger::ErrorCodes errCode = testDebug.log_E("Error! JK just a normal message :)");
+    Logger::OpStatus errCode = testDebug.log_E("Error! JK just a normal message :)");
     TEST_ASSERT_EQUAL(Logger::PRINT_MODE, errCode);
 
     errCode = testDebug.show();
@@ -96,10 +120,10 @@ log_i("Using GSM.");
     TimeClass testTimeClass = TimeClass(testRTC, testSubmitter);
 
     auto testDebug = Logger(testTimeClass);
-    TEST_ASSERT_EQUAL(false, testDebug.is_ready());
+    TEST_ASSERT_EQUAL(Logger::READY testDebug.status());
     TEST_ASSERT_EQUAL(false, testDebug.is_print_mode());
 
-    Logger::ErrorCodes errCode = testDebug.log_E("Error! JK just a normal message :)");
+    Logger::OpStatus errCode = testDebug.log_E("Error! JK just a normal message :)");
     TEST_ASSERT_EQUAL(Logger::DEBUG_INACTIVE, errCode);
 
     errCode = testDebug.show();
@@ -122,7 +146,7 @@ log_i("Using GSM.");
     TimeClass testTimeClass = TimeClass(testRTC, testSubmitter);
 
     auto testDebug = Logger(testTimeClass);
-    TEST_ASSERT_EQUAL(true, testDebug.is_ready());
+    TEST_ASSERT_EQUAL(Logger::READY, testDebug.status());
 
     auto errCode = testDebug.clear();
     TEST_ASSERT_EQUAL(Logger::SUCCESS, errCode);
@@ -131,6 +155,7 @@ log_i("Using GSM.");
 
 void test_logger() {
     RUN_TEST(test_show);
+    // RUN_TEST(test_single_msg_no_clear);
     // RUN_TEST(test_single_msg);
     // RUN_TEST(test_single_msg_print_mode);
 #ifndef DEBUG
