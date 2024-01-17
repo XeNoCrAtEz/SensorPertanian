@@ -31,9 +31,10 @@ void test_submit_one_data() {
 
     SoilReading testSoilReading(SoilData(1, 1, 1, 1, 1, 1, 1, 1), currentDateTime.TotalSeconds());
     
-    Submitter::OpStatus responseCode = testSubmitter.submit_reading(testSoilReading);
-
-    TEST_ASSERT_EQUAL(Submitter::SUCCESS, responseCode);
+    int responseCode = -1;
+    Submitter::OpStatus errCode = testSubmitter.submit_reading(testSoilReading, responseCode);
+    TEST_ASSERT_EQUAL(HTTP_CODE_OK, responseCode);
+    TEST_ASSERT_EQUAL(Submitter::SUCCESS, errCode);
 }
 
 
@@ -52,9 +53,10 @@ void test_submit_table() {
     testTable.push(SoilReading(SoilData(8, 8, 8, 8, 8, 8, 8, 8), currentDateTime.TotalSeconds() + 4*3600));
     testTable.push(SoilReading(SoilData(9, 9, 9, 9, 9, 9, 9, 9), currentDateTime.TotalSeconds() + 8*3600));
     
-    int responseCode = testSubmitter.submit_reading(testTable);
-    
-    TEST_ASSERT_EQUAL(Submitter::SUCCESS, responseCode);
+    int responseCode = -1;
+    Submitter::OpStatus errCode = testSubmitter.submit_reading(testTable, responseCode);
+    TEST_ASSERT_EQUAL(HTTP_CODE_OK, responseCode);
+    TEST_ASSERT_EQUAL(Submitter::SUCCESS, errCode);
 }
 
 
