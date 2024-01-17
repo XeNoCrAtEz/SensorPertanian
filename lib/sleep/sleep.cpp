@@ -17,10 +17,8 @@ const int DEFAULT_SLEEP = 4 * 3600;     // seconds = 4 hours
 
 void sleep(TimeClass& time) {
     auto sleepTime = get_sleep_seconds(time);
-    Serial.print("Time to sleep: ");
-    Serial.println(sleepTime);
-
-    Serial.println("Sleeping.");
+    logger.log_I("Time to sleep: " + String(sleepTime));
+    logger.log_I("Sleeping.");
     esp_deep_sleep(sleepTime * uS_TO_S_FACTOR);
 }
 

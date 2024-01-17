@@ -5,6 +5,7 @@
 #include "display.h"
 
 #include "timeClass.h"
+#include "debug.h"
 
 
 void sleep(TimeClass& time);
