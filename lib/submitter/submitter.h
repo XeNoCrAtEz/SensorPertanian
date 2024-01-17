@@ -49,8 +49,8 @@ protected:
 
 
 public:
-    virtual OpStatus submit_reading(SoilReading& soilReading) = 0;
-    virtual OpStatus submit_reading(SoilDataTable& dataTable) = 0;
+    virtual OpStatus submit_reading(SoilReading& soilReading, int& responseCode) = 0;
+    virtual OpStatus submit_reading(SoilDataTable& dataTable, int& responseCode) = 0;
 
     virtual OpStatus get_current_time(RtcDateTime& time) = 0;
     bool is_time_available();
@@ -70,8 +70,8 @@ private:
 public:
     SubmitterWiFi();
 
-    OpStatus submit_reading(SoilReading& soilReading) override;
-    OpStatus submit_reading(SoilDataTable& dataTable) override;
+    OpStatus submit_reading(SoilReading& soilReading, int& responseCode) override;
+    OpStatus submit_reading(SoilDataTable& dataTable, int& responseCode) override;
 
     OpStatus get_current_time(RtcDateTime& time) override;
 
@@ -100,8 +100,8 @@ private:
 public:
     SubmitterGSM(int rx, int tx, int HWSerialNum=1);
 
-    OpStatus submit_reading(SoilReading& soilReading) override;
-    OpStatus submit_reading(SoilDataTable& dataTable) override;
+    OpStatus submit_reading(SoilReading& soilReading, int& responseCode) override;
+    OpStatus submit_reading(SoilDataTable& dataTable, int& responseCode) override;
 
     OpStatus get_current_time(RtcDateTime& time) override;
 

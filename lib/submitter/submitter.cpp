@@ -51,7 +51,7 @@ SubmitterWiFi::SubmitterWiFi()
 }
 
 
-Submitter::OpStatus SubmitterWiFi::submit_reading(SoilReading& soilReading) {
+Submitter::OpStatus SubmitterWiFi::submit_reading(SoilReading& soilReading, int& responseCode) {
     if (m_status == NO_CONNECTION) return STATUS_NO_CONNECTION;
     if (m_status != READY) return STATUS_ERROR;
 
@@ -85,7 +85,7 @@ Submitter::OpStatus SubmitterWiFi::submit_reading(SoilReading& soilReading) {
     serializeJsonPretty(data, Serial);
 #endif
 
-    int responseCode = http.POST(dataStr);
+    responseCode = http.POST(dataStr);
 
     http.end();
 
@@ -95,7 +95,7 @@ Submitter::OpStatus SubmitterWiFi::submit_reading(SoilReading& soilReading) {
 }
 
 
-Submitter::OpStatus SubmitterWiFi::submit_reading(SoilDataTable& dataTable) {
+Submitter::OpStatus SubmitterWiFi::submit_reading(SoilDataTable& dataTable, int& responseCode) {
     if (m_status == NO_CONNECTION) return STATUS_NO_CONNECTION;
     if (m_status != READY) return STATUS_ERROR;
 
@@ -138,7 +138,7 @@ Submitter::OpStatus SubmitterWiFi::submit_reading(SoilDataTable& dataTable) {
     serializeJsonPretty(data, Serial);
 #endif
 
-    int responseCode = http.POST(dataStr);
+    responseCode = http.POST(dataStr);
 
     http.end();
 
@@ -204,7 +204,7 @@ SubmitterGSM::SubmitterGSM(int rx, int tx, int HWSerialNum)
 }
 
 
-Submitter::OpStatus SubmitterGSM::submit_reading(SoilReading& soilReading) {
+Submitter::OpStatus SubmitterGSM::submit_reading(SoilReading& soilReading, int& responseCode) {
     if (m_status == NO_CONNECTION) return STATUS_NO_CONNECTION;
     if (m_status != READY) return STATUS_ERROR;
     
@@ -267,7 +267,7 @@ Submitter::OpStatus SubmitterGSM::submit_reading(SoilReading& soilReading) {
         responseCodeStr[3] = '\0';
     }
 
-    int responseCode = atoi(responseCodeStr);
+    responseCode = atoi(responseCodeStr);
 
     client.stop();
 
@@ -277,7 +277,7 @@ Submitter::OpStatus SubmitterGSM::submit_reading(SoilReading& soilReading) {
 }
 
 
-Submitter::OpStatus SubmitterGSM::submit_reading(SoilDataTable& dataTable) {
+Submitter::OpStatus SubmitterGSM::submit_reading(SoilDataTable& dataTable, int& responseCode) {
     if (m_status == NO_CONNECTION) return STATUS_NO_CONNECTION;
     if (m_status != READY) return STATUS_ERROR;
     
@@ -349,7 +349,7 @@ Submitter::OpStatus SubmitterGSM::submit_reading(SoilDataTable& dataTable) {
         responseCodeStr[3] = '\0';
     }
 
-    int responseCode = atoi(responseCodeStr);
+    responseCode = atoi(responseCodeStr);
 
     client.stop();
 

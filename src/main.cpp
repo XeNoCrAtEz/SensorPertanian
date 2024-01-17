@@ -11,7 +11,7 @@ SubmitterGSM submitter(PIN_GSM_RX, PIN_GSM_TX);
 
 TimeClass timeClass = TimeClass(rtc, submitter);
 
-Logger logger = Logger(timeClass);
+Logger logger = Logger(timeClass, true);
 
 BatteryMonitor battMon(PIN_VOLT_BAT, ESP32_REF_VOLTAGE, VOLT_MON_DIVIDER_RATIO, MIN_VOLT_LIPO, MAX_VOLT_LIPO);
 VoltageMonitor solarCellMon(PIN_VOLT_SC, ESP32_REF_VOLTAGE, VOLT_MON_DIVIDER_RATIO);
@@ -27,7 +27,8 @@ void setup() {
     // begin USB Serial
     Serial.begin(115200);
 
-    if (logger.status() != Logger::READY) Serial.println("Error! Logger not ready! Status: " + String(logger.status()));
+    if      (logger.status() == Logger::PRINT_MODE) logger.log_I("Logging in print mode.");
+    else if (logger.status() != Logger::READY) Serial.println("Error! Logger not ready! Status: " + String(logger.status()));
     else logger.log_I("Logger is ready!");
 
     logger.log_I("Starting Sensor-" + String(SENSOR_ID));
@@ -84,17 +85,17 @@ void setup() {
 
     if (dataTable.is_empty()) {
         logger.log_I("Table is empty. Sending current sample");
-        int responseCode = submitter.submit_reading(currentReading);
-        if (responseCode == HTTP_CODE_OK) logger.log_I("Data send successful!\n");
-        else logger.log_E("Error! Data send failed! Error code: " + String(responseCode));
+        int responseCode = -1;
+        if (submitter.submit_reading(currentReading, responseCode) != Submitter::SUCCESS) logger.log_E("Error! Data upload failed! HTTP Code: " + String(responseCode));
+        else logger.log_I("Data send successful!\n");
     } else {
         logger.log_I("Saved data available. Pushing sampled data...");
-        auto pushErr = dataTable.push(currentReading);
-        if (pushErr != SoilDataTable::SUCCESS) logger.log_E("Error! Data push unsuccessful! Error code: " + String(pushErr));
+        SoilDataTable::OpStatus pushErr = dataTable.push(currentReading);
+        if (pushErr != SoilDataTable::SUCCESS) logger.log_E("Error! Data push unsuccessful! Operation Status: " + String(pushErr));
 
-        int responseCode = submitter.submit_reading(dataTable);
-        if (responseCode == HTTP_CODE_OK) logger.log_I("Data send successful!\n");
-        else logger.log_E("Error! Data send failed! Error code: " + String(responseCode));
+        int responseCode = -1;
+        if (submitter.submit_reading(currentReading, responseCode) != Submitter::SUCCESS) logger.log_E("Error! Data upload failed! HTTP Code: " + String(responseCode));
+        else logger.log_I("Data send successful!\n");
     }
 
     display.display_splash_screen();
