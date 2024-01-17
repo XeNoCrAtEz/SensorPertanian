@@ -3,11 +3,12 @@
 
 
 #include <Arduino.h>
+#include <ESP32Time.h>
 #include "submitter.h"
 #include "RTCModule.h"
 
 
-class TimeClass {
+class TimeClass : public ESP32Time {
 public:
     // class status codes
     enum Status {
