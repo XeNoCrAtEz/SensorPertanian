@@ -61,7 +61,7 @@ Submitter::OpStatus SubmitterWiFi::submit_reading(SoilReading& soilReading) {
     http.begin(Link);
     http.addHeader("Content-Type", "application/json");
 
-    DynamicJsonDocument data(32 + 1 * 170);     // based on this calculator https://arduinojson.org/v6/assistant/
+    DynamicJsonDocument data(32 + 1 * 256);     // based on this calculator https://arduinojson.org/v6/assistant/
     
     data["ID"] = SENSOR_ID;
     
@@ -105,7 +105,7 @@ Submitter::OpStatus SubmitterWiFi::submit_reading(SoilDataTable& dataTable) {
     http.begin(Link);
     http.addHeader("Content-Type", "application/json");
 
-    DynamicJsonDocument data(32 + dataTable.get_count() * 170);     // based on this calculator https://arduinojson.org/v6/assistant/
+    DynamicJsonDocument data(32 + dataTable.get_count() * 256);     // based on this calculator https://arduinojson.org/v6/assistant/
     
     data["ID"] = SENSOR_ID;
     
@@ -219,7 +219,7 @@ Submitter::OpStatus SubmitterGSM::submit_reading(SoilReading& soilReading) {
         return UPLOAD_FAILED;
     }
 
-    DynamicJsonDocument data(32 + 1 * 170);     // based on this calculator https://arduinojson.org/v6/assistant/
+    DynamicJsonDocument data(32 + 1 * 256);     // based on this calculator https://arduinojson.org/v6/assistant/
     
     data["ID"] = SENSOR_ID;
     
@@ -292,7 +292,7 @@ Submitter::OpStatus SubmitterGSM::submit_reading(SoilDataTable& dataTable) {
         return UPLOAD_FAILED;
     }
 
-    DynamicJsonDocument data(32 + dataTable.get_count() * 170);     // based on this calculator https://arduinojson.org/v6/assistant/
+    DynamicJsonDocument data(32 + dataTable.get_count() * 256);     // based on this calculator https://arduinojson.org/v6/assistant/
     
     data["ID"] = SENSOR_ID;
     
