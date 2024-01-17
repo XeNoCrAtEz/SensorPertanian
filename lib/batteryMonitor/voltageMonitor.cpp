@@ -9,7 +9,12 @@ VoltageMonitor::VoltageMonitor(uint8_t sensePin, uint16_t refVoltage, float divi
 
 uint16_t VoltageMonitor::voltage() const {
 	analogRead(m_sensePin);   delay(2);   // allow the ADC to stabilize
-	return analogRead(m_sensePin) * m_dividerRatio * m_refVoltage / ADC_MAX_VALUE;
+
+	int adc = 0;
+	for (int i = 0; i < NUM_SAMPLES; i++) adc += analogRead(m_sensePin);
+    adc /= NUM_SAMPLES;
+
+	return adc * m_dividerRatio * m_refVoltage / ADC_MAX_VALUE;
 }
 
 

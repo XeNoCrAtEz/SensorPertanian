@@ -14,6 +14,7 @@ const uint16_t MAX_VOLT_LIPO = 4200;
 class VoltageMonitor  {
 private:
     enum VoltMonParams {
+        NUM_SAMPLES = 10,
         ADC_MAX_VALUE = 4096,
     };
 
