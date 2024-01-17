@@ -2,8 +2,8 @@
 
 
 TimeClass::TimeClass(RTC& rtc, Submitter& submitter) 
-        : ESP32Time(), m_rtc(rtc), m_submitter(submitter) {
-    m_RTCAvailable = rtc.status();
+        : ESP32Time(TIMEZONE_OFFSET), m_rtc(rtc), m_submitter(submitter) {
+    if (rtc.status() == RTC::READY) m_RTCAvailable = true;
     m_NTPAvailable = submitter.is_time_available();
 
     if      (!m_RTCAvailable && m_NTPAvailable)  {
@@ -38,9 +38,8 @@ TimeClass::OpStatus TimeClass::get_date_time(RtcDateTime& now) {
     else if (status() == READY_NO_RTC) {
         struct tm tm_now = getTimeStruct();
         now = RtcDateTime(
-            tm_now.tm_year+1900, tm_now.tm_mon+1, tm_now.tm_mday,
-            tm_now.tm_hour, tm_now.tm_min, tm_now.tm_sec);
-
+            tm_now.tm_year+YEAR_OFFSET, tm_now.tm_mon+MONTH_OFFSET, tm_now.tm_mday,
+            tm_now.tm_hour-TIMEZONE_HOUR_OFFSET, tm_now.tm_min, tm_now.tm_sec);
         return STATUS_NO_RTC;
     }
     else if (status() == READY_NO_NTP || status() == READY) {
@@ -52,8 +51,5 @@ TimeClass::OpStatus TimeClass::get_date_time(RtcDateTime& now) {
 
 
 TimeClass::Status TimeClass::status() {
-    if (m_NTPAvailable && m_RTCAvailable) return READY;
-    else if (!m_NTPAvailable) return READY_NO_NTP;
-    else if (!m_RTCAvailable) return READY_NO_RTC;
-    else return NO_TIME;
+    return m_status;
 }

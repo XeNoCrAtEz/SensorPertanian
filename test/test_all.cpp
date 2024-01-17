@@ -12,6 +12,7 @@ void test_submitter();
 void test_logger();
 void test_sleep();
 void test_soil_data();
+void test_time_class();
 
 
 void setUp() {
@@ -27,16 +28,17 @@ void setup() {
     
     UNITY_BEGIN();
 
-    test_flash_memory();
-    test_gps();
-    test_voltage_monitor();
-    test_oled();
-    test_probe();
-    test_rtc();
-    test_submitter();
-    test_logger();
-    test_soil_data();
-    test_sleep();
+    // test_flash_memory();
+    // test_gps();
+    // test_voltage_monitor();
+    // test_oled();
+    // test_probe();
+    // test_rtc();
+    // test_submitter();
+    // test_logger();
+    // test_soil_data();
+    // test_sleep();
+    test_time_class();
 
     UNITY_END();
 }

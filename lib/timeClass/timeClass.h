@@ -30,6 +30,15 @@ public:
 
 
 private:
+    enum TimeClassParams {
+        TIMEZONE_HOUR_OFFSET = 7,
+        TIMEZONE_OFFSET = TIMEZONE_HOUR_OFFSET * 3600,
+        YEAR_OFFSET = 1900,
+        MONTH_OFFSET = 1,
+    };
+
+
+private:
     RTC& m_rtc;
     Submitter& m_submitter;
     
