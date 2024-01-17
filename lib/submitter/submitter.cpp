@@ -1,6 +1,51 @@
 #include "submitter.h"
 
 
+void populate(DynamicJsonDocument& json, const SoilReading& soilReading) {
+    json["ID"] = SENSOR_ID;
+    
+    JsonArray dataArr = json.createNestedArray("data");
+    
+    JsonObject rowJson = dataArr.createNestedObject();
+    rowJson["timestamp"] = RtcDateTime_to_Str(RtcDateTime(soilReading.m_epoch));
+    rowJson["N"] = soilReading.m_soilData.nitrogen;
+    rowJson["P"] = soilReading.m_soilData.phosphorus;
+    rowJson["K"] = soilReading.m_soilData.kalium;
+    rowJson["pH"] = soilReading.m_soilData.pH;
+    rowJson["temp"] = soilReading.m_soilData.temperature;
+    rowJson["hum"] = soilReading.m_soilData.humidity;
+    rowJson["EC"] = soilReading.m_soilData.EC;
+    rowJson["salt"] = soilReading.m_soilData.salt;
+}
+
+
+void populate(DynamicJsonDocument& json, SoilDataTable& dataTable) {
+    json["ID"] = SENSOR_ID;
+    
+    JsonArray dataArr = json.createNestedArray("data");
+    
+    uint16_t totalData = 0;
+    SoilReading* soilReadings = nullptr;
+    dataTable.pop_all(soilReadings, totalData);
+    for (int i = 0; i < totalData; i++) {
+        SoilReading row = soilReadings[i];
+
+        JsonObject rowJson = dataArr.createNestedObject();
+        rowJson["timestamp"] = RtcDateTime_to_Str(RtcDateTime(row.m_epoch));
+        rowJson["N"] = row.m_soilData.nitrogen;
+        rowJson["P"] = row.m_soilData.phosphorus;
+        rowJson["K"] = row.m_soilData.kalium;
+        rowJson["pH"] = row.m_soilData.pH;
+        rowJson["temp"] = row.m_soilData.temperature;
+        rowJson["hum"] = row.m_soilData.humidity;
+        rowJson["EC"] = row.m_soilData.EC;
+        rowJson["salt"] = row.m_soilData.salt;
+    }
+
+    delete[] soilReadings;
+}
+
+
 bool Submitter::is_time_available() {
     return m_timeAvailable;
 }
@@ -23,12 +68,10 @@ SubmitterWiFi::SubmitterWiFi()
         WiFi.begin(WIFI_SSID, WIFI_PASS);   // connect ke router
     }
 
-    Serial.print("Connecting to ");
-    Serial.print(WIFI_SSID);
+    log_i("Connecting to %s", WIFI_SSID);
     for(int attempts = 0; WiFi.status() != WL_CONNECTED; attempts++) {
-        Serial.print(".");
         if (attempts >= MAX_REATTEMPT) {
-            Serial.println("\nCannot connect to WiFi!");
+            log_e("Cannot connect to WiFi!");
             m_status = NO_CONNECTION;
             return;
         }
@@ -36,13 +79,7 @@ SubmitterWiFi::SubmitterWiFi()
         WiFi.reconnect();
         delay(REATTEMPT_DELAY);
     }
-    Serial.println("\nConnection Successful!\n");
-
-#ifdef DEBUG
-    Serial.print("Sensor IP Address : ");
-    Serial.println(WiFi.localIP());
-	Serial.println();
-#endif
+    log_i("Connection Successful!");
 
     m_status = READY;
 
@@ -62,22 +99,7 @@ Submitter::OpStatus SubmitterWiFi::submit_reading(SoilReading& soilReading, int&
     http.addHeader("Content-Type", "application/json");
 
     DynamicJsonDocument data(32 + 1 * 256);     // based on this calculator https://arduinojson.org/v6/assistant/
-    
-    data["ID"] = SENSOR_ID;
-    
-    JsonArray dataArr = data.createNestedArray("data");
-    
-    JsonObject rowJson = dataArr.createNestedObject();
-    rowJson["timestamp"] = RtcDateTime_to_Str(RtcDateTime(soilReading.m_epoch));
-    rowJson["N"] = soilReading.m_soilData.nitrogen;
-    rowJson["P"] = soilReading.m_soilData.phosphorus;
-    rowJson["K"] = soilReading.m_soilData.kalium;
-    rowJson["pH"] = soilReading.m_soilData.pH;
-    rowJson["temp"] = soilReading.m_soilData.temperature;
-    rowJson["hum"] = soilReading.m_soilData.humidity;
-    rowJson["EC"] = soilReading.m_soilData.EC;
-    rowJson["salt"] = soilReading.m_soilData.salt;
-
+    populate(data, soilReading);
     String dataStr;
     serializeJson(data, dataStr);
     
@@ -106,31 +128,7 @@ Submitter::OpStatus SubmitterWiFi::submit_reading(SoilDataTable& dataTable, int&
     http.addHeader("Content-Type", "application/json");
 
     DynamicJsonDocument data(32 + dataTable.get_count() * 256);     // based on this calculator https://arduinojson.org/v6/assistant/
-    
-    data["ID"] = SENSOR_ID;
-    
-    JsonArray dataArr = data.createNestedArray("data");
-    
-    uint16_t totalData = 0;
-    SoilReading* soilReadings = nullptr;
-    dataTable.pop_all(soilReadings, totalData);
-    for (int i = 0; i < totalData; i++) {
-        SoilReading row = soilReadings[i];
-
-        JsonObject rowJson = dataArr.createNestedObject();
-        rowJson["timestamp"] = RtcDateTime_to_Str(RtcDateTime(row.m_epoch));
-        rowJson["N"] = row.m_soilData.nitrogen;
-        rowJson["P"] = row.m_soilData.phosphorus;
-        rowJson["K"] = row.m_soilData.kalium;
-        rowJson["pH"] = row.m_soilData.pH;
-        rowJson["temp"] = row.m_soilData.temperature;
-        rowJson["hum"] = row.m_soilData.humidity;
-        rowJson["EC"] = row.m_soilData.EC;
-        rowJson["salt"] = row.m_soilData.salt;
-    }
-
-    delete[] soilReadings;
-
+    populate(data, dataTable);
     String dataStr;
     serializeJson(data, dataStr);
     
@@ -220,22 +218,7 @@ Submitter::OpStatus SubmitterGSM::submit_reading(SoilReading& soilReading, int& 
     }
 
     DynamicJsonDocument data(32 + 1 * 256);     // based on this calculator https://arduinojson.org/v6/assistant/
-    
-    data["ID"] = SENSOR_ID;
-    
-    JsonArray dataArr = data.createNestedArray("data");
-    
-    JsonObject rowJson = dataArr.createNestedObject();
-    rowJson["timestamp"] = RtcDateTime_to_Str(RtcDateTime(soilReading.m_epoch));
-    rowJson["N"] = soilReading.m_soilData.nitrogen;
-    rowJson["P"] = soilReading.m_soilData.phosphorus;
-    rowJson["K"] = soilReading.m_soilData.kalium;
-    rowJson["pH"] = soilReading.m_soilData.pH;
-    rowJson["temp"] = soilReading.m_soilData.temperature;
-    rowJson["hum"] = soilReading.m_soilData.humidity;
-    rowJson["EC"] = soilReading.m_soilData.EC;
-    rowJson["salt"] = soilReading.m_soilData.salt;
-
+    populate(data, soilReading);
     String dataStr;
     serializeJson(data, dataStr);
 
@@ -293,31 +276,7 @@ Submitter::OpStatus SubmitterGSM::submit_reading(SoilDataTable& dataTable, int& 
     }
 
     DynamicJsonDocument data(32 + dataTable.get_count() * 256);     // based on this calculator https://arduinojson.org/v6/assistant/
-    
-    data["ID"] = SENSOR_ID;
-    
-    JsonArray dataArr = data.createNestedArray("data");
-    
-    uint16_t totalData = 0;
-    SoilReading* soilReadings;
-    dataTable.pop_all(soilReadings, totalData);
-    for (int i = 0; i < totalData; i++) {
-        SoilReading row = soilReadings[i];
-
-        JsonObject rowJson = dataArr.createNestedObject();
-        rowJson["timestamp"] = RtcDateTime_to_Str(RtcDateTime(row.m_epoch));
-        rowJson["N"] = row.m_soilData.nitrogen;
-        rowJson["P"] = row.m_soilData.phosphorus;
-        rowJson["K"] = row.m_soilData.kalium;
-        rowJson["pH"] = row.m_soilData.pH;
-        rowJson["temp"] = row.m_soilData.temperature;
-        rowJson["hum"] = row.m_soilData.humidity;
-        rowJson["EC"] = row.m_soilData.EC;
-        rowJson["salt"] = row.m_soilData.salt;
-    }
-
-    delete[] soilReadings;
-
+    populate(data, dataTable);
     String dataStr;
     serializeJson(data, dataStr);
     

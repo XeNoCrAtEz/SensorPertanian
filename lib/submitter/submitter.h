@@ -109,4 +109,7 @@ public:
 };
 
 
+void populate(DynamicJsonDocument& json, const SoilReading& soilReading);
+void populate(DynamicJsonDocument& json, SoilDataTable& SoilReadings);
+
 #endif
