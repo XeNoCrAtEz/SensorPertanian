@@ -15,7 +15,7 @@ void setup() {
 
     TimeClass timeClass = TimeClass(rtc, submitter);
 
-    Logger logger = Logger(timeClass, true);
+    Logger logger = Logger(timeClass);
 
     BatteryMonitor battMon(PIN_VOLT_BAT, ESP32_REF_VOLTAGE, VOLT_MON_DIVIDER_RATIO, MIN_VOLT_LIPO, MAX_VOLT_LIPO);
     VoltageMonitor solarCellMon(PIN_VOLT_SC, ESP32_REF_VOLTAGE, VOLT_MON_DIVIDER_RATIO);
@@ -52,7 +52,7 @@ void setup() {
     logger.log_I("Solar cell voltage: " + String(solarCellMon.voltage()) + " mV");
     if (battMon.level() == 0) {
         logger.log_E("Error! Battery depleted! Sleeping...");
-        sleep(timeClass);
+        sleep(timeClass, logger);
     }
 
     if (display.status() != Display::READY) logger.log_E("Error! Display is not ready! Status: " + String(display.status()));
@@ -107,7 +107,7 @@ void setup() {
     logger.log_I("Display cleared.");
 
     logger.log_I("Sleeping...");
-    sleep(timeClass);
+    sleep(timeClass, logger);
 }
 
 

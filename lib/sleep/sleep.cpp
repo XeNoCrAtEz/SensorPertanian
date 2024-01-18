@@ -15,9 +15,9 @@ const int uS_TO_S_FACTOR = 1000000;
 const int DEFAULT_SLEEP = 4 * 3600;     // seconds = 4 hours
 
 
-void sleep(TimeClass& time) {
+void sleep(TimeClass& time, Logger& logger) {
     auto sleepTime = get_sleep_seconds(time);
-    log_i("Now sleeping for %d seconds", sleepTime);
+    logger.log_I("Now sleeping for " + String(sleepTime) + " seconds");
     esp_deep_sleep(sleepTime * uS_TO_S_FACTOR);
 }
 

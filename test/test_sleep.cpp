@@ -29,7 +29,9 @@ log_i("Using GSM.");
 
     TimeClass testTimeClass = TimeClass(testRTC, testSubmitter);
 
-    sleep(testTimeClass);
+    Logger logger = Logger(testTimeClass);
+
+    sleep(testTimeClass, logger);
 }
 
 
