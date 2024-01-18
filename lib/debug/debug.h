@@ -33,9 +33,9 @@ public:
 
 
 private:
-    enum SoilDataTableParams {
+    enum LoggerParams {
         MAX_COUNT = 10000,
-        JSON_ENTRY_SIZE = 256,
+        JSON_ENTRY_SIZE = 512,
     };
 
 
