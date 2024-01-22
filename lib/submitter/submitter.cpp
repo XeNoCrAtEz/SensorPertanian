@@ -238,22 +238,7 @@ Submitter::OpStatus SubmitterGSM::submit_reading(SoilReading& soilReading, int& 
     client.println();
     client.println(dataStr);
 
-    // Wait for data to arrive
-    uint32_t startS = millis();
-    while (client.connected() && !client.available() && millis() - startS < 30000L) {
-        delay(100);
-    };
-
-    // Read data
-    char responseCodeStr[4] = "";
-    if (client.connected() && client.available()) {
-        char c;
-        for(int i = 0; i < 9; i++) c = client.read();   // skip "HTTP/1.1 "
-        for(int i = 0; i < 3; i++) responseCodeStr[i] = client.read();
-        responseCodeStr[3] = '\0';
-    }
-
-    responseCode = atoi(responseCodeStr);
+    int responseCode = get_response_code(client);
 
     client.stop();
 
@@ -296,22 +281,7 @@ Submitter::OpStatus SubmitterGSM::submit_reading(SoilDataTable& dataTable, int& 
     client.println();
     client.println(dataStr);
 
-    // Wait for data to arrive
-    uint32_t startS = millis();
-    while (client.connected() && !client.available() && millis() - startS < 30000L) {
-        delay(100);
-    };
-
-    // Read data
-    char responseCodeStr[4] = "";
-    if (client.connected() && client.available()) {
-        char c;
-        for(int i = 0; i < 9; i++) c = client.read();   // skip "HTTP/1.1 "
-        for(int i = 0; i < 3; i++) responseCodeStr[i] = client.read();
-        responseCodeStr[3] = '\0';
-    }
-
-    responseCode = atoi(responseCodeStr);
+    int responseCode = get_response_code(client);
 
     client.stop();
 
@@ -337,4 +307,22 @@ Submitter::OpStatus SubmitterGSM::get_current_time(RtcDateTime& time) {
 
     time = RtcDateTime(0);
     return STATUS_NO_TIME;
+}
+
+
+int get_response_code(TinyGsmClientSecure& client) {
+    // Wait for data to arrive
+    uint32_t startS = millis();
+    while (client.connected() && !client.available() && millis() - startS < 30000L) delay(100);
+
+    // Read data
+    char responseCodeStr[4] = "";
+    if (client.connected() && client.available()) {
+        char c = '\0';
+        while(' ' != client.read());    // skip "HTTP/1.1 "
+        for(int i = 0; i < 3; i++) responseCodeStr[i] = client.read();      // get 3 digit code
+        responseCodeStr[3] = '\0';
+    }
+
+    return atoi(responseCodeStr);
 }

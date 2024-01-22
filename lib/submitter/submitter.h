@@ -111,5 +111,6 @@ public:
 
 void populate(DynamicJsonDocument& json, const SoilReading& soilReading);
 void populate(DynamicJsonDocument& json, SoilDataTable& SoilReadings);
+int get_response_code(TinyGsmClientSecure& client);
 
 #endif
