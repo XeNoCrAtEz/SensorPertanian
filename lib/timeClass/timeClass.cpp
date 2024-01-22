@@ -2,7 +2,7 @@
 
 
 TimeClass::TimeClass(RTC& rtc, Submitter& submitter) 
-        : ESP32Time(TIMEZONE_OFFSET), m_rtc(rtc), m_submitter(submitter) {
+        : ESP32Time(0), m_rtc(rtc), m_submitter(submitter) {
     if (rtc.status() == RTC::READY) m_RTCAvailable = true;
     m_NTPAvailable = submitter.is_time_available();
 
@@ -38,8 +38,9 @@ TimeClass::OpStatus TimeClass::get_date_time(RtcDateTime& now) {
     else if (status() == READY_NO_RTC) {
         struct tm tm_now = getTimeStruct();
         now = RtcDateTime(
-            tm_now.tm_year+YEAR_OFFSET, tm_now.tm_mon+MONTH_OFFSET, tm_now.tm_mday,
-            tm_now.tm_hour-TIMEZONE_HOUR_OFFSET, tm_now.tm_min, tm_now.tm_sec);
+            getYear(), getMonth()+MONTH_OFFSET, getDay(),
+            getHour(true), getMinute(), getSecond()
+            );
         return STATUS_NO_RTC;
     }
     else if (status() == READY_NO_NTP || status() == READY) {
