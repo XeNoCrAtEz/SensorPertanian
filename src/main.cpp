@@ -96,7 +96,7 @@ void setup() {
 
         int responseCode = -1;
         if (submitter.submit_reading(dataTable, responseCode) != Submitter::SUCCESS) logger.log_E("Error! Data upload failed! HTTP Code: " + String(responseCode));
-        else logger.log_I("Data send successful!\n");
+        else logger.log_I("Data send successful!");
     }
 
     display.display_splash_screen();
