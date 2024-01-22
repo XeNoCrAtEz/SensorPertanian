@@ -238,7 +238,7 @@ Submitter::OpStatus SubmitterGSM::submit_reading(SoilReading& soilReading, int& 
     client.println();
     client.println(dataStr);
 
-    int responseCode = get_response_code(client);
+    responseCode = get_response_code(client);
 
     client.stop();
 
@@ -281,7 +281,7 @@ Submitter::OpStatus SubmitterGSM::submit_reading(SoilDataTable& dataTable, int& 
     client.println();
     client.println(dataStr);
 
-    int responseCode = get_response_code(client);
+    responseCode = get_response_code(client);
 
     client.stop();
 
