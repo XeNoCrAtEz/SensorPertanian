@@ -26,7 +26,7 @@ void populate(DynamicJsonDocument& json, SoilDataTable& dataTable) {
     
     uint16_t totalData = 0;
     SoilReading* soilReadings = nullptr;
-    dataTable.pop_all(soilReadings, totalData);
+    dataTable.load_all(soilReadings, totalData);
     for (int i = 0; i < totalData; i++) {
         SoilReading row = soilReadings[i];
 
@@ -140,7 +140,10 @@ Submitter::OpStatus SubmitterWiFi::submit_reading(SoilDataTable& dataTable, int&
 
     http.end();
 
-    if (responseCode == 200) return SUCCESS;
+    if (responseCode == 200) {
+        dataTable.clear();
+        return SUCCESS;
+    }
 
     return UPLOAD_FAILED;
 }
@@ -312,7 +315,10 @@ Submitter::OpStatus SubmitterGSM::submit_reading(SoilDataTable& dataTable, int& 
 
     client.stop();
 
-    if (responseCode == 200) return SUCCESS;
+    if (responseCode == 200) {
+        dataTable.clear();
+        return SUCCESS;
+    }
 
     return UPLOAD_FAILED;
 }
