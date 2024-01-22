@@ -85,15 +85,17 @@ void setup() {
     if (dataTable.is_empty()) {
         logger.log_I("Table is empty. Sending current sample");
         int responseCode = -1;
-        if (submitter.submit_reading(currentReading, responseCode) != Submitter::SUCCESS) logger.log_E("Error! Data upload failed! HTTP Code: " + String(responseCode));
+        if (submitter.submit_reading(currentReading, responseCode) != Submitter::SUCCESS) {
+            logger.log_E("Error! Data upload failed! HTTP Code: " + String(responseCode));
+            dataTable.push(currentReading);
+        }
         else logger.log_I("Data send successful!\n");
     } else {
         logger.log_I("Saved data available. Pushing sampled data...");
-        SoilDataTable::OpStatus pushErr = dataTable.push(currentReading);
-        if (pushErr != SoilDataTable::SUCCESS) logger.log_E("Error! Data push unsuccessful! Operation Status: " + String(pushErr));
+        dataTable.push(currentReading);
 
         int responseCode = -1;
-        if (submitter.submit_reading(currentReading, responseCode) != Submitter::SUCCESS) logger.log_E("Error! Data upload failed! HTTP Code: " + String(responseCode));
+        if (submitter.submit_reading(dataTable, responseCode) != Submitter::SUCCESS) logger.log_E("Error! Data upload failed! HTTP Code: " + String(responseCode));
         else logger.log_I("Data send successful!\n");
     }
 
