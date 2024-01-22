@@ -44,6 +44,7 @@ public:
     SoilDataTable();
     OpStatus push(const SoilReading& soilReading);
     OpStatus pop(SoilReading& soilReading);
+    OpStatus load_all(SoilReading* &soilReadings, uint16_t& size);
     OpStatus pop_all(SoilReading* &soilReadings, uint16_t& size);
     OpStatus clear();
     uint32_t get_count();

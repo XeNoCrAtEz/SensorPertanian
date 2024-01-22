@@ -51,6 +51,24 @@ SoilDataTable::OpStatus SoilDataTable::pop(SoilReading& soilReading) {
 }
 
 
+SoilDataTable::OpStatus SoilDataTable::load_all(SoilReading* &soilReadings, uint16_t& count) {
+    if (status() != READY) return STATUS_ERROR;
+    
+    File file = m_filesystem.open(m_filename, FILE_READ);
+    if (!file) return OPEN_FAILED;
+
+    if (is_empty()) return EMPTY_FILE;
+
+    count = get_count();
+    soilReadings = new SoilReading[count];
+
+    for (uint16_t i = 0; i < count; i++)
+        if (!file.read(reinterpret_cast<uint8_t*>(&soilReadings[i]), sizeof(SoilReading))) return READ_FAILED;
+
+    return SUCCESS;
+}
+
+
 SoilDataTable::OpStatus SoilDataTable::pop_all(SoilReading* &soilReadings, uint16_t& count) {
     if (status() != READY) return STATUS_ERROR;
     
