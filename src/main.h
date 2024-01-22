@@ -16,6 +16,10 @@
 
 const float VOLT_MON_DIVIDER_RATIO = 2.0;
 
+const float MEASUREMENT_UNCERTAINTY = 1;
+const float ESTIMATION_UNCERTAINTY = 1;
+const float PROCESS_NOISE = 0.01;
+
 
 // pre-define DEBUG when compiling to enable debug
 #ifdef DEBUG

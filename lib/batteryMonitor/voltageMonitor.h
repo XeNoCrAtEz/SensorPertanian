@@ -3,6 +3,7 @@
 
 
 #include <Arduino.h>
+#include "SimpleKalmanFilter.h"
 
 
 const uint16_t ESP32_REF_VOLTAGE = 3300;
@@ -11,7 +12,7 @@ const uint16_t MIN_VOLT_LIPO = 3000;
 const uint16_t MAX_VOLT_LIPO = 4200;
 
 
-class VoltageMonitor  {
+class VoltageMonitor : public SimpleKalmanFilter {
 private:
     enum VoltMonParams {
         NUM_SAMPLES = 10,
@@ -20,8 +21,8 @@ private:
 
 
 public:
-    VoltageMonitor(uint8_t sensePin, uint16_t refVoltage, float dividerRatio);
-    uint16_t voltage() const;
+    VoltageMonitor(uint8_t sensePin, uint16_t refVoltage, float dividerRatio, float mea_e, float est_e, float q);
+    uint16_t voltage();
 
 
 protected:
@@ -37,9 +38,10 @@ class BatteryMonitor : public VoltageMonitor {
 public:
     BatteryMonitor(
         uint8_t sensePin, uint16_t refVoltage, float dividerRatio, 
-        uint16_t minVoltage, uint16_t maxVoltage);
-    uint8_t level() const;
-    uint8_t level(uint16_t voltage) const;
+        uint16_t minVoltage, uint16_t maxVoltage,
+        float mea_e, float est_e, float q);
+    uint8_t level();
+    uint8_t level(uint16_t voltage);
 
 
 private:
