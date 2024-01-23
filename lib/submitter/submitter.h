@@ -89,7 +89,7 @@ private:
         BAUDRATE = 115200,
     };
 
-    const char APN[14] = "internet"; // APN Telkomsel IoT
+    const char APN[14] = "m2minternet"; // APN Telkomsel IoT
     const char GPRS_USER[1] = "";
     const char GPRS_PASS[1] = "";
 
