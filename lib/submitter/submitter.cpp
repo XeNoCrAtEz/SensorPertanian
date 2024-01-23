@@ -301,7 +301,7 @@ Submitter::OpStatus SubmitterGSM::get_current_time(RtcDateTime& time) {
     int year, month, dayOfMonth, hour, minute, second;
     float timezone = 0;
     if (m_modem.getNetworkTime(&year, &month, &dayOfMonth, &hour, &minute, &second, &timezone)) {
-        time = RtcDateTime(year, month, dayOfMonth, hour+timezone, minute, second);
+        time = RtcDateTime(year, month, dayOfMonth, hour, minute, second);
         return SUCCESS;
     }
 
