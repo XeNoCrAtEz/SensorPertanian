@@ -8,6 +8,13 @@ const int PIN_RTC_DATA = 13;
 const int PIN_RTC_CLK  = 15;
 
 
+#ifdef USE_GSM
+const uint8_t PIN_GSM_DTR = 36;
+const uint8_t PIN_GSM_RX = 25;
+const uint8_t PIN_GSM_TX = 26;
+#endif
+
+
 void test_show() {
 #if defined(USE_WIFI)
     SubmitterWiFi testSubmitter;
