@@ -61,7 +61,19 @@ void test_submit_table() {
 }
 
 
+void test_submitter_sleep() {
+#if defined(USE_WIFI)
+    SubmitterWiFi testSubmitter;
+#elif defined(USE_GSM)
+    SubmitterGSM testSubmitter(PIN_GSM_RX, PIN_GSM_TX);
+#endif
+    
+    testSubmitter.sleep();
+}
+
+
 void test_submitter() {
+    RUN_TEST(test_submitter_sleep);
     RUN_TEST(test_get_time);
     // RUN_TEST(test_submit_one_data);
     // RUN_TEST(test_submit_table);

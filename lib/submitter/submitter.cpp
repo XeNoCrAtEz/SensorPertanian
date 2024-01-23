@@ -174,10 +174,23 @@ Submitter::OpStatus SubmitterWiFi::get_current_time(RtcDateTime& time) {
 }
 
 
+void SubmitterWiFi::sleep() {
+    WiFi.disconnect(true);
+    WiFi.mode(WIFI_OFF);
+}
+
+
+void SubmitterWiFi::wakeup() {
+    WiFi.disconnect(false);
+    WiFi.mode(WIFI_STA);
+}
+
+
 // ---------------------------- Submitter GSM ------------------------------
 SubmitterGSM::SubmitterGSM(int rx, int tx, int HWSerialNum)
         : m_serialAT(HWSerialNum), m_modem(m_serialAT) {
     m_serialAT.begin(BAUDRATE, SERIAL_8N1, rx, tx);
+    wakeup();
     if (!m_modem.init()) {
         Serial.println("Fatal Error! Failed to init GSM module!");
         m_status = NO_CONNECTION;
@@ -307,6 +320,17 @@ Submitter::OpStatus SubmitterGSM::get_current_time(RtcDateTime& time) {
 
     time = RtcDateTime(0);
     return STATUS_NO_TIME;
+}
+
+
+void SubmitterGSM::sleep() {
+    m_modem.sendAT(GF("+CSCLK=2"));
+}
+
+
+void SubmitterGSM::wakeup() {
+    m_modem.sendAT();
+    m_modem.sleepEnable(false);
 }
 
 

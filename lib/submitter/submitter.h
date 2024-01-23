@@ -53,6 +53,8 @@ public:
     virtual OpStatus submit_reading(SoilDataTable& dataTable, int& responseCode) = 0;
 
     virtual OpStatus get_current_time(RtcDateTime& time) = 0;
+    virtual void wakeup() = 0;
+    virtual void sleep() = 0;
     bool is_time_available();
 
     Status status();
@@ -74,6 +76,8 @@ public:
     OpStatus submit_reading(SoilDataTable& dataTable, int& responseCode) override;
 
     OpStatus get_current_time(RtcDateTime& time) override;
+    void wakeup() override;
+    void sleep() override;
 
 
 };
@@ -104,6 +108,8 @@ public:
     OpStatus submit_reading(SoilDataTable& dataTable, int& responseCode) override;
 
     OpStatus get_current_time(RtcDateTime& time) override;
+    void wakeup() override;
+    void sleep() override;
 
 
 };
