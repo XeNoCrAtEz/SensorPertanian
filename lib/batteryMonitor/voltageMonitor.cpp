@@ -4,7 +4,7 @@
 VoltageMonitor::VoltageMonitor(
 	uint8_t sensePin, uint16_t refVoltage, float dividerRatio,
 	float mea_e, float est_e, float q) 
-		: SimpleKalmanFilter(mea_e, est_e, q), m_sensePin(sensePin), m_refVoltage(refVoltage), m_dividerRatio(dividerRatio) {
+		: filter(mea_e, est_e, q), m_sensePin(sensePin), m_refVoltage(refVoltage), m_dividerRatio(dividerRatio) {
 	pinMode(m_sensePin, INPUT);
 }
 
@@ -15,7 +15,7 @@ uint16_t VoltageMonitor::voltage() {
 	float estVoltValue = 0;
 	for (int i = 0; i < NUM_SAMPLES; i++) {
 		int voltValue = analogRead(m_sensePin) * m_dividerRatio * m_refVoltage / ADC_MAX_VALUE;
-		estVoltValue = updateEstimate(voltValue);
+		estVoltValue = filter.updateEstimate(voltValue);
 	}
 
 	return estVoltValue;
