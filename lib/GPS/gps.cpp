@@ -46,3 +46,13 @@ GPS::OpStatus GPS::get_location_till_timeout() {
     if (isCharsProcessed && !isAvailable) return STATUS_NO_FIX;
     else return STATUS_ERROR;
 }
+
+
+void GPS::begin(int rx, int tx) {
+    m_serial.begin(BAUDRATE, SERIAL_8N1, rx, tx);
+}
+
+
+void GPS::end() {
+    m_serial.end();
+}

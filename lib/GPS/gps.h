@@ -39,6 +39,9 @@ private:
 public:
     GPS(uint8_t rx, uint8_t tx, uint8_t HWSerialNum=1);
 
+    void begin(int rx, int tx);
+    void end();
+
     OpStatus get_location(double& lat, double& lng);
     OpStatus get_location_till_timeout();
     Status status();
