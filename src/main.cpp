@@ -10,7 +10,7 @@ void setup() {
 #if defined(USE_WIFI)
     SubmitterWiFi submitter;
 #elif defined(USE_GSM)
-    SubmitterGSM submitter(PIN_GSM_RX, PIN_GSM_TX);
+    SubmitterGSM submitter(PIN_GSM_RX, PIN_GSM_TX, GSM_HW_SERIAL_NUM);
 #endif
 
     TimeClass timeClass = TimeClass(rtc, submitter);
@@ -25,7 +25,9 @@ void setup() {
         PIN_VOLT_SC, ESP32_REF_VOLTAGE, VOLT_MON_DIVIDER_RATIO,
         MEASUREMENT_UNCERTAINTY, ESTIMATION_UNCERTAINTY, PROCESS_NOISE);
 
+#ifdef USE_DISPLAY
     Display display(PIN_SCREEN_SDA, PIN_SCREEN_SCL);
+#endif
 
     SoilDataTable dataTable;
 
@@ -60,20 +62,22 @@ void setup() {
         sleep(timeClass, logger);
     }
 
+#ifdef USE_DISPLAY
     if (display.status() != Display::READY) logger.log_E("Error! Display is not ready! Status: " + String(display.status()));
     else logger.log_I("Display is ready!");
+#endif
 
     if (dataTable.status() != SoilDataTable::READY) logger.log_E("Error! dataTable not ready! Status: " + String(dataTable.status()));
     else logger.log_I("dataTable is initialized and ready!");
 
 #if defined(PROBE_DEFAULT)
-    ProbeDefault probe(PIN_PROBE_RX, PIN_PROBE_TX);
+    ProbeDefault probe(PIN_PROBE_RX, PIN_PROBE_TX, OTHER_HW_SERIAL_NUM);
     logger.log_I("Initialized probe type: DEFAULT");
 #elif defined(PROBE_KHDTK)
-    ProbeKHDTK probe(PIN_PROBE_RX, PIN_PROBE_TX);
+    ProbeKHDTK probe(PIN_PROBE_RX, PIN_PROBE_TX, OTHER_HW_SERIAL_NUM);
     logger.log_I("Initialized probe type: KHDTK");
 #elif defined(PROBE_NEW)
-    ProbeNew probe(PIN_PROBE_RX, PIN_PROBE_TX);
+    ProbeNew probe(PIN_PROBE_RX, PIN_PROBE_TX, OTHER_HW_SERIAL_NUM);
     logger.log_I("Initialized probe type: NEW");
 #endif
     if (probe.status() != Probe::READY) logger.log_E("Error! Probe not ready! Status: " + String(probe.status()));
@@ -104,6 +108,7 @@ void setup() {
         else logger.log_I("Data send successful!");
     }
 
+#ifdef USE_DISPLAY
     display.display_splash_screen();
     logger.log_I("Splash screen displayed.");
 
@@ -112,6 +117,7 @@ void setup() {
 
     display.clear_display();
     logger.log_I("Display cleared.");
+#endif
 
     logger.log_I("Sleeping...");
     sleep(timeClass, logger);
