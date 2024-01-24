@@ -58,9 +58,10 @@ public:
     void calibrateNPK(SoilData& soilData);
 
     Status status();
+    void end();
 
     virtual OpStatus sample(SoilData& soilData) = 0;
-
+    virtual void begin(int rx, int tx) = 0;
 
 };
 
@@ -92,6 +93,7 @@ public:
     ProbeKHDTK(int rx, int tx, int HWSerialNum=1, int addr=0x01);
 
     OpStatus sample(SoilData& soilData) override;
+    void begin(int rx, int tx);
 };
 
 
@@ -122,6 +124,7 @@ public:
     ProbeDefault(int rx, int tx, int HWSerialNum=1, int addr=0x01);
 
     OpStatus sample(SoilData& soilData) override;
+    void begin(int rx, int tx);
 };
 
 class ProbeNew : public Probe {
@@ -156,6 +159,7 @@ public:
     ProbeNew(int rx, int tx, int HWSerialNum=1, int addr=0x01);
 
     OpStatus sample(SoilData& soilData);
+    void begin(int rx, int tx);
 };
 
 

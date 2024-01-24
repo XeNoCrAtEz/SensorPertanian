@@ -75,11 +75,15 @@ Probe::Status Probe::check() {
 }
 
 
+void Probe::end() {
+    m_probe.end();
+}
+
+
 // ---------------------------- Probe KHDTK ------------------------------
 ProbeKHDTK::ProbeKHDTK(int rx, int tx, int HWSerialNum, int addr)
         : Probe(HWSerialNum, addr) {
     m_probe.begin(PROBE_BAUDRATE, SERIAL_8N1, rx, tx);
-
     m_status = check();
 }
 
@@ -111,6 +115,11 @@ Probe::OpStatus ProbeKHDTK::sample(SoilData& soilData) {
 #endif
 
     return SUCCESS;
+}
+
+
+void ProbeKHDTK::begin(int rx, int tx) {
+    m_probe.begin(PROBE_BAUDRATE, SERIAL_8N1, rx, tx);
 }
 
 
@@ -163,6 +172,11 @@ ProbeDefault::OpStatus ProbeDefault::sample(SoilData& soilData) {
 }
 
 
+void ProbeDefault::begin(int rx, int tx) {
+    m_probe.begin(PROBE_BAUDRATE, SERIAL_8N1, rx, tx);
+}
+
+
 // ------------------------- Probe New (Mas Nando) ---------------------------
 ProbeNew::ProbeNew(int rx, int tx, int HWSerialNum, int addr)
         : Probe(HWSerialNum, addr) {
@@ -211,4 +225,9 @@ ProbeNew::OpStatus ProbeNew::sample(SoilData& soilData) {
 #endif
 
     return SUCCESS;
+}
+
+
+void ProbeNew::begin(int rx, int tx) {
+    m_probe.begin(PROBE_BAUDRATE, SERIAL_8N1, rx, tx);
 }
