@@ -5,6 +5,9 @@ void setup() {
     // begin USB Serial
     Serial.begin(115200);
 
+    Switch modulesSwitch(PIN_MODULES_SW);
+    modulesSwitch.on();
+
     RTC rtc = RTC(PIN_RTC_DATA, PIN_RTC_CLK, PIN_RTC_RST);
 
 #if defined(USE_WIFI)
@@ -15,7 +18,7 @@ void setup() {
 
     TimeClass timeClass = TimeClass(rtc, submitter);
 
-    Logger logger = Logger(timeClass);
+    Logger logger = Logger(timeClass, true);
 
     BatteryMonitor battMon(
         PIN_VOLT_BAT, ESP32_REF_VOLTAGE, VOLT_MON_DIVIDER_RATIO,
@@ -127,4 +130,3 @@ void setup() {
 void loop()
 {
 }
-

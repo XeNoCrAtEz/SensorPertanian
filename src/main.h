@@ -10,6 +10,7 @@
 #include "submitter.h"
 #include "sleep.h"
 #include "voltageMonitor.h"
+#include "switch.h"
 
 #include "pin_assignment.h"
 
