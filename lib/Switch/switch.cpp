@@ -10,7 +10,6 @@ Switch::Switch(uint8_t pin)
 }
 
 
-
 Switch::OpStatus Switch::on() {
     if (m_status != READY) return STATUS_ERROR;
     
@@ -19,7 +18,6 @@ Switch::OpStatus Switch::on() {
 
     return ON;
 }
-
 
 
 Switch::OpStatus Switch::off() {
@@ -32,13 +30,11 @@ Switch::OpStatus Switch::off() {
 }
 
 
-
 Switch::Status Switch::release() {
     pinMode(m_pin, INPUT);
     m_status = RELEASED;
     return RELEASED;
 }
-
 
 
 Switch::Status Switch::status() {
