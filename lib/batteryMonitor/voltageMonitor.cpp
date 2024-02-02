@@ -10,12 +10,11 @@ VoltageMonitor::VoltageMonitor(
 
 
 uint16_t VoltageMonitor::voltage() {
-	analogRead(m_sensePin);   delay(2);   // allow the ADC to stabilize
-
 	float estVoltValue = 0;
 	for (int i = 0; i < NUM_SAMPLES; i++) {
 		int voltValue = analogRead(m_sensePin) * m_dividerRatio * m_refVoltage / ADC_MAX_VALUE;
 		estVoltValue = filter.updateEstimate(voltValue);
+		delay(10);
 	}
 
 	return estVoltValue;
