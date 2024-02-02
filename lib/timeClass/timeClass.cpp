@@ -7,18 +7,19 @@ TimeClass::TimeClass(RTC& rtc, Submitter& submitter)
     m_NTPAvailable = submitter.is_time_available();
 
     if      (!m_RTCAvailable && m_NTPAvailable)  {
+        m_status = READY_NO_RTC;
+
         RtcDateTime now;
         m_submitter.get_current_time(now);
         setTime(now.Second(), now.Minute(), now.Hour(), now.Day(), now.Month(), now.Year(), 0);
-
-        m_status = READY_NO_RTC;
     }
     else if (m_RTCAvailable && !m_NTPAvailable)  m_status = READY_NO_NTP;
     else if (!m_RTCAvailable && !m_NTPAvailable) m_status = NO_TIME;
     else if (m_NTPAvailable && m_RTCAvailable) {
-        update_RTC();
-
         m_status = READY;
+
+        Serial.println("test.....");
+        update_RTC();
     }
 }
 
@@ -28,6 +29,7 @@ TimeClass::OpStatus TimeClass::update_RTC() {
 
     RtcDateTime now;
     m_submitter.get_current_time(now);
+    Serial.println(RtcDateTime_to_Str(now));
     m_rtc.set_date_time(now);
     return SUCCESS;
 }
