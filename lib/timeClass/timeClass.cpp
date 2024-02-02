@@ -18,7 +18,6 @@ TimeClass::TimeClass(RTC& rtc, Submitter& submitter)
     else if (m_NTPAvailable && m_RTCAvailable) {
         m_status = READY;
 
-        Serial.println("test.....");
         update_RTC();
     }
 }
@@ -29,7 +28,6 @@ TimeClass::OpStatus TimeClass::update_RTC() {
 
     RtcDateTime now;
     m_submitter.get_current_time(now);
-    Serial.println(RtcDateTime_to_Str(now));
     m_rtc.set_date_time(now);
     return SUCCESS;
 }
