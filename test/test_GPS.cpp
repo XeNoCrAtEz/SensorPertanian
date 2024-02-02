@@ -4,8 +4,9 @@
 #include "gps.h"
 
 
-const uint8_t PIN_GPS_RX = 19;
-const uint8_t PIN_GPS_TX = 18;
+const uint8_t PIN_GPS_RX = 13;
+const uint8_t PIN_GPS_TX = -1;
+
 
 // test with GPS unconnected
 void test_gps_unconnected() {

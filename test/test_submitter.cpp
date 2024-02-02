@@ -3,8 +3,7 @@
 #include "submitter.h"
 
 #ifdef USE_GSM
-const uint8_t PIN_GSM_DTR = 35;
-const uint8_t PIN_GSM_RX = 5;
+const uint8_t PIN_GSM_RX = 2;
 const uint8_t PIN_GSM_TX = 4;
 #endif
 
@@ -75,6 +74,6 @@ void test_submitter_sleep() {
 void test_submitter() {
     RUN_TEST(test_submitter_sleep);
     RUN_TEST(test_get_time);
-    // RUN_TEST(test_submit_one_data);
-    // RUN_TEST(test_submit_table);
+    RUN_TEST(test_submit_one_data);
+    RUN_TEST(test_submit_table);
 }

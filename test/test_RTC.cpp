@@ -3,9 +3,9 @@
 #include "RTCModule.h"
 
 
-const int PIN_RTC_RST  = 12;
-const int PIN_RTC_DATA = 13;
-const int PIN_RTC_CLK  = 15;
+const uint8_t PIN_RTC_RST  = 14;
+const uint8_t PIN_RTC_DATA = 27;
+const uint8_t PIN_RTC_CLK  = 26;
 
 
 void test_rtc_get_date_time() {

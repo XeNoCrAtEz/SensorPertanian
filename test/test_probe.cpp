@@ -5,8 +5,8 @@
 #include "display.h"
 
 
-const uint8_t PIN_PROBE_RX = 16;
-const uint8_t PIN_PROBE_TX = 17;
+const uint8_t PIN_PROBE_RX = 25;
+const uint8_t PIN_PROBE_TX = 33;
 const uint8_t PIN_SDA = 21;
 const uint8_t PIN_SCL = 22;
 

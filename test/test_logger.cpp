@@ -3,15 +3,13 @@
 #include "debug.h"
 
 
-const int PIN_RTC_RST  = 12;
-const int PIN_RTC_DATA = 13;
-const int PIN_RTC_CLK  = 15;
-
+const uint8_t PIN_RTC_RST  = 14;
+const uint8_t PIN_RTC_DATA = 27;
+const uint8_t PIN_RTC_CLK  = 26;
 
 #ifdef USE_GSM
-const uint8_t PIN_GSM_DTR = 36;
-const uint8_t PIN_GSM_RX = 25;
-const uint8_t PIN_GSM_TX = 26;
+const uint8_t PIN_GSM_RX = 2;
+const uint8_t PIN_GSM_TX = 4;
 #endif
 
 
