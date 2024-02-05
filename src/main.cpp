@@ -5,6 +5,14 @@ void setup() {
     // begin USB Serial
     Serial.begin(115200);
 
+    BatteryMonitor battMon(
+        PIN_VOLT_BAT, ESP32_REF_VOLTAGE, VOLT_MON_DIVIDER_RATIO,
+        2*MIN_VOLT_LIPO, 2*MAX_VOLT_LIPO,                           // using 2S battery
+        MEASUREMENT_UNCERTAINTY, ESTIMATION_UNCERTAINTY, PROCESS_NOISE);
+    VoltageMonitor solarCellMon(
+        PIN_VOLT_SC, ESP32_REF_VOLTAGE, VOLT_MON_DIVIDER_RATIO,
+        MEASUREMENT_UNCERTAINTY, ESTIMATION_UNCERTAINTY, PROCESS_NOISE);
+
     Switch modulesSwitch(PIN_MODULES_SW);
     modulesSwitch.on();
 
@@ -20,21 +28,11 @@ void setup() {
 
     Logger logger = Logger(timeClass, true);
 
-    BatteryMonitor battMon(
-        PIN_VOLT_BAT, ESP32_REF_VOLTAGE, VOLT_MON_DIVIDER_RATIO,
-        MIN_VOLT_LIPO, MAX_VOLT_LIPO,
-        MEASUREMENT_UNCERTAINTY, ESTIMATION_UNCERTAINTY, PROCESS_NOISE);
-    VoltageMonitor solarCellMon(
-        PIN_VOLT_SC, ESP32_REF_VOLTAGE, VOLT_MON_DIVIDER_RATIO,
-        MEASUREMENT_UNCERTAINTY, ESTIMATION_UNCERTAINTY, PROCESS_NOISE);
-
 #ifdef USE_DISPLAY
     Display display(PIN_SCREEN_SDA, PIN_SCREEN_SCL);
 #endif
 
     SoilDataTable dataTable;
-
-    // MOSFET
 
     if      (logger.status() == Logger::PRINT_MODE) logger.log_I("Logging in print mode.");
     else if (logger.status() != Logger::READY) Serial.println("Error! Logger not ready! Status: " + String(logger.status()));

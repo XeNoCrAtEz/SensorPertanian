@@ -37,8 +37,8 @@ void setup() {
     // test_submitter();
     // test_logger();
     // test_soil_data();
-    // test_sleep();
     test_time_class();
+    // test_sleep();
 
     UNITY_END();
 }
