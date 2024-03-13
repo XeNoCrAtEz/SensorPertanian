@@ -122,33 +122,5 @@ logger.log_I("Sleeping...");
 
 void loop()
 {
-if (useFrequency1) {
-    LoRa.setFrequency(frequency1);
-  } else {
-    LoRa.setFrequency(frequency2);
-  }
-
-  // Try to parse LoRa packet
-  int packetSize = LoRa.parsePacket();
-
-if (packetSize) {
-    // Received a LoRa packet
-    if (useFrequency1) {
-      Serial.print("Received packet from transmitter 1: '");
-    } else {
-      Serial.print("Received packet from transmitter 2: '");
-    }
-
-    while (LoRa.available()) {
-      String LoRaData = LoRa.readString();
-      Serial.print(LoRaData);
-    }
-
-    Serial.print("' with Kelompok TE 1 ");
-    Serial.println(LoRa.packetRssi());
-
-    // Switch the flag for the next iteration
-    useFrequency1 = !useFrequency1;
-  }
 }
 
