@@ -1,8 +1,38 @@
 #include "main.h"
+#include "SPI.h"
+#include "LoRa.h"
+// Define the pins used by the transceiver module
+#define ss 5
+#define rst 14
+#define dio0 2
+
+// Define the frequencies for the two transmitters
+#define frequency1 433E6
+#define frequency2 433E6
+
+int counter = 0;
+bool useFrequency1 = true; // Flag to switch between frequencies
 
 void setup() {
-    // begin USB Serial
-    Serial.begin(115200);
+  // Initialize Serial Monitor
+  Serial.begin(115200);
+  while (!Serial);
+  Serial.println("LoRa Receiver");
+
+  // Setup LoRa transceiver module
+  LoRa.setPins(ss, rst, dio0);
+
+  // Initialize the first frequency
+  if (!LoRa.begin(frequency1)) {
+    Serial.println("Error initializing LoRa");
+    while (1);
+  }
+  LoRa.setSyncWord(0xF3);
+  Serial.println("LoRa Initializing OK!");
+//}
+//void setup() {
+//    // begin USB Serial
+//    Serial.begin(115200);
 
 log_i("Starting Sensor-%d", SENSOR_ID);
 log_i("Logging will not start until RTC, Submitter, and TimeClass are initialized.");
@@ -43,6 +73,7 @@ logger.log_I("Initialized probe type: KHDTK");
     ProbeNew probe(PIN_PROBE_RX, PIN_PROBE_TX);
 logger.log_I("Initialized probe type: NEW");
 #endif
+
 
     SoilData soilData;
     Probe::ErrorCodes probeErr = probe.sample(soilData);
@@ -91,5 +122,33 @@ logger.log_I("Sleeping...");
 
 void loop()
 {
+if (useFrequency1) {
+    LoRa.setFrequency(frequency1);
+  } else {
+    LoRa.setFrequency(frequency2);
+  }
+
+  // Try to parse LoRa packet
+  int packetSize = LoRa.parsePacket();
+
+if (packetSize) {
+    // Received a LoRa packet
+    if (useFrequency1) {
+      Serial.print("Received packet from transmitter 1: '");
+    } else {
+      Serial.print("Received packet from transmitter 2: '");
+    }
+
+    while (LoRa.available()) {
+      String LoRaData = LoRa.readString();
+      Serial.print(LoRaData);
+    }
+
+    Serial.print("' with Kelompok TE 1 ");
+    Serial.println(LoRa.packetRssi());
+
+    // Switch the flag for the next iteration
+    useFrequency1 = !useFrequency1;
+  }
 }
 

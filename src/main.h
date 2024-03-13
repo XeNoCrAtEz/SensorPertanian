@@ -3,7 +3,7 @@
 
 
 #include <Arduino.h>
-
+#include "main.h"
 #include "display.h"
 #include "probe.h"
 #include "dataTable.h"
