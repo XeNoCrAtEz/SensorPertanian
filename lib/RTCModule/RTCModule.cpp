@@ -7,6 +7,7 @@ RTC::RTC(uint8_t dataPin, uint8_t clkPin, uint8_t rstPin)
 
     if (!m_RTC.IsDateTimeValid()) {
         log_e("Error! Invalid Date Time!");
+        m_status = NO_RTC;
         return;
     }
 
@@ -22,35 +23,42 @@ RTC::RTC(uint8_t dataPin, uint8_t clkPin, uint8_t rstPin)
         log_i("OK");
     }
 
-    ready = true;
+    m_status = READY;
 }
             
 
-RtcDateTime RTC::get_date_time() {
-    return m_RTC.GetDateTime();
+RTC::OpStatus RTC::get_date_time(RtcDateTime& time) {
+    if (status() != READY) return STATUS_ERROR;
+    if (status() == NO_RTC) return STATUS_NO_RTC;
+    
+    time = m_RTC.GetDateTime();
+    return SUCCESS;
 }
 
 
-void RTC::set_date_time(
+RTC::OpStatus RTC::set_date_time(
             uint16_t year, uint8_t month, uint8_t dayOfMonth,
             uint8_t hour, uint8_t minute, uint8_t second
         ) {
+    if (status() != READY) return STATUS_ERROR;
+    if (status() == NO_RTC) return STATUS_NO_RTC;
+            
     m_RTC.SetDateTime(RtcDateTime(year, month, dayOfMonth, hour, minute, second));
+    return SUCCESS;
 }
 
 
-void RTC::set_date_time(const RtcDateTime& dateTime) {
+RTC::OpStatus RTC::set_date_time(const RtcDateTime& dateTime) {
+    if (status() != READY) return STATUS_ERROR;
+    if (status() == NO_RTC) return STATUS_NO_RTC;
+
     m_RTC.SetDateTime(dateTime);
+    return SUCCESS;
 }
 
 
-bool RTC::is_ready() {
-    return ready;
-}
-
-
-void print_date_time(const RtcDateTime& dt) {
-    Serial.println(RtcDateTime_to_Str(dt));
+RTC::Status RTC::status() {
+    return m_status;
 }
 
 

@@ -9,18 +9,21 @@ Display::Display(uint8_t sda, uint8_t scl, uint8_t w, uint8_t h, uint8_t addr, T
     if (!m_disp.begin(SSD1306_SWITCHCAPVCC, SCREEN_ADDR, false, false)) {
         Serial.println("SSD1306 Failed to Initialize!");
         m_status = DISPLAY_FAILED;
+        return;
     }
 
-    m_status = DISPLAY_OK;
+    m_status = READY;
 }
 
 
-Display::ErrorCodes Display::isOK() {
+Display::Status Display::status() {
     return m_status;
 }
 
 
-Display::ErrorCodes Display::display_splash_screen() {
+Display::OpStatus Display::display_splash_screen() {
+    if (status() != READY) return STATUS_ERROR;
+    
     // display splash screen
     m_disp.clearDisplay();    
     m_disp.setTextColor(WHITE);
@@ -32,11 +35,13 @@ Display::ErrorCodes Display::display_splash_screen() {
     m_disp.print("Initializing");
     m_disp.display();
 
-    return DISPLAY_OK;
+    return SUCCESS;
 }
 
 
-Display::ErrorCodes Display::display_data(const SoilData& soilData) {
+Display::OpStatus Display::display_data(const SoilData& soilData) {
+    if (status() != READY) return STATUS_ERROR;
+
     const uint16_t DISPLAY_DELAY = 2000;
 
     const uint16_t& nitrogen = soilData.nitrogen;
@@ -121,13 +126,15 @@ Display::ErrorCodes Display::display_data(const SoilData& soilData) {
 
     clear_display();
 
-    return DISPLAY_OK;
+    return SUCCESS;
 }
 
 
-Display::ErrorCodes Display::clear_display() {
+Display::OpStatus Display::clear_display() {
+    if (status() != READY) return STATUS_ERROR;
+
     m_disp.clearDisplay();
     m_disp.display();
 
-    return DISPLAY_OK;
+    return SUCCESS;
 }

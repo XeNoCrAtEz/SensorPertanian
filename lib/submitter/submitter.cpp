@@ -1,13 +1,58 @@
 #include "submitter.h"
 
 
-bool Submitter::is_time_available() {
-    return timeAvailable;
+void populate(DynamicJsonDocument& json, const SoilReading& soilReading) {
+    json["ID"] = SENSOR_ID;
+    
+    JsonArray dataArr = json.createNestedArray("data");
+    
+    JsonObject rowJson = dataArr.createNestedObject();
+    rowJson["timestamp"] = RtcDateTime_to_Str(RtcDateTime(soilReading.m_epoch));
+    rowJson["N"] = soilReading.m_soilData.nitrogen;
+    rowJson["P"] = soilReading.m_soilData.phosphorus;
+    rowJson["K"] = soilReading.m_soilData.kalium;
+    rowJson["pH"] = soilReading.m_soilData.pH;
+    rowJson["temp"] = soilReading.m_soilData.temperature;
+    rowJson["hum"] = soilReading.m_soilData.humidity;
+    rowJson["EC"] = soilReading.m_soilData.EC;
+    rowJson["salt"] = soilReading.m_soilData.salt;
 }
 
 
-bool Submitter::is_ready() {
-    return ready;
+void populate(DynamicJsonDocument& json, SoilDataTable& dataTable) {
+    json["ID"] = SENSOR_ID;
+    
+    JsonArray dataArr = json.createNestedArray("data");
+    
+    uint16_t totalData = 0;
+    SoilReading* soilReadings = nullptr;
+    dataTable.load_all(soilReadings, totalData);
+    for (int i = 0; i < totalData; i++) {
+        SoilReading row = soilReadings[i];
+
+        JsonObject rowJson = dataArr.createNestedObject();
+        rowJson["timestamp"] = RtcDateTime_to_Str(RtcDateTime(row.m_epoch));
+        rowJson["N"] = row.m_soilData.nitrogen;
+        rowJson["P"] = row.m_soilData.phosphorus;
+        rowJson["K"] = row.m_soilData.kalium;
+        rowJson["pH"] = row.m_soilData.pH;
+        rowJson["temp"] = row.m_soilData.temperature;
+        rowJson["hum"] = row.m_soilData.humidity;
+        rowJson["EC"] = row.m_soilData.EC;
+        rowJson["salt"] = row.m_soilData.salt;
+    }
+
+    delete[] soilReadings;
+}
+
+
+bool Submitter::is_time_available() {
+    return m_timeAvailable;
+}
+
+
+Submitter::Status Submitter::status() {
+    return m_status;
 }
 
 
@@ -23,59 +68,38 @@ SubmitterWiFi::SubmitterWiFi()
         WiFi.begin(WIFI_SSID, WIFI_PASS);   // connect ke router
     }
 
-    Serial.print("Connecting to ");
-    Serial.print(WIFI_SSID);
+    log_i("Connecting to %s", WIFI_SSID);
     for(int attempts = 0; WiFi.status() != WL_CONNECTED; attempts++) {
-        Serial.print(".");
         if (attempts >= MAX_REATTEMPT) {
-            Serial.println("\nCannot connect to WiFi!");
-            ready = false;
+            log_e("Cannot connect to WiFi!");
+            m_status = NO_CONNECTION;
             return;
         }
         WiFi.disconnect();
         WiFi.reconnect();
         delay(REATTEMPT_DELAY);
     }
-    Serial.println("\nConnection Successful!\n");
+    log_i("Connection Successful!");
 
-#ifdef DEBUG
-    Serial.print("Sensor IP Address : ");
-    Serial.println(WiFi.localIP());
-	Serial.println();
-#endif
+    m_status = READY;
 
-    ready = true;
-
-    if (get_current_time() != RtcDateTime()) timeAvailable = true;
+    RtcDateTime testTime;
+    if (get_current_time(testTime) == SUCCESS) m_timeAvailable = true;
 }
 
 
-int SubmitterWiFi::submit_reading(SoilReading& soilReading) {
-    if (!is_ready()) return 0;
-    
+Submitter::OpStatus SubmitterWiFi::submit_reading(SoilReading& soilReading, int& responseCode) {
+    if (m_status == NO_CONNECTION) return STATUS_NO_CONNECTION;
+    if (m_status != READY) return STATUS_ERROR;
+
     String Link;
     Link = "https://" + String(SERVERNAME) + String(SUBMIT_RESOURCE);
     HTTPClient http;
     http.begin(Link);
     http.addHeader("Content-Type", "application/json");
 
-    DynamicJsonDocument data(32 + 1 * 170);     // based on this calculator https://arduinojson.org/v6/assistant/
-    
-    data["ID"] = SENSOR_ID;
-    
-    JsonArray dataArr = data.createNestedArray("data");
-    
-    JsonObject rowJson = dataArr.createNestedObject();
-    rowJson["timestamp"] = RtcDateTime_to_Str(RtcDateTime(soilReading.epoch));
-    rowJson["N"] = soilReading.soilData.nitrogen;
-    rowJson["P"] = soilReading.soilData.phosphorus;
-    rowJson["K"] = soilReading.soilData.kalium;
-    rowJson["pH"] = soilReading.soilData.pH;
-    rowJson["temp"] = soilReading.soilData.temperature;
-    rowJson["hum"] = soilReading.soilData.humidity;
-    rowJson["EC"] = soilReading.soilData.EC;
-    rowJson["salt"] = soilReading.soilData.salt;
-
+    DynamicJsonDocument data(32 + 1 * 256);     // based on this calculator https://arduinojson.org/v6/assistant/
+    populate(data, soilReading);
     String dataStr;
     serializeJson(data, dataStr);
     
@@ -83,65 +107,52 @@ int SubmitterWiFi::submit_reading(SoilReading& soilReading) {
     serializeJsonPretty(data, Serial);
 #endif
 
-    int responseCode = http.POST(dataStr);
+    responseCode = http.POST(dataStr);
 
     http.end();
 
-    return responseCode;
+    if (responseCode == 200) return SUCCESS;
+
+    return UPLOAD_FAILED;
 }
 
 
-int SubmitterWiFi::submit_reading(SoilDataTable& dataTable) {
-    if (!is_ready()) return 0;
-    
+Submitter::OpStatus SubmitterWiFi::submit_reading(SoilDataTable& dataTable, int& responseCode) {
+    if (m_status == NO_CONNECTION) return STATUS_NO_CONNECTION;
+    if (m_status != READY) return STATUS_ERROR;
+
     String Link;
     Link = "https://" + String(SERVERNAME) + String(SUBMIT_RESOURCE);
     HTTPClient http;
     http.begin(Link);
     http.addHeader("Content-Type", "application/json");
 
-    DynamicJsonDocument data(32 + dataTable.get_count() * 170);     // based on this calculator https://arduinojson.org/v6/assistant/
+    DynamicJsonDocument data(32 + dataTable.get_count() * 256);     // based on this calculator https://arduinojson.org/v6/assistant/
+    populate(data, dataTable);
+    String dataStr;
+    serializeJson(data, dataStr);
     
-    data["ID"] = SENSOR_ID;
-    
-    JsonArray dataArr = data.createNestedArray("data");
-    
-    uint16_t totalData = 0;
-    SoilReading* soilReadings;
-    dataTable.pop_all(soilReadings, totalData);
-    for (int i = 0; i < totalData; i++) {
-        SoilReading row = soilReadings[i];
+#ifdef DEBUG
+    serializeJsonPretty(data, Serial);
+#endif
 
-        JsonObject rowJson = dataArr.createNestedObject();
-        rowJson["timestamp"] = RtcDateTime_to_Str(RtcDateTime(row.epoch));
-        rowJson["N"] = row.soilData.nitrogen;
-        rowJson["P"] = row.soilData.phosphorus;
-        rowJson["K"] = row.soilData.kalium;
-        rowJson["pH"] = row.soilData.pH;
-        rowJson["temp"] = row.soilData.temperature;
-        rowJson["hum"] = row.soilData.humidity;
-        rowJson["EC"] = row.soilData.EC;
-        rowJson["salt"] = row.soilData.salt;
+    responseCode = http.POST(dataStr);
+
+    http.end();
+
+    if (responseCode == 200) {
+        dataTable.clear();
+        return SUCCESS;
     }
 
-    delete[] soilReadings;
-
-    String dataStr;
-    serializeJson(data, dataStr);
-    
-#ifdef DEBUG
-    serializeJsonPretty(data, Serial);
-#endif
-
-    int responseCode = http.POST(dataStr);
-
-    http.end();
-
-    return responseCode;
+    return UPLOAD_FAILED;
 }
 
 
-RtcDateTime SubmitterWiFi::get_current_time() {
+Submitter::OpStatus SubmitterWiFi::get_current_time(RtcDateTime& time) {
+    if (m_status == NO_CONNECTION) return STATUS_NO_CONNECTION;
+    if (m_status != READY) return STATUS_ERROR;
+
     WiFiUDP ntpUDP;
     NTPClient timeClient(ntpUDP, "pool.ntp.org", 7*3600);
     timeClient.begin();
@@ -149,7 +160,8 @@ RtcDateTime SubmitterWiFi::get_current_time() {
     for(int attempts = 0; !timeClient.update(); attempts++) {
         Serial.println("Cannot update time from network!");
         if (attempts >= MAX_REATTEMPT) {
-            return RtcDateTime();
+            time = RtcDateTime();
+            return STATUS_NO_TIME;
         }
         Serial.println("Re-attempt time update... (re-attempt: " + String(attempts) + ")");
         
@@ -157,65 +169,72 @@ RtcDateTime SubmitterWiFi::get_current_time() {
     }
     
     uint32_t epoch = timeClient.getEpochTime();
-    RtcDateTime now;
-    now.InitWithUnix32Time(epoch);
-    return now;
+    time.InitWithUnix32Time(epoch);
+    return SUCCESS;
+}
+
+
+void SubmitterWiFi::sleep() {
+    WiFi.disconnect(true);
+    WiFi.mode(WIFI_OFF);
+}
+
+
+void SubmitterWiFi::wakeup() {
+    WiFi.disconnect(false);
+    WiFi.mode(WIFI_STA);
 }
 
 
 // ---------------------------- Submitter GSM ------------------------------
 SubmitterGSM::SubmitterGSM(int rx, int tx, int HWSerialNum)
-        : serialAT(HWSerialNum), modem(serialAT) {
-    serialAT.begin(BAUDRATE, SERIAL_8N1, rx, tx);
-    if (!modem.init()) {
+        : m_serialAT(HWSerialNum), m_modem(m_serialAT) {
+    m_serialAT.begin(BAUDRATE, SERIAL_8N1, rx, tx);
+    wakeup();
+    if (!m_modem.init()) {
         Serial.println("Fatal Error! Failed to init GSM module!");
+        m_status = NO_CONNECTION;
         return;
     }
-    if (!modem.waitForNetwork()) {
+    if (!m_modem.waitForNetwork()) {
         Serial.println("Fatal Error! Cannot connect to Network!");
+        m_status = NO_CONNECTION;
         return;
     }
-    if (!modem.gprsConnect(apn, gprsUser, gprsPass)) {
+    if (!m_modem.gprsConnect(APN, GPRS_USER, GPRS_PASS)) {
         Serial.println("Fatal Error! Cannot connect to GPRS!");
+        m_status = NO_CONNECTION;
         return;
     }
-    ready = modem.isGprsConnected();
 
-    if (get_current_time() != RtcDateTime()) timeAvailable = true;
+    if (!m_modem.isGprsConnected()) {
+        m_status = NO_CONNECTION;
+        return;
+    }
+
+    m_status = READY;
+    RtcDateTime testTime;
+    if (get_current_time(testTime) == SUCCESS) m_timeAvailable = true;
 }
 
 
-int SubmitterGSM::submit_reading(SoilReading& soilReading) {
-    if (!is_ready()) return 0;
+Submitter::OpStatus SubmitterGSM::submit_reading(SoilReading& soilReading, int& responseCode) {
+    if (m_status == NO_CONNECTION) return STATUS_NO_CONNECTION;
+    if (m_status != READY) return STATUS_ERROR;
     
     String Link;
     Link = "https://" + String(SERVERNAME) + String(SUBMIT_RESOURCE);
     // Link = "http://" + String(SERVERNAME) + "/Sensor/kirimdata.php";
 
     // try ping first
-    TinyGsmClientSecure client = TinyGsmClientSecure(modem);
+    TinyGsmClientSecure client = TinyGsmClientSecure(m_modem);
     if (!client.connect(SERVERNAME, PORT)) {
         Serial.println("Fatal Error! Server is down!");
-        return 0;
+        return UPLOAD_FAILED;
     }
 
-    DynamicJsonDocument data(32 + 1 * 170);     // based on this calculator https://arduinojson.org/v6/assistant/
-    
-    data["ID"] = SENSOR_ID;
-    
-    JsonArray dataArr = data.createNestedArray("data");
-    
-    JsonObject rowJson = dataArr.createNestedObject();
-    rowJson["timestamp"] = RtcDateTime_to_Str(RtcDateTime(soilReading.epoch));
-    rowJson["N"] = soilReading.soilData.nitrogen;
-    rowJson["P"] = soilReading.soilData.phosphorus;
-    rowJson["K"] = soilReading.soilData.kalium;
-    rowJson["pH"] = soilReading.soilData.pH;
-    rowJson["temp"] = soilReading.soilData.temperature;
-    rowJson["hum"] = soilReading.soilData.humidity;
-    rowJson["EC"] = soilReading.soilData.EC;
-    rowJson["salt"] = soilReading.soilData.salt;
-
+    DynamicJsonDocument data(32 + 1 * 256);     // based on this calculator https://arduinojson.org/v6/assistant/
+    populate(data, soilReading);
     String dataStr;
     serializeJson(data, dataStr);
 
@@ -232,69 +251,33 @@ int SubmitterGSM::submit_reading(SoilReading& soilReading) {
     client.println();
     client.println(dataStr);
 
-    // Wait for data to arrive
-    uint32_t startS = millis();
-    while (client.connected() && !client.available() && millis() - startS < 30000L) {
-        delay(100);
-    };
-
-    // Read data
-    char responseCodeStr[4] = "";
-    if (client.connected() && client.available()) {
-        char c;
-        for(int i = 0; i < 9; i++) c = client.read();   // skip "HTTP/1.1 "
-        for(int i = 0; i < 3; i++) responseCodeStr[i] = client.read();
-        responseCodeStr[3] = '\0';
-    }
-
-    int responseCode = atoi(responseCodeStr);
+    responseCode = get_response_code(client);
 
     client.stop();
 
-    return responseCode;
+    if (responseCode == 200) return SUCCESS;
+
+    return UPLOAD_FAILED;
 }
 
 
-int SubmitterGSM::submit_reading(SoilDataTable& dataTable) {
-    if (!is_ready()) return 0;
+Submitter::OpStatus SubmitterGSM::submit_reading(SoilDataTable& dataTable, int& responseCode) {
+    if (m_status == NO_CONNECTION) return STATUS_NO_CONNECTION;
+    if (m_status != READY) return STATUS_ERROR;
     
     String Link;
     Link = "https://" + String(SERVERNAME) + String(SUBMIT_RESOURCE);
     // Link = "http://" + String(SERVERNAME) + "/Sensor/kirimdata.php";
 
     // try ping first
-    TinyGsmClientSecure client = TinyGsmClientSecure(modem);
+    TinyGsmClientSecure client = TinyGsmClientSecure(m_modem);
     if (!client.connect(SERVERNAME, PORT)) {
         Serial.println("Fatal Error! Server is down!");
-        return 0;
+        return UPLOAD_FAILED;
     }
 
-    DynamicJsonDocument data(32 + dataTable.get_count() * 170);     // based on this calculator https://arduinojson.org/v6/assistant/
-    
-    data["ID"] = SENSOR_ID;
-    
-    JsonArray dataArr = data.createNestedArray("data");
-    
-    uint16_t totalData = 0;
-    SoilReading* soilReadings;
-    dataTable.pop_all(soilReadings, totalData);
-    for (int i = 0; i < totalData; i++) {
-        SoilReading row = soilReadings[i];
-
-        JsonObject rowJson = dataArr.createNestedObject();
-        rowJson["timestamp"] = RtcDateTime_to_Str(RtcDateTime(row.epoch));
-        rowJson["N"] = row.soilData.nitrogen;
-        rowJson["P"] = row.soilData.phosphorus;
-        rowJson["K"] = row.soilData.kalium;
-        rowJson["pH"] = row.soilData.pH;
-        rowJson["temp"] = row.soilData.temperature;
-        rowJson["hum"] = row.soilData.humidity;
-        rowJson["EC"] = row.soilData.EC;
-        rowJson["salt"] = row.soilData.salt;
-    }
-
-    delete[] soilReadings;
-
+    DynamicJsonDocument data(32 + dataTable.get_count() * 256);     // based on this calculator https://arduinojson.org/v6/assistant/
+    populate(data, dataTable);
     String dataStr;
     serializeJson(data, dataStr);
     
@@ -311,34 +294,59 @@ int SubmitterGSM::submit_reading(SoilDataTable& dataTable) {
     client.println();
     client.println(dataStr);
 
-    // Wait for data to arrive
-    uint32_t startS = millis();
-    while (client.connected() && !client.available() && millis() - startS < 30000L) {
-        delay(100);
-    };
-
-    // Read data
-    char responseCodeStr[4] = "";
-    if (client.connected() && client.available()) {
-        char c;
-        for(int i = 0; i < 9; i++) c = client.read();   // skip "HTTP/1.1 "
-        for(int i = 0; i < 3; i++) responseCodeStr[i] = client.read();
-        responseCodeStr[3] = '\0';
-    }
-
-    int responseCode = atoi(responseCodeStr);
+    responseCode = get_response_code(client);
 
     client.stop();
 
-    return responseCode;
+    if (responseCode == 200) {
+        dataTable.clear();
+        return SUCCESS;
+    }
+
+    return UPLOAD_FAILED;
 }
 
 
-RtcDateTime SubmitterGSM::get_current_time() {
+Submitter::OpStatus SubmitterGSM::get_current_time(RtcDateTime& time) {
+    if (m_status == NO_CONNECTION) return STATUS_NO_CONNECTION;
+    if (m_status != READY) return STATUS_ERROR;
+
     int year, month, dayOfMonth, hour, minute, second;
     float timezone = 0;
-    if (modem.getNetworkTime(&year, &month, &dayOfMonth, &hour, &minute, &second, &timezone))
-        return RtcDateTime(year, month, dayOfMonth, hour+timezone, minute, second);
+    if (m_modem.getNetworkTime(&year, &month, &dayOfMonth, &hour, &minute, &second, &timezone)) {
+        time = RtcDateTime(year, month, dayOfMonth, hour, minute, second);
+        return SUCCESS;
+    }
 
-    return RtcDateTime(0);
+    time = RtcDateTime(0);
+    return STATUS_NO_TIME;
+}
+
+
+void SubmitterGSM::sleep() {
+    m_modem.sendAT(GF("+CSCLK=2"));
+}
+
+
+void SubmitterGSM::wakeup() {
+    m_modem.sendAT();
+    m_modem.sleepEnable(false);
+}
+
+
+int get_response_code(TinyGsmClientSecure& client) {
+    // Wait for data to arrive
+    uint32_t startS = millis();
+    while (client.connected() && !client.available() && millis() - startS < 30000L) delay(100);
+
+    // Read data
+    char responseCodeStr[4] = "";
+    if (client.connected() && client.available()) {
+        char c = '\0';
+        while(' ' != client.read());    // skip "HTTP/1.1 "
+        for(int i = 0; i < 3; i++) responseCodeStr[i] = client.read();      // get 3 digit code
+        responseCodeStr[3] = '\0';
+    }
+
+    return atoi(responseCodeStr);
 }

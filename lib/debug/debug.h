@@ -9,53 +9,61 @@
 
 
 class Logger {
-// CLASS PARAMETERS
 public:
-    enum ErrorCodes {
+    // class status codes
+    enum Status {
+        READY,
+        LITTLEFS_FAILED,
+        PRINT_MODE,
+        NO_DEBUG,
+        UNKNOWN_ERROR,
+    };
+
+    // operation status codes
+    enum OpStatus {
         SUCCESS,
         OPEN_FAILED,
         WRITE_FAILED,
         READ_FAILED,
         EMPTY_FILE,
-        LITTLEFS_FAILED,
-        PRINT_MODE,
         DEBUG_INACTIVE,
-        UNKNOWN_ERROR,
+        STATUS_PRINT_MODE,
+        STATUS_ERROR,
     };
 
 
 private:
-    enum SoilDataTableParams {
+    enum LoggerParams {
         MAX_COUNT = 10000,
-        JSON_ENTRY_SIZE = 256,
+        JSON_ENTRY_SIZE = 512,
     };
 
 
 // CLASS ATTRIBUTES AND METHODS
 private:
-    static const char filename[];
-    fs::LittleFSFS filesystem = LittleFS;
-    TimeClass& timekeeper;
+    static const char m_filename[];
+    fs::LittleFSFS& m_filesystem = LittleFS;
+    TimeClass& m_timekeeper;
     
-    bool ready = false;
-    bool printMode = false;
+    Status m_status = UNKNOWN_ERROR;
+    // bool m_printMode = false;
 
     void print(const String& time, const String& level, const String& msg);
 
 
 public:
-    Logger(TimeClass&, bool printMode=false);
-    ErrorCodes show();
-    ErrorCodes clear();
-    bool is_ready();
+    Logger(TimeClass& timeClass, bool printMode=false);
+    OpStatus show();
+    OpStatus clear();
+    Status status();
     bool is_print_mode();
     
-    ErrorCodes log(const String& level, const String& msg);
-    ErrorCodes log_E(const String& msg);
-    ErrorCodes log_W(const String& msg);
-    ErrorCodes log_I(const String& msg);
-    ErrorCodes log_D(const String& msg);
-    ErrorCodes log_V(const String& msg);
+    OpStatus log(const String& level, const String& msg);
+    OpStatus log_E(const String& msg);
+    OpStatus log_W(const String& msg);
+    OpStatus log_I(const String& msg);
+    OpStatus log_D(const String& msg);
+    OpStatus log_V(const String& msg);
 
 
 };

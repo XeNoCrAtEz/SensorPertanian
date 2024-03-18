@@ -5,9 +5,10 @@
 #include "display.h"
 
 #include "timeClass.h"
+#include "debug.h"
 
 
-void sleep(TimeClass& time);
+void sleep(TimeClass& time, Logger& logger);
 uint64_t get_sleep_seconds(TimeClass& time);
 
 

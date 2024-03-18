@@ -55,4 +55,22 @@ public:
 };
 
 
+class SoilReading {
+public:
+    uint32_t m_epoch;         // seconds from 2000
+    SoilData m_soilData;
+
+
+    SoilReading()
+            : m_soilData{}, m_epoch{0} {}
+    SoilReading(const SoilData& data, const uint32_t& epch)
+            : m_soilData{data}, m_epoch{epch} { }
+
+    bool operator==(const SoilReading& s2) {
+        return m_soilData == s2.m_soilData &&
+                m_epoch == s2.m_epoch;
+    }
+};
+
+
 #endif

@@ -1,31 +1,32 @@
 #include "dataTable.h"
 
 
-const char SoilDataTable::filename[17] = "/soilReading.bin";
+const char SoilDataTable::m_filename[17] = "/soilReading.bin";
 
 
 SoilDataTable::SoilDataTable() {
-    if (!filesystem.begin()) {
+    if (!m_filesystem.begin()) {
         Serial.println("LittleFS Mount Failed!");
+        m_status = LITTLEFS_FAILED;
         return;
     }
 
-    File file = filesystem.open(filename, FILE_READ, true);
+    File file = m_filesystem.open(m_filename, FILE_READ, true);
     if (!file) Serial.println("File not found! \"soilReading.bin\" created!");
 
-    ready = true;
+    m_status = READY;
 }
 
 
-bool SoilDataTable::is_ready() {
-    return ready;
+SoilDataTable::Status SoilDataTable::status() {
+    return m_status;
 }
 
 
-SoilDataTable::ErrorCodes SoilDataTable::push(const SoilReading &soilReading) {
-    if (!is_ready()) return LITTLEFS_FAILED;
+SoilDataTable::OpStatus SoilDataTable::push(const SoilReading &soilReading) {
+    if (!status()) return STATUS_ERROR;
 
-    File file = filesystem.open(filename, FILE_APPEND);
+    File file = m_filesystem.open(m_filename, FILE_APPEND);
     if (!file) return OPEN_FAILED;
 
     if (!file.write(reinterpret_cast<const uint8_t*>(&soilReading), sizeof(SoilReading))) return WRITE_FAILED;
@@ -34,10 +35,10 @@ SoilDataTable::ErrorCodes SoilDataTable::push(const SoilReading &soilReading) {
 }
 
 
-SoilDataTable::ErrorCodes SoilDataTable::pop(SoilReading& soilReading) {
-    if (!is_ready()) return LITTLEFS_FAILED;
+SoilDataTable::OpStatus SoilDataTable::pop(SoilReading& soilReading) {
+    if (status() != READY) return STATUS_ERROR;
 
-    File file = filesystem.open(filename, FILE_READ);
+    File file = m_filesystem.open(m_filename, FILE_READ);
     if (!file) return OPEN_FAILED;
 
     if (is_empty()) return EMPTY_FILE;
@@ -50,10 +51,28 @@ SoilDataTable::ErrorCodes SoilDataTable::pop(SoilReading& soilReading) {
 }
 
 
-SoilDataTable::ErrorCodes SoilDataTable::pop_all(SoilReading* &soilReadings, uint16_t& count) {
-    if (!is_ready()) return LITTLEFS_FAILED;
+SoilDataTable::OpStatus SoilDataTable::load_all(SoilReading* &soilReadings, uint16_t& count) {
+    if (status() != READY) return STATUS_ERROR;
     
-    File file = filesystem.open(filename, FILE_READ);
+    File file = m_filesystem.open(m_filename, FILE_READ);
+    if (!file) return OPEN_FAILED;
+
+    if (is_empty()) return EMPTY_FILE;
+
+    count = get_count();
+    soilReadings = new SoilReading[count];
+
+    for (uint16_t i = 0; i < count; i++)
+        if (!file.read(reinterpret_cast<uint8_t*>(&soilReadings[i]), sizeof(SoilReading))) return READ_FAILED;
+
+    return SUCCESS;
+}
+
+
+SoilDataTable::OpStatus SoilDataTable::pop_all(SoilReading* &soilReadings, uint16_t& count) {
+    if (status() != READY) return STATUS_ERROR;
+    
+    File file = m_filesystem.open(m_filename, FILE_READ);
     if (!file) return OPEN_FAILED;
 
     if (is_empty()) return EMPTY_FILE;
@@ -71,19 +90,19 @@ SoilDataTable::ErrorCodes SoilDataTable::pop_all(SoilReading* &soilReadings, uin
 
 
 uint32_t SoilDataTable::get_count() {
-    if (!is_ready()) return LITTLEFS_FAILED;
+    if (status() != READY) return STATUS_ERROR;
 
-    File file = filesystem.open(filename, FILE_READ);
+    File file = m_filesystem.open(m_filename, FILE_READ);
     if (!file) return 0;
 
     return file.size() / sizeof(SoilReading);
 }
 
 
-SoilDataTable::ErrorCodes SoilDataTable::clear() {
-    if (!is_ready()) return LITTLEFS_FAILED;
+SoilDataTable::OpStatus SoilDataTable::clear() {
+    if (status() != READY) return STATUS_ERROR;
     
-    File file = filesystem.open(filename, FILE_WRITE);
+    File file = m_filesystem.open(m_filename, FILE_WRITE);
     if (!file) return OPEN_FAILED;
 
     return SUCCESS;
@@ -91,9 +110,9 @@ SoilDataTable::ErrorCodes SoilDataTable::clear() {
 
 
 bool SoilDataTable::is_empty() {
-    if (!is_ready()) return LITTLEFS_FAILED;
+    if (status() != READY) return STATUS_ERROR;
 
-    File file = filesystem.open(filename, FILE_READ);
+    File file = m_filesystem.open(m_filename, FILE_READ);
     if (!file) return false;
 
     if (file.size() == 0) return true;
@@ -103,9 +122,9 @@ bool SoilDataTable::is_empty() {
 
 
 bool SoilDataTable::is_full() {
-    if (!is_ready()) return LITTLEFS_FAILED;
+    if (status() != READY) return STATUS_ERROR;
     
-    File file = filesystem.open(filename, FILE_READ);
+    File file = m_filesystem.open(m_filename, FILE_READ);
     if (!file) return false;
 
     if (get_count() >= MAX_COUNT) return true;
