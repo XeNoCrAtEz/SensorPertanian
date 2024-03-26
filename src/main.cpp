@@ -3,8 +3,8 @@
 #include "LoRa.h"
 // Define the pins used by the transceiver module
 #define ss 5
-#define rst 14
-#define dio0 2
+#define rst 22
+#define dio0 21
 
 // Define the frequencies for the two transmitters
 #define frequency1 433E6
