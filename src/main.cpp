@@ -1,26 +1,31 @@
 #include "main.h"
+#include <SPI.h>
+#include <LoRa.h>
 
-
-#include "LoRa.h"
-#include "LoRa.h"
-
-// define the pins used by the transceiver module
+// define the pins used by the first transceiver module
 #define ss 5
 #define rst 14
 #define dio0 2
 
-// define the frequencies for the two transmitters
-#define frequency1 433E6
-#define frequency2 433E6
-
 int counter = 0;
-bool useFrequency1 = true; // flag to switch between frequencies
-
-
-
 void setup() {
     // begin USB Serial
     Serial.begin(115200);
+    while (!Serial);
+  Serial.println("LoRa Sender 1");
+
+  // setup LoRa transceiver module
+  LoRa.setPins(ss, rst, dio0);
+
+  // replace the LoRa.begin(---E-) argument with your location's frequency 
+  // 433E6 for Asia, 866E6 for Europe, 915E6 for North America
+  while (!LoRa.begin(433E6)) {
+    Serial.println(".");
+    delay(500);
+  }
+  LoRa.setSyncWord(0xF3);
+  Serial.println("LoRa Initializing OK!");
+
 
 log_i("Starting Sensor-%d", SENSOR_ID);
 log_i("Logging will not start until RTC, Submitter, and TimeClass are initialized.");
@@ -33,21 +38,6 @@ log_i("Using WiFi.");
     SubmitterGSM submitter(PIN_GSM_RX, PIN_GSM_TX);
 log_i("Using GSM.");
 #endif
-
-// setup LoRa transceiver module
-  LoRa.setPins(ss, rst, dio0);
-  
-  // initialize the first frequency
-  if (!LoRa.begin(frequency1)) {
-    Serial.println("Error initializing LoRa");
-    while (1);
-  }
-  LoRa.setSyncWord(0xF3);
-  Serial.println("LoRa Initializing OK!");
-
-
-
-
 
     TimeClass timeClass = TimeClass(rtc, submitter);
     Logger logger = Logger(timeClass);
@@ -76,41 +66,6 @@ logger.log_I("Initialized probe type: KHDTK");
     ProbeNew probe(PIN_PROBE_RX, PIN_PROBE_TX);
 logger.log_I("Initialized probe type: NEW");
 #endif
-
-
-
-// switch between frequencies in each iteration
-  if (useFrequency1) {
-    LoRa.setFrequency(frequency1);
-  } else {
-    LoRa.setFrequency(frequency2);
-  }
-
-  // try to parse packet
-  int packetSize = LoRa.parsePacket();
-  
-  if (packetSize) {
-    // received a packet
-    if (useFrequency1) {
-      Serial.print("Received packet from transmitter 1: '");
-    } else {
-      Serial.print("Received packet from transmitter 2: '");
-    }
-    
-    while (LoRa.available()) {
-      String LoRaData = LoRa.readString();
-      Serial.print(LoRaData); 
-    }
-    
-    Serial.print("' with Kelompok TE 1 ");
-    Serial.println(LoRa.packetRssi());
-    
-    // switch the flag for the next iteration
-    useFrequency1 = !useFrequency1;
-  }
-
-
-
 
     SoilData soilData;
     Probe::ErrorCodes probeErr = probe.sample(soilData);
@@ -155,9 +110,50 @@ logger.log_I("Display cleared.");
 logger.log_I("Sleeping...");
     sleep(timeClass);
 }
-
-
 void loop()
 {
 }
 
+#include <SPI.h>
+#include <LoRa.h>
+
+// define the pins used by the first transceiver module
+#define ss 5
+#define rst 14
+#define dio0 2
+
+int counter = 0;
+
+void setup() {
+  // initialize Serial Monitor
+  Serial.begin(115200);
+  while (!Serial);
+  Serial.println("LoRa Sender 1");
+
+  // setup LoRa transceiver module
+  LoRa.setPins(ss, rst, dio0);
+
+  // replace the LoRa.begin(---E-) argument with your location's frequency 
+  // 433E6 for Asia, 866E6 for Europe, 915E6 for North America
+  while (!LoRa.begin(433E6)) {
+    Serial.println(".");
+    delay(500);
+  }
+  LoRa.setSyncWord(0xF3);
+  Serial.println("LoRa Initializing OK!");
+}
+
+void loop() {
+  Serial.print("Sending packet from Sender 1: ");
+  Serial.println(counter);
+
+  // Send LoRa packet to receiver
+  LoRa.beginPacket();
+  LoRa.print(" ");
+  LoRa.print(counter);
+  LoRa.endPacket();
+
+  counter++;
+
+  delay(2000);
+}
