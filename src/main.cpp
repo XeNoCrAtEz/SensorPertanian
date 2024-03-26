@@ -29,7 +29,37 @@ void setup() {
   }
   LoRa.setSyncWord(0xF3);
   Serial.println("LoRa Initializing OK!");
-//}
+}
+void loop() {
+  // switch between frequencies in each iteration
+  if (useFrequency1) {
+    LoRa.setFrequency(frequency1);
+  } else {
+    LoRa.setFrequency(frequency2);
+  }
+
+  // try to parse packet
+  int packetSize = LoRa.parsePacket();
+  
+  if (packetSize) {
+    // received a packet
+    if (useFrequency1) {
+      Serial.print("Received packet from transmitter 1: '");
+    } else {
+      Serial.print("Received packet from transmitter 2: '");
+    }
+    
+    while (LoRa.available()) {
+      String LoRaData = LoRa.readString();
+      Serial.print(LoRaData); 
+    }
+    
+    Serial.print("' with Kelompok TE 1 ");
+    Serial.println(LoRa.packetRssi());
+    
+    // switch the flag for the next iteration
+    useFrequency1 = !useFrequency1;
+  }
 //void setup() {
 //    // begin USB Serial
 //    Serial.begin(115200);
