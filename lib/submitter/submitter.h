@@ -15,6 +15,24 @@
 
 
 class Submitter {
+public:
+    // class status codes
+    enum Status {
+        READY,
+        NO_CONNECTION,
+        UNKNOWN_ERROR,
+    };
+
+    // operation status codes
+    enum OpStatus {
+        SUCCESS,
+        STATUS_NO_CONNECTION,
+        STATUS_NO_TIME,
+        UPLOAD_FAILED,
+        STATUS_ERROR,
+    };
+
+
 protected:
     enum SubmitterParams {
         MAX_REATTEMPT = 10,
@@ -26,18 +44,20 @@ protected:
     const uint16_t PORT = 443;
     const char SUBMIT_RESOURCE[25] = "/Sensor/store_Sensor.php";
 
-    bool ready = false;
-    bool timeAvailable = false;
+    Status m_status = UNKNOWN_ERROR;
+    bool m_timeAvailable = false;
 
 
 public:
-    virtual int submit_reading(SoilReading& soilReading) = 0;
-    virtual int submit_reading(SoilDataTable& dataTable) = 0;
+    virtual OpStatus submit_reading(SoilReading& soilReading, int& responseCode) = 0;
+    virtual OpStatus submit_reading(SoilDataTable& dataTable, int& responseCode) = 0;
 
-    virtual RtcDateTime get_current_time() = 0;
+    virtual OpStatus get_current_time(RtcDateTime& time) = 0;
+    virtual void wakeup() = 0;
+    virtual void sleep() = 0;
     bool is_time_available();
 
-    bool is_ready();
+    Status status();
 
 
 };
@@ -51,10 +71,13 @@ private:
 
 public:
     SubmitterWiFi();
-    int submit_reading(SoilReading& soilReading);
-    int submit_reading(SoilDataTable& dataTable);
 
-    RtcDateTime get_current_time();
+    OpStatus submit_reading(SoilReading& soilReading, int& responseCode) override;
+    OpStatus submit_reading(SoilDataTable& dataTable, int& responseCode) override;
+
+    OpStatus get_current_time(RtcDateTime& time) override;
+    void wakeup() override;
+    void sleep() override;
 
 
 };
@@ -70,23 +93,30 @@ private:
         BAUDRATE = 115200,
     };
 
-    const char apn[14] = "internet"; // APN Telkomsel IoT
-    const char gprsUser[1] = "";
-    const char gprsPass[1] = "";
+    const char APN[14] = "m2minternet"; // APN Telkomsel IoT
+    const char GPRS_USER[1] = "";
+    const char GPRS_PASS[1] = "";
 
-    HardwareSerial serialAT;
-    TinyGsm modem;
+    HardwareSerial m_serialAT;
+    TinyGsm m_modem;
 
 
 public:
     SubmitterGSM(int rx, int tx, int HWSerialNum=1);
-    int submit_reading(SoilReading& soilReading);
-    int submit_reading(SoilDataTable& dataTable);
 
-    RtcDateTime get_current_time();
+    OpStatus submit_reading(SoilReading& soilReading, int& responseCode) override;
+    OpStatus submit_reading(SoilDataTable& dataTable, int& responseCode) override;
+
+    OpStatus get_current_time(RtcDateTime& time) override;
+    void wakeup() override;
+    void sleep() override;
 
 
 };
 
+
+void populate(DynamicJsonDocument& json, const SoilReading& soilReading);
+void populate(DynamicJsonDocument& json, SoilDataTable& SoilReadings);
+int get_response_code(TinyGsmClientSecure& client);
 
 #endif

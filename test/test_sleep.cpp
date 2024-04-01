@@ -3,16 +3,13 @@
 #include "sleep.h"
 
 
-const int PIN_RTC_RST  = 12;
-const int PIN_RTC_DATA = 13;
-const int PIN_RTC_CLK  = 15;
-
-const int PIN_SCREEN_SDA = 5;
-const int PIN_SCREEN_SCL = 4;
+const uint8_t PIN_RTC_RST  = 14;
+const uint8_t PIN_RTC_DATA = 27;
+const uint8_t PIN_RTC_CLK  = 26;
 
 #ifdef USE_GSM
-const int PIN_GSM_RX = 1;
-const int PIN_GSM_TX = 1;
+const uint8_t PIN_GSM_RX = 2;
+const uint8_t PIN_GSM_TX = 4;
 #endif
 
 
@@ -29,7 +26,9 @@ log_i("Using GSM.");
 
     TimeClass testTimeClass = TimeClass(testRTC, testSubmitter);
 
-    sleep(testTimeClass);
+    Logger logger = Logger(testTimeClass);
+
+    sleep(testTimeClass, logger);
 }
 
 

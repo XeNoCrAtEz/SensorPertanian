@@ -20,9 +20,17 @@
 
 class Display {
 public:
-    enum ErrorCodes {
+    // class status codes
+    enum Status {
+        READY,
         DISPLAY_FAILED,
-        DISPLAY_OK,
+        UNKNOWN_ERROR,
+    };
+
+    // operation status codes
+    enum OpStatus {
+        SUCCESS,
+        STATUS_ERROR,
     };
 
 
@@ -32,7 +40,7 @@ private:
     const uint8_t SCREEN_ADDR;
 
     Adafruit_SSD1306 m_disp;
-    ErrorCodes m_status;
+    Status m_status = UNKNOWN_ERROR;
 
 
 public:    
@@ -41,10 +49,10 @@ public:
             uint8_t w=128, uint8_t h=64, uint8_t addr=0x3C,
             TwoWire *twi=&Wire, int8_t rstpin=-1
         );
-    ErrorCodes isOK();
-    ErrorCodes display_splash_screen();
-    ErrorCodes display_data(const SoilData& soilData);
-    ErrorCodes clear_display();
+    Status status();
+    OpStatus display_splash_screen();
+    OpStatus display_data(const SoilData& soilData);
+    OpStatus clear_display();
 };
 
 
