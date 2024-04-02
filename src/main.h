@@ -11,6 +11,8 @@
 #include "sleep.h"
 #include "voltageMonitor.h"
 #include "switch.h"
+#include "SPI.h"
+#include "LoRa.h"
 
 #include "pin_assignment.h"
 
@@ -26,6 +28,13 @@ const float PROCESS_NOISE = 0.01;
 
 const uint8_t GSM_HW_SERIAL_NUM = 1;
 const uint8_t OTHER_HW_SERIAL_NUM = 2;
+
+// Define the frequencies for the two transmitters
+const uint32_t LoRaTransmitterFreq1 = 433E6;
+const uint32_t LoRaTransmitterFreq2 = 433E6;
+
+const bool useFrequency1 = true; // Flag to switch between frequencies
+
 
 
 // pre-define DEBUG when compiling to enable debug

@@ -6,6 +6,7 @@
 #include "LoRa.h"
 
 
+
 class LoRaModule : public LoRaClass {
 public:
     // class status codes

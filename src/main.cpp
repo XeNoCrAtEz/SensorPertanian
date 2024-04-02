@@ -1,39 +1,24 @@
 #include "main.h"
-#include "SPI.h"
-#include "LoRa.h"
-// Define the pins used by the transceiver module
-#define ss 5
-#define rst 14
-#define dio0 2
 
-// Define the frequencies for the two transmitters
-#define frequency1 433E6
-#define frequency2 433E6
 
 int counter = 0;
-bool useFrequency1 = true; // Flag to switch between frequencies
-
 
 void setup() {
-  // Initialize Serial Monitor
-  Serial.begin(115200);
-  while (!Serial);
-  Serial.println("LoRa Receiver");
+    // Initialize Serial Monitor
+    Serial.begin(115200);
+    while (!Serial);
+    Serial.println("LoRa Receiver");
 
-  // Setup LoRa transceiver module
-  LoRa.setPins(ss, rst, dio0);
+    // Setup LoRa transceiver module
+    LoRa.setPins(PIN_LORA_NSS, PIN_LORA_RST, PIN_LORA_DIO0);
 
-  // Initialize the first frequency
-  if (!LoRa.begin(frequency1)) {
-    Serial.println("Error initializing LoRa");
-    while (1);
-  }
-  LoRa.setSyncWord(0xF3);
-  Serial.println("LoRa Initializing OK!");
-//}
-//void setup() {
-//    // begin USB Serial
-//    Serial.begin(115200);
+    // Initialize the first frequency
+    if (!LoRa.begin(useFrequency1)) {
+        Serial.println("Error initializing LoRa");
+        while (1);
+    }
+    LoRa.setSyncWord(0xF3);
+    Serial.println("LoRa Initializing OK!");
 
     BatteryMonitor battMon(
         PIN_VOLT_BAT, ESP32_REF_VOLTAGE, VOLT_MON_DIVIDER_RATIO,
