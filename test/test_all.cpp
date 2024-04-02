@@ -35,9 +35,9 @@ void setup() {
     // test_probe();
     // test_rtc();
     // test_submitter();
-    // test_logger();
+    test_logger();
     // test_soil_data();
-    test_time_class();
+    // test_time_class();
     // test_sleep();
 
     UNITY_END();

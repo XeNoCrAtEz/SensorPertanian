@@ -7,7 +7,11 @@ void setup() {
 
     BatteryMonitor battMon(
         PIN_VOLT_BAT, ESP32_REF_VOLTAGE, VOLT_MON_DIVIDER_RATIO,
+#ifdef TAHAP_1
+        MIN_VOLT_LIPO, MAX_VOLT_LIPO,
+#else
         2*MIN_VOLT_LIPO, 2*MAX_VOLT_LIPO,                           // using 2S battery
+#endif
         MEASUREMENT_UNCERTAINTY, ESTIMATION_UNCERTAINTY, PROCESS_NOISE);
     VoltageMonitor solarCellMon(
         PIN_VOLT_SC, ESP32_REF_VOLTAGE, VOLT_MON_DIVIDER_RATIO,

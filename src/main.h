@@ -14,8 +14,11 @@
 
 #include "pin_assignment.h"
 
-
+#ifdef TAHAP_1
+const float VOLT_MON_DIVIDER_RATIO = 2.0;
+#else
 const float VOLT_MON_DIVIDER_RATIO = 3.2;
+#endif
 
 const float MEASUREMENT_UNCERTAINTY = 1;
 const float ESTIMATION_UNCERTAINTY = 1;
