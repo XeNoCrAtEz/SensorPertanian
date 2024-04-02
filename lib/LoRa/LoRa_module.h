@@ -1,107 +1,116 @@
-#ifndef LoRa_h
-#define LoRa_h
+#ifndef __LoRa_H__
+#define __LoRa_H__
 
 #include "Arduino.h"
 #include <SPI.h>
-
-class LoRaClass {
-public:
-  LoRaClass();
-
-  int begin(long frequency);
-  void end();
-
-  int beginPacket();
-  int endPacket(bool async = false);
-  int parsePacket(int size = 0);
-  int packetRssi();
-  float packetSnr();
-
-  // ... (definisi metode lainnya)
-
-  size_t write(uint8_t byte);
-  size_t write(const uint8_t *buffer, size_t size);
-  
-  // ... (definisi metode lainnya)
-};
-
-extern LoRaClass LoRa;
-
-#endif
+#include "LoRa.h"
 
 
-#ifndef __DEBUG_H__
-#define __DEBUG_H__
-
-#include <Arduino.h>
-#include <LittleFS.h>
-#include <ArduinoJson.h>
-#include "soil_data.h"
-#include "timeClass.h"
-
-
-class Logger {
+class LoRaModule : public LoRaClass {
 public:
     // class status codes
     enum Status {
         READY,
-        LITTLEFS_FAILED,
-        PRINT_MODE,
-        NO_DEBUG,
         UNKNOWN_ERROR,
     };
 
     // operation status codes
     enum OpStatus {
         SUCCESS,
-        OPEN_FAILED,
-        WRITE_FAILED,
-        READ_FAILED,
-        EMPTY_FILE,
-        DEBUG_INACTIVE,
-        STATUS_PRINT_MODE,
         STATUS_ERROR,
     };
 
 
 private:
-    enum LoggerParams {
-        MAX_COUNT = 10000,
-        JSON_ENTRY_SIZE = 512,
+    enum LoRaParams {
+        // MAX_COUNT = 10000,
+        // JSON_ENTRY_SIZE = 512,
     };
 
 
 // CLASS ATTRIBUTES AND METHODS
-private:
-    static const char m_filename[];
-    fs::LittleFSFS& m_filesystem = LittleFS;
-    TimeClass& m_timekeeper;
-    
+private:    
     Status m_status = UNKNOWN_ERROR;
-    // bool m_printMode = false;
-
-    void print(const String& time, const String& level, const String& msg);
 
 
 public:
-    Logger(TimeClass& timeClass, bool printMode=false);
-    OpStatus show();
-    OpStatus clear();
+    LoRaModule();
+    virtual ~LoRaModule() noexcept = default;
     Status status();
-    bool is_print_mode();
-    
-    OpStatus log(const String& level, const String& msg);
-    OpStatus log_E(const String& msg);
-    OpStatus log_W(const String& msg);
-    OpStatus log_I(const String& msg);
-    OpStatus log_D(const String& msg);
-    OpStatus log_V(const String& msg);
 
 
 };
 
 
-extern Logger logger;
+class LoRaReceiver : public LoRaModule {
+public:
+    // class status codes
+    enum Status {
+        READY,
+        UNKNOWN_ERROR,
+    };
+
+    // operation status codes
+    enum OpStatus {
+        SUCCESS,
+        STATUS_ERROR,
+    };
+
+
+private:
+    enum LoRaParams {
+        // MAX_COUNT = 10000,
+        // JSON_ENTRY_SIZE = 512,
+    };
+
+
+// CLASS ATTRIBUTES AND METHODS
+private:
+    Status m_status = UNKNOWN_ERROR;
+
+
+public:
+    LoRaReceiver();
+    virtual ~LoRaReceiver() noexcept = default;
+    Status status();
+
+
+};
+
+
+class LoRaTransmitter : public LoRaModule {
+public:
+    // class status codes
+    enum Status {
+        READY,
+        UNKNOWN_ERROR,
+    };
+
+    // operation status codes
+    enum OpStatus {
+        SUCCESS,
+        STATUS_ERROR,
+    };
+
+
+private:
+    enum LoRaParams {
+        // MAX_COUNT = 10000,
+        // JSON_ENTRY_SIZE = 512,
+    };
+
+
+private:
+    Status m_status = UNKNOWN_ERROR;
+
+
+public:
+    LoRaTransmitter();
+    virtual ~LoRaTransmitter() noexcept = default;
+    Status status();
+
+
+};
 
 
 #endif
