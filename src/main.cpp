@@ -1,24 +1,9 @@
 #include "main.h"
 
 
-int counter = 0;
-
 void setup() {
     // Initialize Serial Monitor
     Serial.begin(115200);
-    while (!Serial);
-    Serial.println("LoRa Receiver");
-
-    // Setup LoRa transceiver module
-    LoRa.setPins(PIN_LORA_NSS, PIN_LORA_RST, PIN_LORA_DIO0);
-
-    // Initialize the first frequency
-    if (!LoRa.begin(useFrequency1)) {
-        Serial.println("Error initializing LoRa");
-        while (1);
-    }
-    LoRa.setSyncWord(0xF3);
-    Serial.println("LoRa Initializing OK!");
 
     BatteryMonitor battMon(
         PIN_VOLT_BAT, ESP32_REF_VOLTAGE, VOLT_MON_DIVIDER_RATIO,
@@ -77,10 +62,10 @@ void setup() {
 
     logger.log_I("Battery voltage: " + String(battMon.voltage()) + " mV (" + String(battMon.level()) + "%)");
     logger.log_I("Solar cell voltage: " + String(solarCellMon.voltage()) + " mV");
-    if (battMon.level() == 0) {
-        logger.log_E("Error! Battery depleted! Sleeping...");
-        sleep(timeClass, logger);
-    }
+    // if (battMon.level() == 0) {
+    //     logger.log_E("Error! Battery depleted! Sleeping...");
+    //     sleep(timeClass, logger);
+    // }
 
 #ifdef USE_DISPLAY
     if (display.status() != Display::READY) logger.log_E("Error! Display is not ready! Status: " + String(display.status()));
