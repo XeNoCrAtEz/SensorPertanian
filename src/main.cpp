@@ -30,7 +30,7 @@ void setup() {
 
     TimeClass timeClass = TimeClass(rtc, submitter);
 
-    Logger logger = Logger(timeClass, true);
+    Logger logger = Logger(timeClass);
 
 #ifdef USE_DISPLAY
     Display display(PIN_SCREEN_SDA, PIN_SCREEN_SCL);
