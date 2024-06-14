@@ -1,39 +1,9 @@
 #include "main.h"
-#include "SPI.h"
-#include "LoRa.h"
-// Define the pins used by the transceiver module
-#define ss 5
-#define rst 14
-#define dio0 2
-
-// Define the frequencies for the two transmitters
-#define frequency1 433E6
-#define frequency2 433E6
-
-int counter = 0;
-bool useFrequency1 = true; // Flag to switch between frequencies
 
 
 void setup() {
-  // Initialize Serial Monitor
-  Serial.begin(115200);
-  while (!Serial);
-  Serial.println("LoRa Receiver");
-
-  // Setup LoRa transceiver module
-  LoRa.setPins(ss, rst, dio0);
-
-  // Initialize the first frequency
-  if (!LoRa.begin(frequency1)) {
-    Serial.println("Error initializing LoRa");
-    while (1);
-  }
-  LoRa.setSyncWord(0xF3);
-  Serial.println("LoRa Initializing OK!");
-//}
-//void setup() {
-//    // begin USB Serial
-//    Serial.begin(115200);
+    // Initialize Serial Monitor
+    Serial.begin(115200);
 
     BatteryMonitor battMon(
         PIN_VOLT_BAT, ESP32_REF_VOLTAGE, VOLT_MON_DIVIDER_RATIO,
@@ -60,7 +30,7 @@ void setup() {
 
     TimeClass timeClass = TimeClass(rtc, submitter);
 
-    Logger logger = Logger(timeClass, true);
+    Logger logger = Logger(timeClass);
 
 #ifdef USE_DISPLAY
     Display display(PIN_SCREEN_SDA, PIN_SCREEN_SCL);
@@ -92,10 +62,10 @@ void setup() {
 
     logger.log_I("Battery voltage: " + String(battMon.voltage()) + " mV (" + String(battMon.level()) + "%)");
     logger.log_I("Solar cell voltage: " + String(solarCellMon.voltage()) + " mV");
-    if (battMon.level() == 0) {
-        logger.log_E("Error! Battery depleted! Sleeping...");
-        sleep(timeClass, logger);
-    }
+    // if (battMon.level() == 0) {
+    //     logger.log_E("Error! Battery depleted! Sleeping...");
+    //     sleep(timeClass, logger);
+    // }
 
 #ifdef USE_DISPLAY
     if (display.status() != Display::READY) logger.log_E("Error! Display is not ready! Status: " + String(display.status()));

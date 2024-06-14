@@ -41,8 +41,8 @@ const uint8_t PIN_VOLT_SC = 35;
 const uint8_t PIN_VOLT_BAT = 32;
 
 const uint8_t PIN_LORA_NSS = 5;
-const uint8_t PIN_LORA_DIO0 = 17;
-const uint8_t PIN_LORA_RST = 16;
+const uint8_t PIN_LORA_DIO0 = 12;
+const uint8_t PIN_LORA_RST = 14;
 
 #ifdef USE_GSM
 const uint8_t PIN_GSM_RX = 2;
