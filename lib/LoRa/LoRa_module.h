@@ -5,38 +5,41 @@
 #include <SPI.h>
 #include "LoRa.h"
 
+#include "soil_data.h"
 
 
 class LoRaModule : public LoRaClass {
+protected:
+    enum LoRaParams {
+        FREQ = 433000000,
+    };
+
+
 public:
     // class status codes
     enum Status {
         READY,
+        NO_LORA,
         UNKNOWN_ERROR,
     };
 
     // operation status codes
     enum OpStatus {
         SUCCESS,
+        STATUS_NO_LORA,
         STATUS_ERROR,
+        TIMEOUT,
+        NO_PACKET,
+        FAIL,
     };
 
 
-private:
-    enum LoRaParams {
-        // MAX_COUNT = 10000,
-        // JSON_ENTRY_SIZE = 512,
-    };
-
-
-// CLASS ATTRIBUTES AND METHODS
-private:    
+protected:
     Status m_status = UNKNOWN_ERROR;
 
 
 public:
-    LoRaModule();
-    virtual ~LoRaModule() noexcept = default;
+    LoRaModule(uint8_t pinCS, uint8_t pinRST, uint8_t pinIRQ);
     Status status();
 
 
@@ -45,70 +48,16 @@ public:
 
 class LoRaReceiver : public LoRaModule {
 public:
-    // class status codes
-    enum Status {
-        READY,
-        UNKNOWN_ERROR,
-    };
-
-    // operation status codes
-    enum OpStatus {
-        SUCCESS,
-        STATUS_ERROR,
-    };
-
-
-private:
-    enum LoRaParams {
-        // MAX_COUNT = 10000,
-        // JSON_ENTRY_SIZE = 512,
-    };
-
-
-// CLASS ATTRIBUTES AND METHODS
-private:
-    Status m_status = UNKNOWN_ERROR;
-
-
-public:
-    LoRaReceiver();
-    virtual ~LoRaReceiver() noexcept = default;
-    Status status();
-
+    LoRaReceiver(uint8_t pinCS, uint8_t pinRST, uint8_t pinIRQ);
+    OpStatus receiveData(int packetSize);
 
 };
 
 
 class LoRaTransmitter : public LoRaModule {
 public:
-    // class status codes
-    enum Status {
-        READY,
-        UNKNOWN_ERROR,
-    };
-
-    // operation status codes
-    enum OpStatus {
-        SUCCESS,
-        STATUS_ERROR,
-    };
-
-
-private:
-    enum LoRaParams {
-        // MAX_COUNT = 10000,
-        // JSON_ENTRY_SIZE = 512,
-    };
-
-
-private:
-    Status m_status = UNKNOWN_ERROR;
-
-
-public:
-    LoRaTransmitter();
-    virtual ~LoRaTransmitter() noexcept = default;
-    Status status();
+    LoRaTransmitter(uint8_t pinCS, uint8_t pinRST, uint8_t pinIRQ);
+    OpStatus transmitData(SoilReading& soilReading);
 
 
 };
