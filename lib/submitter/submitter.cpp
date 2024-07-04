@@ -159,7 +159,7 @@ Submitter::OpStatus SubmitterWiFi::get_current_time(RtcDateTime& time) {
 
     for(int attempts = 0; !timeClient.update(); attempts++) {
         Serial.println("Cannot update time from network!");
-        if (attempts >= MAX_REATTEMPT) {
+        if (attempts >= TIME_MAX_REATTEMPT) {
             time = RtcDateTime();
             return STATUS_NO_TIME;
         }
@@ -208,6 +208,7 @@ SubmitterGSM::SubmitterGSM(int rx, int tx, int HWSerialNum)
     }
 
     if (!m_modem.isGprsConnected()) {
+        Serial.println("Fatal Error! GPRS not Connected!");
         m_status = NO_CONNECTION;
         return;
     }

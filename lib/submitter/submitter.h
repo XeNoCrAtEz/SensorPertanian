@@ -36,13 +36,16 @@ public:
 protected:
     enum SubmitterParams {
         MAX_REATTEMPT = 10,
+        TIME_MAX_REATTEMPT = 1,
         REATTEMPT_DELAY = 1000,   // ms
     };
     
 
-    const char SERVERNAME[16] = "tsth2.del.ac.id";
+    // const char SERVERNAME[16] = "tsth2.del.ac.id";
+    const char SERVERNAME[23] = "monitoring.taripar.com";
     const uint16_t PORT = 443;
-    const char SUBMIT_RESOURCE[25] = "/Sensor/store_Sensor.php";
+    // const char SUBMIT_RESOURCE[25] = "/Sensor/store_Sensor.php";
+    const char SUBMIT_RESOURCE[25] = "/kirimdata.php";
 
     Status m_status = UNKNOWN_ERROR;
     bool m_timeAvailable = false;
@@ -93,7 +96,8 @@ private:
         BAUDRATE = 115200,
     };
 
-    const char APN[14] = "m2minternet"; // APN Telkomsel IoT
+    const char APN[14] = "internet"; // APN Telkomsel mobile
+    // const char APN[14] = "m2minternet"; // APN Telkomsel IoT
     const char GPRS_USER[1] = "";
     const char GPRS_PASS[1] = "";
 
