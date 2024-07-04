@@ -12,7 +12,7 @@
 #include "voltageMonitor.h"
 #include "switch.h"
 #include "SPI.h"
-#include "LoRa.h"
+#include "LoRa_module.h"
 
 #include "pin_assignment.h"
 

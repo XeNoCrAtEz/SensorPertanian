@@ -97,6 +97,32 @@ void setup() {
     timeClass.get_date_time(now);
     SoilReading currentReading = SoilReading(soilData, now.TotalSeconds());
 
+//#ifdef NODE
+//    LoRaTransmitter lora(PIN_LORA_NSS, PIN_LORA_RST, PIN_LORA_DIO0);
+//#else
+//    LoRaReceiver lora(PIN_LORA_NSS, PIN_LORA_RST, PIN_LORA_DIO0);
+//#endif
+//
+//    if (lora.status() != LoRaModule::READY) logger.log_E("Error! LoRa not ready! Status: " + String(lora.status()));
+//    else logger.log_I("LoRa is initialized and ready!");
+//
+//#ifdef NODE
+//    while(true)
+//    {
+//        lora.transmitData(currentReading);
+//        delay(5000);
+//        Serial.println("Looping...");
+//    }
+//    
+//#else
+//     
+//    while(true) {
+//        lora.receiveData(0);
+//        // delay(5000);
+//        Serial.println("Looping...");
+//    }
+//#endif
+
     if (dataTable.is_empty()) {
         logger.log_I("Table is empty. Sending current sample");
         int responseCode = -1;
