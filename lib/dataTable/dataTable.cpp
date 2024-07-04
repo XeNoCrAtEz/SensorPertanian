@@ -24,7 +24,7 @@ SoilDataTable::Status SoilDataTable::status() {
 
 
 SoilDataTable::OpStatus SoilDataTable::push(const SoilReading &soilReading) {
-    if (!status()) return STATUS_ERROR;
+    if (m_status != READY) return STATUS_ERROR;
 
     File file = m_filesystem.open(m_filename, FILE_APPEND);
     if (!file) return OPEN_FAILED;
@@ -36,7 +36,7 @@ SoilDataTable::OpStatus SoilDataTable::push(const SoilReading &soilReading) {
 
 
 SoilDataTable::OpStatus SoilDataTable::pop(SoilReading& soilReading) {
-    if (status() != READY) return STATUS_ERROR;
+    if (m_status != READY) return STATUS_ERROR;
 
     File file = m_filesystem.open(m_filename, FILE_READ);
     if (!file) return OPEN_FAILED;
@@ -52,7 +52,7 @@ SoilDataTable::OpStatus SoilDataTable::pop(SoilReading& soilReading) {
 
 
 SoilDataTable::OpStatus SoilDataTable::load_all(SoilReading* &soilReadings, uint16_t& count) {
-    if (status() != READY) return STATUS_ERROR;
+    if (m_status != READY) return STATUS_ERROR;
     
     File file = m_filesystem.open(m_filename, FILE_READ);
     if (!file) return OPEN_FAILED;
@@ -70,7 +70,7 @@ SoilDataTable::OpStatus SoilDataTable::load_all(SoilReading* &soilReadings, uint
 
 
 SoilDataTable::OpStatus SoilDataTable::pop_all(SoilReading* &soilReadings, uint16_t& count) {
-    if (status() != READY) return STATUS_ERROR;
+    if (m_status != READY) return STATUS_ERROR;
     
     File file = m_filesystem.open(m_filename, FILE_READ);
     if (!file) return OPEN_FAILED;
@@ -90,7 +90,7 @@ SoilDataTable::OpStatus SoilDataTable::pop_all(SoilReading* &soilReadings, uint1
 
 
 uint32_t SoilDataTable::get_count() {
-    if (status() != READY) return STATUS_ERROR;
+    if (m_status != READY) return STATUS_ERROR;
 
     File file = m_filesystem.open(m_filename, FILE_READ);
     if (!file) return 0;
@@ -100,7 +100,7 @@ uint32_t SoilDataTable::get_count() {
 
 
 SoilDataTable::OpStatus SoilDataTable::clear() {
-    if (status() != READY) return STATUS_ERROR;
+    if (m_status != READY) return STATUS_ERROR;
     
     File file = m_filesystem.open(m_filename, FILE_WRITE);
     if (!file) return OPEN_FAILED;
@@ -110,7 +110,7 @@ SoilDataTable::OpStatus SoilDataTable::clear() {
 
 
 bool SoilDataTable::is_empty() {
-    if (status() != READY) return STATUS_ERROR;
+    if (m_status != READY) return STATUS_ERROR;
 
     File file = m_filesystem.open(m_filename, FILE_READ);
     if (!file) return false;
@@ -122,7 +122,7 @@ bool SoilDataTable::is_empty() {
 
 
 bool SoilDataTable::is_full() {
-    if (status() != READY) return STATUS_ERROR;
+    if (m_status != READY) return STATUS_ERROR;
     
     File file = m_filesystem.open(m_filename, FILE_READ);
     if (!file) return false;
