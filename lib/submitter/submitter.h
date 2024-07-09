@@ -36,16 +36,16 @@ public:
 protected:
     enum SubmitterParams {
         MAX_REATTEMPT = 10,
-        TIME_MAX_REATTEMPT = 1,
+        TIME_MAX_REATTEMPT = 3,
         REATTEMPT_DELAY = 1000,   // ms
     };
     
 
-    // const char SERVERNAME[16] = "tsth2.del.ac.id";
-    const char SERVERNAME[23] = "monitoring.taripar.com";
+    const char SERVERNAME[16] = "tsth2.del.ac.id";
+    // const char SERVERNAME[23] = "monitoring.taripar.com";
     const uint16_t PORT = 443;
-    // const char SUBMIT_RESOURCE[25] = "/Sensor/store_Sensor.php";
-    const char SUBMIT_RESOURCE[25] = "/kirimdata.php";
+    const char SUBMIT_RESOURCE[25] = "/Sensor/store_Sensor.php";
+    // const char SUBMIT_RESOURCE[25] = "/kirimdata.php";
 
     Status m_status = UNKNOWN_ERROR;
     bool m_timeAvailable = false;
