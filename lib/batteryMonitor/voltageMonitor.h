@@ -6,7 +6,7 @@
 #include "SimpleKalmanFilter.h"
 
 
-const uint16_t ESP32_REF_VOLTAGE = 3300;
+const uint16_t ESP32_REF_VOLTAGE = 2450;
 
 const uint16_t MIN_VOLT_LIPO = 3000;
 const uint16_t MAX_VOLT_LIPO = 4200;
